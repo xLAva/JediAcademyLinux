@@ -4,7 +4,7 @@
 	<File name="../Ragl/graph_region.h" open="0" top="0" tabpos="13">
 		<Cursor position="1900" topLine="44" />
 	</File>
-	<File name="../Ragl/graph_triangulate.h" open="1" top="0" tabpos="47">
+	<File name="../Ragl/graph_triangulate.h" open="0" top="0" tabpos="47">
 		<Cursor position="18416" topLine="594" />
 	</File>
 	<File name="../Ragl/graph_vs.h" open="0" top="0" tabpos="10">
@@ -43,8 +43,8 @@
 	<File name="../Rufl/hstring.cpp" open="0" top="0" tabpos="11">
 		<Cursor position="4899" topLine="154" />
 	</File>
-	<File name="../cgame/FxPrimitives.cpp" open="0" top="0" tabpos="0">
-		<Cursor position="5686" topLine="254" />
+	<File name="../cgame/FxPrimitives.cpp" open="1" top="1" tabpos="9">
+		<Cursor position="49237" topLine="2068" />
 	</File>
 	<File name="../cgame/FxScheduler.cpp" open="0" top="0" tabpos="0">
 		<Cursor position="34540" topLine="1283" />
@@ -58,20 +58,23 @@
 	<File name="../cgame/FxSystem.h" open="0" top="0" tabpos="0">
 		<Cursor position="1436" topLine="52" />
 	</File>
+	<File name="../cgame/animtable.h" open="1" top="0" tabpos="3">
+		<Cursor position="7460" topLine="132" />
+	</File>
 	<File name="../cgame/cg_camera.cpp" open="0" top="0" tabpos="31">
 		<Cursor position="33784" topLine="1328" />
 	</File>
 	<File name="../cgame/cg_camera.h" open="0" top="0" tabpos="30">
 		<Cursor position="3306" topLine="37" />
 	</File>
-	<File name="../cgame/cg_draw.cpp" open="0" top="0" tabpos="0">
-		<Cursor position="319" topLine="0" />
+	<File name="../cgame/cg_draw.cpp" open="1" top="0" tabpos="5">
+		<Cursor position="5259" topLine="217" />
 	</File>
-	<File name="../cgame/cg_effects.cpp" open="0" top="0" tabpos="0">
-		<Cursor position="14288" topLine="548" />
+	<File name="../cgame/cg_effects.cpp" open="1" top="0" tabpos="8">
+		<Cursor position="6756" topLine="236" />
 	</File>
-	<File name="../cgame/cg_ents.cpp" open="0" top="0" tabpos="0">
-		<Cursor position="378" topLine="0" />
+	<File name="../cgame/cg_ents.cpp" open="1" top="0" tabpos="6">
+		<Cursor position="16460" topLine="538" />
 	</File>
 	<File name="../cgame/cg_event.cpp" open="0" top="0" tabpos="0">
 		<Cursor position="255" topLine="0" />
@@ -86,10 +89,10 @@
 		<Cursor position="6328" topLine="235" />
 	</File>
 	<File name="../cgame/cg_main.cpp" open="0" top="0" tabpos="16">
-		<Cursor position="74520" topLine="2563" />
+		<Cursor position="2476" topLine="79" />
 	</File>
-	<File name="../cgame/cg_players.cpp" open="0" top="0" tabpos="2">
-		<Cursor position="155337" topLine="5068" />
+	<File name="../cgame/cg_players.cpp" open="1" top="0" tabpos="7">
+		<Cursor position="176484" topLine="5781" />
 	</File>
 	<File name="../cgame/cg_predict.cpp" open="0" top="0" tabpos="4">
 		<Cursor position="342" topLine="0" />
@@ -97,13 +100,16 @@
 	<File name="../cgame/cg_scoreboard.cpp" open="0" top="0" tabpos="5">
 		<Cursor position="178" topLine="0" />
 	</File>
+	<File name="../cgame/cg_syscalls.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="18062" topLine="608" />
+	</File>
 	<File name="../cgame/cg_view.cpp" open="0" top="0" tabpos="6">
 		<Cursor position="42248" topLine="1388" />
 	</File>
 	<File name="../cgame/cg_weapons.cpp" open="0" top="0" tabpos="7">
 		<Cursor position="277" topLine="0" />
 	</File>
-	<File name="../client/fffx.h" open="1" top="0" tabpos="44">
+	<File name="../client/fffx.h" open="0" top="0" tabpos="44">
 		<Cursor position="3587" topLine="87" />
 	</File>
 	<File name="AI_Animal.cpp" open="0" top="0" tabpos="9">
@@ -115,7 +121,7 @@
 	<File name="AI_Atst.cpp" open="0" top="0" tabpos="18">
 		<Cursor position="3728" topLine="0" />
 	</File>
-	<File name="AI_BobaFett.cpp" open="1" top="0" tabpos="48">
+	<File name="AI_BobaFett.cpp" open="0" top="0" tabpos="48">
 		<Cursor position="29866" topLine="967" />
 	</File>
 	<File name="AI_Civilian.cpp" open="0" top="0" tabpos="23">
@@ -145,8 +151,8 @@
 	<File name="AI_Interrogator.cpp" open="0" top="0" tabpos="33">
 		<Cursor position="5848" topLine="233" />
 	</File>
-	<File name="AI_Jedi.cpp" open="0" top="0" tabpos="34">
-		<Cursor position="279" topLine="0" />
+	<File name="AI_Jedi.cpp" open="1" top="0" tabpos="4">
+		<Cursor position="38215" topLine="1183" />
 	</File>
 	<File name="AI_Mark1.cpp" open="0" top="0" tabpos="35">
 		<Cursor position="202" topLine="0" />
@@ -199,6 +205,9 @@
 	<File name="NPC_utils.cpp" open="0" top="0" tabpos="0">
 		<Cursor position="10864" topLine="446" />
 	</File>
+	<File name="Q3_Interface.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="257104" topLine="11215" />
+	</File>
 	<File name="Q3_Interface.h" open="0" top="0" tabpos="22">
 		<Cursor position="65" topLine="0" />
 	</File>
@@ -208,7 +217,7 @@
 	<File name="b_public.h" open="0" top="0" tabpos="0">
 		<Cursor position="67" topLine="0" />
 	</File>
-	<File name="bg_public.h" open="1" top="0" tabpos="2">
+	<File name="bg_public.h" open="0" top="0" tabpos="2">
 		<Cursor position="0" topLine="0" />
 	</File>
 	<File name="g_breakable.cpp" open="0" top="0" tabpos="0">
@@ -233,7 +242,7 @@
 		<Cursor position="1541" topLine="22" />
 	</File>
 	<File name="g_main.cpp" open="0" top="0" tabpos="15">
-		<Cursor position="25021" topLine="860" />
+		<Cursor position="26260" topLine="892" />
 	</File>
 	<File name="g_misc.cpp" open="0" top="0" tabpos="0">
 		<Cursor position="85786" topLine="2941" />
@@ -250,8 +259,8 @@
 	<File name="g_nav.h" open="0" top="0" tabpos="0">
 		<Cursor position="735" topLine="0" />
 	</File>
-	<File name="g_navigator.cpp" open="0" top="0" tabpos="4">
-		<Cursor position="39425" topLine="1371" />
+	<File name="g_navigator.cpp" open="1" top="0" tabpos="2">
+		<Cursor position="39394" topLine="1374" />
 	</File>
 	<File name="g_navigator.h" open="0" top="0" tabpos="13">
 		<Cursor position="6682" topLine="147" />
@@ -277,11 +286,14 @@
 	<File name="hitlocs.h" open="0" top="0" tabpos="16">
 		<Cursor position="377" topLine="5" />
 	</File>
+	<File name="q_math.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="25107" topLine="953" />
+	</File>
 	<File name="q_shared.cpp" open="0" top="0" tabpos="2">
 		<Cursor position="561" topLine="5" />
 	</File>
-	<File name="q_shared.h" open="1" top="0" tabpos="3">
-		<Cursor position="1880" topLine="16" />
+	<File name="q_shared.h" open="1" top="0" tabpos="1">
+		<Cursor position="22386" topLine="976" />
 	</File>
 	<File name="surfaceflags.h" open="0" top="0" tabpos="0">
 		<Cursor position="394" topLine="0" />
@@ -313,13 +325,13 @@
 	<File name="../qcommon/sstring.h" open="0" top="0" tabpos="0">
 		<Cursor position="0" topLine="36" />
 	</File>
-	<File name="../qcommon/timing.h" open="1" top="0" tabpos="1">
+	<File name="../qcommon/timing.h" open="0" top="0" tabpos="1">
 		<Cursor position="0" topLine="0" />
 	</File>
 	<File name="../qcommon/tri_coll_test.cpp" open="0" top="0" tabpos="9">
 		<Cursor position="539" topLine="0" />
 	</File>
-	<File name="../renderer/mdx_format.h" open="1" top="0" tabpos="4">
+	<File name="../renderer/mdx_format.h" open="0" top="0" tabpos="4">
 		<Cursor position="9518" topLine="286" />
 	</File>
 	<File name="../renderer/tr_types.h" open="0" top="0" tabpos="0">

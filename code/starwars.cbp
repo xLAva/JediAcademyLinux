@@ -8,11 +8,13 @@
 		<Build>
 			<Target title="Release Linux">
 				<Option output="./Release/jasp" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="./Release/" />
 				<Option object_output="Release/exe" />
-				<Option type="0" />
+				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
 				<Compiler>
-					<Add option="-Wall" />
+					<Add option="-g" />
 					<Add option="-Wno-write-strings" />
 					<Add option="-Wno-conversion-null" />
 					<Add option="-Wno-pointer-arith" />
@@ -48,6 +50,7 @@
 					<Add library="Xrandr" />
 					<Add library="rt" />
 					<Add library="pthread" />
+					<Add library="z" />
 				</Linker>
 			</Target>
 			<Target title="Debug Win32">
