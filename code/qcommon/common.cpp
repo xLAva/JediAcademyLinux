@@ -142,7 +142,9 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 	Sys_Print( msg );
 
 #ifdef OUTPUT_TO_BUILD_WINDOW
+#ifndef LINUX
 	OutputDebugString(msg);
+#endif
 #endif
 
 #ifndef _XBOX

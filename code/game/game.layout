@@ -4,6 +4,9 @@
 	<File name="../Ragl/graph_region.h" open="0" top="0" tabpos="13">
 		<Cursor position="1900" topLine="44" />
 	</File>
+	<File name="../Ragl/graph_triangulate.h" open="1" top="0" tabpos="47">
+		<Cursor position="18416" topLine="594" />
+	</File>
 	<File name="../Ragl/graph_vs.h" open="0" top="0" tabpos="10">
 		<Cursor position="10154" topLine="295" />
 	</File>
@@ -91,9 +94,6 @@
 	<File name="../cgame/cg_predict.cpp" open="0" top="0" tabpos="4">
 		<Cursor position="342" topLine="0" />
 	</File>
-	<File name="../cgame/cg_public.h" open="1" top="0" tabpos="0">
-		<Cursor position="0" topLine="0" />
-	</File>
 	<File name="../cgame/cg_scoreboard.cpp" open="0" top="0" tabpos="5">
 		<Cursor position="178" topLine="0" />
 	</File>
@@ -102,6 +102,9 @@
 	</File>
 	<File name="../cgame/cg_weapons.cpp" open="0" top="0" tabpos="7">
 		<Cursor position="277" topLine="0" />
+	</File>
+	<File name="../client/fffx.h" open="1" top="0" tabpos="44">
+		<Cursor position="3587" topLine="87" />
 	</File>
 	<File name="AI_Animal.cpp" open="0" top="0" tabpos="9">
 		<Cursor position="159" topLine="0" />
@@ -112,8 +115,8 @@
 	<File name="AI_Atst.cpp" open="0" top="0" tabpos="18">
 		<Cursor position="3728" topLine="0" />
 	</File>
-	<File name="AI_BobaFett.cpp" open="0" top="0" tabpos="20">
-		<Cursor position="30750" topLine="156" />
+	<File name="AI_BobaFett.cpp" open="1" top="0" tabpos="48">
+		<Cursor position="29866" topLine="967" />
 	</File>
 	<File name="AI_Civilian.cpp" open="0" top="0" tabpos="23">
 		<Cursor position="152" topLine="0" />
@@ -205,7 +208,7 @@
 	<File name="b_public.h" open="0" top="0" tabpos="0">
 		<Cursor position="67" topLine="0" />
 	</File>
-	<File name="bg_public.h" open="1" top="0" tabpos="1">
+	<File name="bg_public.h" open="1" top="0" tabpos="2">
 		<Cursor position="0" topLine="0" />
 	</File>
 	<File name="g_breakable.cpp" open="0" top="0" tabpos="0">
@@ -277,8 +280,8 @@
 	<File name="q_shared.cpp" open="0" top="0" tabpos="2">
 		<Cursor position="561" topLine="5" />
 	</File>
-	<File name="q_shared.h" open="1" top="0" tabpos="2">
-		<Cursor position="4421" topLine="149" />
+	<File name="q_shared.h" open="1" top="0" tabpos="3">
+		<Cursor position="1880" topLine="16" />
 	</File>
 	<File name="surfaceflags.h" open="0" top="0" tabpos="0">
 		<Cursor position="394" topLine="0" />
@@ -310,8 +313,14 @@
 	<File name="../qcommon/sstring.h" open="0" top="0" tabpos="0">
 		<Cursor position="0" topLine="36" />
 	</File>
+	<File name="../qcommon/timing.h" open="1" top="0" tabpos="1">
+		<Cursor position="0" topLine="0" />
+	</File>
 	<File name="../qcommon/tri_coll_test.cpp" open="0" top="0" tabpos="9">
 		<Cursor position="539" topLine="0" />
+	</File>
+	<File name="../renderer/mdx_format.h" open="1" top="0" tabpos="4">
+		<Cursor position="9518" topLine="286" />
 	</File>
 	<File name="../renderer/tr_types.h" open="0" top="0" tabpos="0">
 		<Cursor position="61" topLine="0" />

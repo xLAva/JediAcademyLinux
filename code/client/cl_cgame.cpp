@@ -629,16 +629,16 @@ int CL_CgameSystemCalls( int *args ) {
 		return 0;
 #else
 	case CG_FF_STARTFX:
-		FFFX_START( (ffFX_e) args[1] );
+		//FFFX_START( (ffFX_e) args[1] );
 		return 0;
 	case CG_FF_ENSUREFX:
-		FFFX_ENSURE( (ffFX_e) args[1] );
+		//FFFX_ENSURE( (ffFX_e) args[1] );
 		return 0;
 	case CG_FF_STOPFX:
-		FFFX_STOP( (ffFX_e) args[1] );
+		//FFFX_STOP( (ffFX_e) args[1] );
 		return 0;
 	case CG_FF_STOPALLFX:
-		FFFX_STOPALL;
+		//FFFX_STOPALL;
 		return 0;
 #endif // _IMMERSION
 #ifdef _XBOX

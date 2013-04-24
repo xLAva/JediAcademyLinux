@@ -78,7 +78,7 @@ void		Menus_ShowItems(const char *menuName);
 qboolean	ParseRect(const char **p, rectDef_t *r);
 const char	*String_Alloc(const char *p);
 void		ToWindowCoords(float *x, float *y, windowDef_t *window);
-void		Window_Paint(Window *w, float fadeAmount, float fadeClamp, float fadeCycle);
+void		Window_Paint(WindowLava *w, float fadeAmount, float fadeClamp, float fadeCycle);
 int			Item_ListBox_ThumbDrawPosition(itemDef_t *item);
 int			Item_ListBox_ThumbPosition(itemDef_t *item);
 int			Item_ListBox_MaxScroll(itemDef_t *item);
@@ -220,7 +220,7 @@ Initializes a window structure ( windowDef_t ) with defaults
  
 ==================
 */
-void Window_Init(Window *w) 
+void Window_Init(WindowLava *w) 
 {
 	memset(w, 0, sizeof(windowDef_t));
 	w->borderSize = 1;
@@ -8443,7 +8443,7 @@ void GradientBar_Paint(rectDef_t *rect, vec4_t color)
 Window_Paint
 =================
 */
-void Window_Paint(Window *w, float fadeAmount, float fadeClamp, float fadeCycle) 
+void Window_Paint(WindowLava *w, float fadeAmount, float fadeClamp, float fadeCycle) 
 {
   //float bordersize = 0;
   vec4_t color;

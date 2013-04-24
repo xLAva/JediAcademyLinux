@@ -8,6 +8,11 @@
 
 #include "../qcommon/stringed_ingame.h"
 
+#ifdef LINUX
+#include <string>
+#include <limits.h>
+#endif
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // This file is shared in the single and multiplayer codebases, so be CAREFUL WHAT YOU ADD/CHANGE!!!!!

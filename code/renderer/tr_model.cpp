@@ -5,7 +5,7 @@
 #include "../server/exe_headers.h"
 
 #include "tr_local.h"
-#include "MatComp.h"
+#include "matcomp.h"
 #include "../qcommon/sstring.h"
 
 #define	LL(x) x=LittleLong(x)
@@ -278,7 +278,11 @@ qboolean RE_RegisterModels_LevelLoadEnd(qboolean bDeleteEverythingNotUsedThisLev
 					bAtLeastoneModelFreed = qtrue;
 				}
 
-				itModel = CachedModels->erase(itModel);
+        //LAvaPort - might not work - not tested
+        CachedModels_t::iterator itModelErase = itModel;
+        itModel++;
+        
+				CachedModels->erase(itModelErase);
 				bEraseOccured = qtrue;
 
 				iLoadedModelBytes = GetModelDataAllocSize();				
@@ -328,7 +332,10 @@ static void RE_RegisterModels_DeleteAll(void)
 			Z_Free(CachedModel.pModelDiskImage);					
 		}
 
-		itModel = CachedModels->erase(itModel);			
+    //LAvaPort - might not work - not tested
+    CachedModels_t::iterator itModelErase = itModel;
+    itModel++;
+		CachedModels->erase(itModelErase);		
 	}
 
 	extern void RE_AnimationCFGs_DeleteAll(void);

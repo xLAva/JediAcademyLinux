@@ -108,10 +108,12 @@ qboolean	FF_SetSpring(long lSpring);		// precision version of above, 0..n..10000
 
 // do *not* call this functions directly (or else!), use the macros above
 //
+#ifndef LINUX
 void FF_Play			(ffFX_e fffx);
 void FF_EnsurePlaying	(ffFX_e fffx);
 void FF_Stop			(ffFX_e fffx);
 void FF_StopAll			(void);
+#endif
 
 #ifdef _XBOX
 void FF_XboxShake		(float intensity, int duration);

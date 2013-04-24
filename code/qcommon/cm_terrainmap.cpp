@@ -10,6 +10,7 @@
 #include "cm_draw.h"
 #include "../png/png.h"
 
+
 static CTerrainMap	*TerrainMap = 0;
 
 void R_CreateAutomapImage( const char *name, const byte *pic, int width, int height, 

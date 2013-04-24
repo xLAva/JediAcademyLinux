@@ -35,7 +35,9 @@
 #endif
 
 #ifndef FINAL_BUILD
+#ifndef LINUX
 #define G2_PERFORMANCE_ANALYSIS
+#endif
 #endif
 
 #include <assert.h>

@@ -31,6 +31,7 @@
 					<Add option="-D_IMMERSION_DISABLED" />
 					<Add option="-D_FF_DISABLED" />
 					<Add option="-DEAX_DISABLED" />
+					<Add option="-D_M_IX86" />
 					<Add directory="ff/ifc" />
 				</Compiler>
 				<ResourceCompiler>
@@ -38,6 +39,15 @@
 				</ResourceCompiler>
 				<Linker>
 					<Add option="-m32" />
+					<Add library="dl" />
+					<Add library="libopenal" />
+					<Add library="GL" />
+					<Add library="X11" />
+					<Add library="libXxf86vm" />
+					<Add library="libXxf86dga" />
+					<Add library="Xrandr" />
+					<Add library="rt" />
+					<Add library="pthread" />
 				</Linker>
 			</Target>
 			<Target title="Debug Win32">
@@ -380,28 +390,26 @@
 		<Unit filename="linux/linuxprefix.h">
 			<Option target="Release Linux" />
 		</Unit>
-		<Unit filename="mp3code/L3.h" />
 		<Unit filename="mp3code/cdct.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="mp3code/config.h" />
-		<Unit filename="mp3code/copyright.h" />
 		<Unit filename="mp3code/csbt.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="mp3code/csbtL3.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="mp3code/csbtb.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="mp3code/csbtl3.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="mp3code/cup.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="mp3code/cupL1.c">
+		<Unit filename="mp3code/cupini.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="mp3code/cupini.c">
+		<Unit filename="mp3code/cupl1.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="mp3code/cupl3.c">
@@ -421,6 +429,7 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="mp3code/jdw.h" />
+		<Unit filename="mp3code/l3.h" />
 		<Unit filename="mp3code/l3dq.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -498,10 +507,10 @@
 		<Unit filename="qcommon/unzip.cpp" />
 		<Unit filename="qcommon/unzip.h" />
 		<Unit filename="qcommon/z_memman_pc.cpp" />
-		<Unit filename="renderer/MatComp.c">
+		<Unit filename="renderer/glext.h" />
+		<Unit filename="renderer/matcomp.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="renderer/glext.h" />
 		<Unit filename="renderer/matcomp.h" />
 		<Unit filename="renderer/mdx_format.h" />
 		<Unit filename="renderer/qgl.h" />
@@ -684,12 +693,27 @@
 			<Option target="FinalBuild Win32" />
 			<Option target="Release Win32" />
 		</Unit>
-		<Unit filename="zlib32/deflate.cpp" />
+		<Unit filename="zlib32/deflate.cpp">
+			<Option target="Debug Win32" />
+			<Option target="SHDebug Win32" />
+			<Option target="FinalBuild Win32" />
+			<Option target="Release Win32" />
+		</Unit>
 		<Unit filename="zlib32/deflate.h" />
-		<Unit filename="zlib32/inflate.cpp" />
+		<Unit filename="zlib32/inflate.cpp">
+			<Option target="Debug Win32" />
+			<Option target="SHDebug Win32" />
+			<Option target="FinalBuild Win32" />
+			<Option target="Release Win32" />
+		</Unit>
 		<Unit filename="zlib32/inflate.h" />
 		<Unit filename="zlib32/zip.h" />
-		<Unit filename="zlib32/zipcommon.cpp" />
+		<Unit filename="zlib32/zipcommon.cpp">
+			<Option target="Debug Win32" />
+			<Option target="SHDebug Win32" />
+			<Option target="FinalBuild Win32" />
+			<Option target="Release Win32" />
+		</Unit>
 		<Extensions>
 			<code_completion />
 			<debugger />

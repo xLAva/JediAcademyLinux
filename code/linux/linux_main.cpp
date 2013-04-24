@@ -26,11 +26,99 @@
 #include <semaphore.h>
 
 #include <dlfcn.h>
+#include <sys/sendfile.h>
 
 #include "../game/q_shared.h"
 #include "../qcommon/qcommon.h"
 #include "../renderer/tr_public.h"
 #include "linux_local.h"
+
+
+
+/*
+==================
+Sys_GetFileTime()
+==================
+*/
+
+
+bool Sys_GetFileTime(const char* psFileName, time_t &ft)
+{
+	bool bSuccess = false;
+
+	struct stat attrib;
+	int error = stat(psFileName, &attrib);
+	if (error != 0)
+	{
+		return false;
+	}
+	
+	ft = attrib.st_mtime;
+
+	return bSuccess;
+}
+
+
+/*
+==================
+Sys_FileOutOfDate()
+==================
+*/
+
+qboolean Sys_FileOutOfDate( const char* psFinalFileName, const char* psDataFileName  )
+{
+	time_t ftFinalFile, ftDataFile;
+
+	if (Sys_GetFileTime(psFinalFileName, ftFinalFile) && Sys_GetFileTime(psDataFileName, ftDataFile))
+	{
+		// timer res only accurate to within 2 seconds on FAT, so can't do exact compare...
+		//
+		//LONG l = CompareFileTime( &ftFinalFile, &ftDataFile );
+		
+		if (  (abs(ftFinalFile - ftDataFile) <= 2 )	)
+		{
+			return false;	// file not out of date, ie use it.
+		}
+		return true;	// flag return code to copy over a replacement version of this file
+	}
+
+
+	// extra error check, report as suspicious if you find a file locally but not out on the net.,.
+	//
+	if (com_developer->integer)
+	{
+		if (!Sys_GetFileTime(psDataFileName, ftDataFile))
+		{
+			Com_Printf( "Sys_FileOutOfDate: reading %s but it's not on the net!\n", psFinalFileName);
+		}
+	}
+
+	return false;
+}
+
+qboolean Sys_CopyFile(const char* lpExistingFileName, const char* lpNewFileName, qboolean bOverWrite)
+{
+	qboolean bOk = qtrue;
+	int read_fd;
+	int write_fd;
+	struct stat stat_buf;
+	off_t offset = 0;
+
+	/* Open the input file. */
+	read_fd = open (lpExistingFileName, O_RDONLY);
+	/* Stat the input file to obtain its size. */
+	fstat (read_fd, &stat_buf);
+	/* Open the output file for writing, with the same permissions as the
+	 source file. */
+	write_fd = open (lpNewFileName, O_WRONLY | O_CREAT, stat_buf.st_mode);
+	/* Blast the bytes from one file to the other. */
+	sendfile (write_fd, read_fd, &offset, stat_buf.st_size);
+	/* Close up. */
+	close (read_fd);
+	close (write_fd);
+
+	return bOk;
+}
 
 /*
 ==================
@@ -379,7 +467,7 @@ void *Sys_GetGameAPI (void *parms)
 	char	name[MAX_OSPATH];
 	char	cwd[MAX_OSPATH];
 #ifdef __i386__
-	const char *gamename = "jk2gamex86.so";
+	const char *gamename = "jagamex86.so";
 
 #ifdef NDEBUG
 	const char *debugdir = "Release";

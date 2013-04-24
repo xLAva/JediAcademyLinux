@@ -1,4 +1,4 @@
-
+#ifndef LINUX
 class timing_c
 {
 private:
@@ -60,3 +60,4 @@ public:
 };
 
 // end
+#endif

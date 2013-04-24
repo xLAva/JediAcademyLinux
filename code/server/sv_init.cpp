@@ -14,7 +14,7 @@ Ghoul2 Insert Start
 #endif
 
 #if !defined (MINIHEAP_H_INC)
-	#include "../qcommon/miniheap.h"
+	#include "../qcommon/MiniHeap.h"
 #endif
 
 void CM_CleanLeafCache(void);

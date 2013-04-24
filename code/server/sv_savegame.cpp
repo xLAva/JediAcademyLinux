@@ -17,9 +17,9 @@ extern byte *Compress_JPG(int *pOutputSize, int quality, int image_width, int im
 										//	(EF1 behaviour). I should maybe time/date check them though?
 
 #include "server.h"
-#include "..\game\statindex.h"
-#include "..\game\weapons.h"
-#include "..\game\g_items.h"
+#include "../game/statindex.h"
+#include "../game/weapons.h"
+#include "../game/g_items.h"
 
 #ifdef _XBOX
 #include <stdlib.h>

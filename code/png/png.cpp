@@ -5,7 +5,13 @@
 #include "../game/q_shared.h"
 #include "../qcommon/qcommon.h"
 
+
+#ifdef LINUX
+#include <zlib.h>
+#define Z_FAST_COMPRESSION_HIGH 3
+#else
 #include "../zlib32/zip.h"
+#endif
 #include "png.h"
 //#include "../qcommon/memory.h"
 
@@ -415,7 +421,7 @@ bool PNG_Unpack(const byte *data, const ulong datasize, png_image_t *image)
 //	MD_PushTag(TAG_ZIP_TEMP);
 
 	memset(&zdata, 0, sizeof(z_stream));
-	if(inflateInit(&zdata, Z_SYNC_FLUSH) != Z_OK)
+	if(inflateInit(&zdata) != Z_OK)
 	{
 		png_error = PNG_ERROR_DECOMP;
 //		MD_PopTag();
@@ -433,7 +439,7 @@ bool PNG_Unpack(const byte *data, const ulong datasize, png_image_t *image)
 		// Inflate a row of data
 		zdata.next_out = &filter;
 		zdata.avail_out = 1;
-		if(inflate(&zdata) != Z_OK)
+		if(inflate(&zdata, Z_SYNC_FLUSH) != Z_OK)
 		{
 			inflateEnd(&zdata);
 			png_error = PNG_ERROR_DECOMP;
@@ -442,7 +448,7 @@ bool PNG_Unpack(const byte *data, const ulong datasize, png_image_t *image)
 		}
 		zdata.next_out = out;
 		zdata.avail_out = rowbytes;
-		zerror = inflate(&zdata);
+		zerror = inflate(&zdata, Z_SYNC_FLUSH);
 		if((zerror != Z_OK) && (zerror != Z_STREAM_END))
 		{
 			inflateEnd(&zdata);

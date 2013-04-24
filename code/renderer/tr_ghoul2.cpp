@@ -15,7 +15,7 @@
 	#include "tr_local.h"
 #endif
 
-#include "MatComp.h"
+#include "matcomp.h"
 #if !defined(_QCOMMON_H_)
 	#include "../qcommon/qcommon.h"
 #endif
@@ -57,7 +57,7 @@ void G2Time_ReportTimers(void)
 #endif
 
 //rww - RAGDOLL_BEGIN
-#include <FLOAT.H>
+#include <float.h>
 //rww - RAGDOLL_END
 
 extern	cvar_t	*r_Ghoul2UnSqash;

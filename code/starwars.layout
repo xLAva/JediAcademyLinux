@@ -46,37 +46,37 @@
 	<File name="client/OpenAL/al.h" open="0" top="0" tabpos="0">
 		<Cursor position="2614" topLine="68" />
 	</File>
-	<File name="client/OpenAL/alc.h" open="1" top="0" tabpos="1">
+	<File name="client/OpenAL/alc.h" open="0" top="0" tabpos="1">
 		<Cursor position="1286" topLine="31" />
 	</File>
-	<File name="client/cl_cgame.cpp" open="0" top="0" tabpos="0">
-		<Cursor position="24793" topLine="881" />
+	<File name="client/cl_cgame.cpp" open="1" top="0" tabpos="40">
+		<Cursor position="17786" topLine="610" />
 	</File>
-	<File name="client/cl_cin.cpp" open="1" top="0" tabpos="3">
+	<File name="client/cl_cin.cpp" open="0" top="0" tabpos="3">
 		<Cursor position="50600" topLine="1838" />
 	</File>
-	<File name="client/cl_console.cpp" open="1" top="0" tabpos="5">
+	<File name="client/cl_console.cpp" open="0" top="0" tabpos="5">
 		<Cursor position="10717" topLine="507" />
 	</File>
-	<File name="client/cl_main.cpp" open="1" top="0" tabpos="7">
+	<File name="client/cl_main.cpp" open="0" top="0" tabpos="7">
 		<Cursor position="316" topLine="0" />
 	</File>
-	<File name="client/cl_mp3.cpp" open="1" top="0" tabpos="8">
+	<File name="client/cl_mp3.cpp" open="0" top="0" tabpos="8">
 		<Cursor position="394" topLine="0" />
 	</File>
-	<File name="client/snd_dma.cpp" open="1" top="0" tabpos="9">
+	<File name="client/snd_dma.cpp" open="0" top="0" tabpos="9">
 		<Cursor position="175631" topLine="6276" />
 	</File>
-	<File name="client/snd_local.h" open="1" top="0" tabpos="2">
+	<File name="client/snd_local.h" open="0" top="0" tabpos="2">
 		<Cursor position="2254" topLine="63" />
 	</File>
-	<File name="client/snd_mem.cpp" open="1" top="0" tabpos="10">
+	<File name="client/snd_mem.cpp" open="0" top="0" tabpos="10">
 		<Cursor position="201" topLine="0" />
 	</File>
-	<File name="client/snd_mix.cpp" open="1" top="0" tabpos="11">
+	<File name="client/snd_mix.cpp" open="0" top="0" tabpos="11">
 		<Cursor position="2658" topLine="117" />
 	</File>
-	<File name="client/snd_music.cpp" open="1" top="0" tabpos="13">
+	<File name="client/snd_music.cpp" open="0" top="0" tabpos="13">
 		<Cursor position="419" topLine="0" />
 	</File>
 	<File name="game/bg_public.h" open="0" top="0" tabpos="0">
@@ -85,70 +85,187 @@
 	<File name="game/q_shared.h" open="0" top="0" tabpos="0">
 		<Cursor position="28650" topLine="1219" />
 	</File>
-	<File name="ghoul2/G2_API.cpp" open="1" top="0" tabpos="17">
+	<File name="ghoul2/G2_API.cpp" open="0" top="0" tabpos="17">
 		<Cursor position="539" topLine="5" />
 	</File>
-	<File name="ghoul2/G2_bones.cpp" open="1" top="0" tabpos="19">
+	<File name="ghoul2/G2_bones.cpp" open="0" top="0" tabpos="19">
 		<Cursor position="44967" topLine="1561" />
 	</File>
-	<File name="ghoul2/G2_misc.cpp" open="1" top="0" tabpos="20">
+	<File name="ghoul2/G2_misc.cpp" open="0" top="0" tabpos="20">
 		<Cursor position="510" topLine="7" />
 	</File>
-	<File name="jpeg-6/jccolor.cpp" open="1" top="0" tabpos="21">
+	<File name="jpeg-6/jccolor.cpp" open="0" top="0" tabpos="21">
 		<Cursor position="398" topLine="12" />
 	</File>
-	<File name="jpeg-6/jinclude.h" open="1" top="0" tabpos="22">
+	<File name="jpeg-6/jinclude.h" open="0" top="0" tabpos="22">
 		<Cursor position="4521" topLine="78" />
 	</File>
 	<File name="linux/linux_glimp.cpp" open="0" top="0" tabpos="0">
 		<Cursor position="51686" topLine="1740" />
 	</File>
-	<File name="linux/linux_qgl.cpp" open="1" top="1" tabpos="23">
-		<Cursor position="112383" topLine="3009" />
+	<File name="linux/linux_glw.h" open="1" top="0" tabpos="3">
+		<Cursor position="183" topLine="0" />
 	</File>
-	<File name="linux/linux_snddma.cpp" open="1" top="0" tabpos="12">
+	<File name="linux/linux_qgl.cpp" open="1" top="0" tabpos="1">
+		<Cursor position="153368" topLine="3522" />
+	</File>
+	<File name="linux/linux_snddma.cpp" open="0" top="0" tabpos="12">
 		<Cursor position="0" topLine="0" />
 	</File>
-	<File name="qcommon/MiniHeap.h" open="1" top="0" tabpos="18">
+	<File name="mp3code/csbt.c" open="1" top="0" tabpos="6">
+		<Cursor position="10271" topLine="313" />
+	</File>
+	<File name="mp3code/cup.c" open="1" top="0" tabpos="7">
+		<Cursor position="19539" topLine="504" />
+	</File>
+	<File name="mp3code/cupl3.c" open="1" top="0" tabpos="8">
+		<Cursor position="1809" topLine="35" />
+	</File>
+	<File name="mp3code/l3dq.c" open="1" top="0" tabpos="9">
+		<Cursor position="1409" topLine="19" />
+	</File>
+	<File name="mp3code/l3init.c" open="1" top="0" tabpos="10">
+		<Cursor position="1322" topLine="15" />
+	</File>
+	<File name="mp3code/mp3struct.h" open="1" top="0" tabpos="4">
+		<Cursor position="301" topLine="0" />
+	</File>
+	<File name="mp3code/msis.c" open="1" top="0" tabpos="11">
+		<Cursor position="1674" topLine="26" />
+	</File>
+	<File name="mp3code/small_header.h" open="1" top="0" tabpos="5">
+		<Cursor position="617" topLine="0" />
+	</File>
+	<File name="mp3code/uph.c" open="1" top="0" tabpos="12">
+		<Cursor position="1328" topLine="17" />
+	</File>
+	<File name="mp3code/upsf.c" open="1" top="0" tabpos="13">
+		<Cursor position="1337" topLine="18" />
+	</File>
+	<File name="qcommon/MiniHeap.h" open="0" top="0" tabpos="18">
 		<Cursor position="0" topLine="25" />
 	</File>
-	<File name="qcommon/qcommon.h" open="1" top="0" tabpos="15">
+	<File name="qcommon/cm_draw.cpp" open="1" top="1" tabpos="15">
+		<Cursor position="320" topLine="0" />
+	</File>
+	<File name="qcommon/cm_draw.h" open="1" top="0" tabpos="14">
+		<Cursor position="357" topLine="0" />
+	</File>
+	<File name="qcommon/cm_terrainmap.cpp" open="1" top="0" tabpos="16">
+		<Cursor position="7680" topLine="302" />
+	</File>
+	<File name="qcommon/common.cpp" open="1" top="0" tabpos="17">
+		<Cursor position="3035" topLine="123" />
+	</File>
+	<File name="qcommon/files_pc.cpp" open="1" top="0" tabpos="18">
+		<Cursor position="19407" topLine="752" />
+	</File>
+	<File name="qcommon/qcommon.h" open="0" top="0" tabpos="15">
 		<Cursor position="153" topLine="0" />
 	</File>
-	<File name="qcommon/stringed_ingame.h" open="1" top="0" tabpos="16">
+	<File name="qcommon/stringed_ingame.h" open="0" top="0" tabpos="16">
 		<Cursor position="3411" topLine="68" />
 	</File>
-	<File name="qcommon/stv_version.h" open="1" top="0" tabpos="4">
+	<File name="qcommon/stv_version.h" open="0" top="0" tabpos="4">
 		<Cursor position="309" topLine="0" />
+	</File>
+	<File name="qcommon/timing.h" open="0" top="0" tabpos="0">
+		<Cursor position="623" topLine="20" />
+	</File>
+	<File name="renderer/matcomp.c" open="1" top="0" tabpos="39">
+		<Cursor position="557" topLine="0" />
 	</File>
 	<File name="renderer/qgl.h" open="0" top="0" tabpos="0">
 		<Cursor position="13362" topLine="234" />
 	</File>
+	<File name="renderer/tr_arioche.cpp" open="1" top="0" tabpos="19">
+		<Cursor position="77" topLine="0" />
+	</File>
 	<File name="renderer/tr_cmds.cpp" open="0" top="0" tabpos="0">
 		<Cursor position="7620" topLine="274" />
+	</File>
+	<File name="renderer/tr_draw.cpp" open="1" top="0" tabpos="41">
+		<Cursor position="33065" topLine="1082" />
+	</File>
+	<File name="renderer/tr_font.cpp" open="1" top="0" tabpos="20">
+		<Cursor position="325" topLine="0" />
+	</File>
+	<File name="renderer/tr_ghoul2.cpp" open="1" top="0" tabpos="21">
+		<Cursor position="121047" topLine="3971" />
+	</File>
+	<File name="renderer/tr_image.cpp" open="1" top="0" tabpos="22">
+		<Cursor position="28710" topLine="1204" />
+	</File>
+	<File name="renderer/tr_init.cpp" open="1" top="0" tabpos="23">
+		<Cursor position="6061" topLine="214" />
 	</File>
 	<File name="renderer/tr_local.h" open="0" top="0" tabpos="0">
 		<Cursor position="47866" topLine="1820" />
 	</File>
-	<File name="renderer/tr_surface.cpp" open="0" top="0" tabpos="0">
-		<Cursor position="38887" topLine="1233" />
+	<File name="renderer/tr_mesh.cpp" open="1" top="0" tabpos="24">
+		<Cursor position="165" topLine="0" />
 	</File>
-	<File name="server/exe_headers.h" open="1" top="0" tabpos="14">
+	<File name="renderer/tr_model.cpp" open="1" top="0" tabpos="25">
+		<Cursor position="11111" topLine="313" />
+	</File>
+	<File name="renderer/tr_quicksprite.cpp" open="1" top="0" tabpos="26">
+		<Cursor position="200" topLine="0" />
+	</File>
+	<File name="renderer/tr_surface.cpp" open="1" top="0" tabpos="27">
+		<Cursor position="21576" topLine="620" />
+	</File>
+	<File name="renderer/tr_surfacesprites.cpp" open="1" top="0" tabpos="28">
+		<Cursor position="158" topLine="0" />
+	</File>
+	<File name="server/exe_headers.h" open="0" top="0" tabpos="14">
 		<Cursor position="240" topLine="0" />
+	</File>
+	<File name="server/sv_ccmds.cpp" open="1" top="0" tabpos="29">
+		<Cursor position="126" topLine="0" />
+	</File>
+	<File name="server/sv_game.cpp" open="1" top="0" tabpos="30">
+		<Cursor position="415" topLine="0" />
+	</File>
+	<File name="server/sv_init.cpp" open="1" top="0" tabpos="31">
+		<Cursor position="362" topLine="0" />
+	</File>
+	<File name="server/sv_main.cpp" open="1" top="0" tabpos="32">
+		<Cursor position="191" topLine="0" />
+	</File>
+	<File name="server/sv_savegame.cpp" open="1" top="0" tabpos="33">
+		<Cursor position="835" topLine="0" />
+	</File>
+	<File name="server/sv_snapshot.cpp" open="1" top="0" tabpos="34">
+		<Cursor position="108" topLine="0" />
+	</File>
+	<File name="server/sv_world.cpp" open="1" top="0" tabpos="35">
+		<Cursor position="512" topLine="0" />
+	</File>
+	<File name="ui/ui_main.cpp" open="1" top="0" tabpos="36">
+		<Cursor position="20627" topLine="565" />
 	</File>
 	<File name="ui/ui_saber.cpp" open="0" top="0" tabpos="0">
 		<Cursor position="9273" topLine="361" />
 	</File>
+	<File name="ui/ui_shared.cpp" open="1" top="0" tabpos="37">
+		<Cursor position="175909" topLine="8428" />
+	</File>
 	<File name="ui/ui_shared.h" open="0" top="0" tabpos="0">
 		<Cursor position="13607" topLine="353" />
 	</File>
-	<File name="win32/AutoVersion.h" open="1" top="0" tabpos="6">
+	<File name="win32/AutoVersion.h" open="0" top="0" tabpos="6">
 		<Cursor position="0" topLine="0" />
 	</File>
 	<File name="win32/win_glimp.cpp" open="0" top="0" tabpos="0">
 		<Cursor position="46018" topLine="1568" />
 	</File>
+	<File name="win32/win_qgl.cpp" open="1" top="0" tabpos="2">
+		<Cursor position="580" topLine="0" />
+	</File>
 	<File name="win32/win_video.cpp" open="0" top="0" tabpos="0">
 		<Cursor position="0" topLine="283" />
+	</File>
+	<File name="zlib32/deflate.cpp" open="1" top="0" tabpos="38">
+		<Cursor position="68734" topLine="2035" />
 	</File>
 </CodeBlocks_layout_file>

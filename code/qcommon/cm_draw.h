@@ -7,6 +7,15 @@
 #if !defined(CM_DRAW_H_INC)
 #define CM_DRAW_H_INC
 
+#ifdef LINUX
+typedef struct tagPOINT {
+   long x;
+   long y;
+} POINT;
+
+#endif
+
+
 // calc offset into image array for a pixel at (x,y)
 #define PIXPOS(x,y,stride) (((y)*(stride))+(x))
 
@@ -76,6 +85,7 @@ inline CPixel32 LIGHT_PIX (CPixel32 p, long light)
   t.a = p.a;  return t;}
 
 // Colors are 32-bit RGBA
+
 
 // draw class
 class CDraw32
@@ -242,4 +252,5 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+
 #endif

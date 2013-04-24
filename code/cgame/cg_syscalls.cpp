@@ -30,11 +30,17 @@ static int (*syscall)( int arg, ... ) = (int (*)( int, ...))-1;
 #ifdef _XBOX
 void cg_dllEntry( int (*syscallptr)( int arg,... ) ) {
 #else
+#ifdef __linux__
+extern "C" {
+#endif
 void dllEntry( int (*syscallptr)( int arg,... ) ) {
 #endif
 	syscall = syscallptr;
 	CG_PreInit();
 }
+#ifdef __linux__
+}
+#endif
 
 
 inline int PASSFLOAT( float x ) {

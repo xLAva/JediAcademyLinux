@@ -8,6 +8,7 @@
 #define SMALL_HEADER_H
 
 
+
 typedef union
 {
    int s;
@@ -23,6 +24,12 @@ typedef struct
 IN_OUT;
 
 #ifdef WIN32 // Damn linux gcc isn't detecting byte as defined
+#ifndef byte
+typedef unsigned char byte;
+#endif
+#endif
+
+#ifdef LINUX
 #ifndef byte
 typedef unsigned char byte;
 #endif

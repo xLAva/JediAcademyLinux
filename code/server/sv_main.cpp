@@ -9,7 +9,7 @@
 Ghoul2 Insert Start
 */
 #if !defined (MINIHEAP_H_INC)
-	#include "../qcommon/miniheap.h"
+	#include "../qcommon/MiniHeap.h"
 #endif
 /*
 Ghoul2 Insert End

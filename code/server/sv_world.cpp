@@ -14,10 +14,10 @@ Ghoul2 Insert Start
 	#include "..\game\ghoul2_shared.h"	//for CGhoul2Info_v
 #endif
 #if !defined(G2_H_INC)
-	#include "..\ghoul2\G2.h"
+	#include "../ghoul2/G2.h"
 #endif
 #if !defined (MINIHEAP_H_INC)
-	#include "../qcommon/miniheap.h"
+	#include "../qcommon/MiniHeap.h"
 #endif
 
 #ifdef _DEBUG

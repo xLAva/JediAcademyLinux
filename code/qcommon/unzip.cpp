@@ -19,7 +19,13 @@
 #define ZIP_fread	fread
 #define ZIP_ftell	ftell
 
+#ifdef LINUX
+#include <zlib.h>
+#define ZF_STORED					0
+#define ZF_DEFLATED					8
+#else
 #include "../zlib32/zip.h"
+#endif
 #include "unzip.h"
 
 /* unzip.h -- IO for uncompress .zip files using zlib 
@@ -67,7 +73,9 @@
 typedef unsigned char  Byte;  /* 8 bits */
 typedef unsigned int   uInt;  /* 16 bits or more */
 typedef unsigned long  uLong; /* 32 bits or more */
+#ifndef LINUX
 typedef Byte    *voidp;
+#endif
 
 #ifndef SEEK_SET
 #  define SEEK_SET        0       /* Seek from beginning of file.  */
@@ -75,7 +83,9 @@ typedef Byte    *voidp;
 #  define SEEK_END        2       /* Set file pointer to EOF plus "offset" */
 #endif
 
+#ifndef LINUX
 typedef voidp gzFile;
+#endif
 
 gzFile gzopen  OF((const char *path, const char *mode));
 /*
@@ -1015,11 +1025,16 @@ extern int unzOpenCurrentFile (unzFile file)
 	pfile_in_zip_read_info->file=s->file;
 	pfile_in_zip_read_info->byte_before_the_zipfile=s->byte_before_the_zipfile;
 
-    pfile_in_zip_read_info->stream.total_out = 0;
+	pfile_in_zip_read_info->stream.total_out = 0;
+	pfile_in_zip_read_info->stream.zalloc = Z_NULL;
+	pfile_in_zip_read_info->stream.zfree = Z_NULL;
+	pfile_in_zip_read_info->stream.opaque = Z_NULL;
+	pfile_in_zip_read_info->stream.avail_in = 0;
+	pfile_in_zip_read_info->stream.next_in = Z_NULL;    
 
 	if (!Store)
 	{
-	  err=inflateInit(&pfile_in_zip_read_info->stream, Z_SYNC_FLUSH, 1);
+	  err=inflateInit2(&(pfile_in_zip_read_info->stream), -MAX_WBITS);
 	  if (err == Z_OK)
 	    pfile_in_zip_read_info->stream_initialised=1;
         /* windowBits is passed < 0 to tell that there is no zlib header.
@@ -1152,7 +1167,7 @@ extern int unzReadCurrentFile  (unzFile file, void *buf, unsigned len)
 				(pfile_in_zip_read_info->rest_read_compressed == 0))
 				flush = Z_FINISH;
 			*/
-			err=inflate(&pfile_in_zip_read_info->stream);
+			err=inflate(&pfile_in_zip_read_info->stream, Z_SYNC_FLUSH);
 
 			uTotalOutAfter = pfile_in_zip_read_info->stream.total_out;
 			uOutThis = uTotalOutAfter-uTotalOutBefore;
