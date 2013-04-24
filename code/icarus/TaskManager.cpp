@@ -4,7 +4,7 @@
 
 
 // this include must remain at the top of every Icarus CPP file
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "IcarusImplementation.h"
 
 #include "BlockStream.h"
@@ -382,7 +382,7 @@ int CTaskManager::GetFloat( int entID, CBlock *block, int &memberNum, float &val
 		return icarus->GetGame()->GetFloat( entID, name, &value );
 	}
 
-	//Look for a random() inline call
+	//Look for a randomLava() inline call
 	if ( Check( CIcarus::ID_RANDOM, block, memberNum ) )
 	{
 		float	min, max;
@@ -454,7 +454,7 @@ int CTaskManager::GetVector( int entID, CBlock *block, int &memberNum, vec3_t &v
 		return icarus->GetGame()->GetVector( entID, name, value );
 	}
 
-	//Look for a random() inline call
+	//Look for a randomLava() inline call
 	if ( Check( CIcarus::ID_RANDOM, block, memberNum ) )
 	{
 		float	min, max;
@@ -597,7 +597,7 @@ int CTaskManager::Get( int entID, CBlock *block, int &memberNum, char **value, C
 		}
 	}
 
-	//Look for a random() inline call
+	//Look for a randomLava() inline call
 	if ( Check( CIcarus::ID_RANDOM, block, memberNum ) )
 	{
 		float	min, max, ret;

@@ -1,7 +1,7 @@
 #ifndef __TR_TYPES_H
 #define __TR_TYPES_H
 
-#include "..\game\ghoul2_shared.h"
+#include "../game/ghoul2_shared.h"
 
 #define	MAX_DLIGHTS		32			// can't be increased, because bit flags are used on surfaces
 #ifdef _XBOX

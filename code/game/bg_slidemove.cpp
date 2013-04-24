@@ -1,10 +1,12 @@
 // this include must remain at the top of every bg_xxxx CPP file
 #include "common_headers.h"
+#include "../game/b_local.h"
 
 #include "q_shared.h"
 #include "bg_public.h"
 #include "bg_local.h"
 #include "g_vehicles.h"
+//#include "../game/b_local.h"
 
 extern qboolean PM_ClientImpact( trace_t *trace, qboolean damageSelf );
 extern qboolean PM_ControlledByPlayer( void );
@@ -122,18 +124,18 @@ qboolean	PM_SlideMove( float gravMod ) {
 		VectorMA( pm->ps->origin, time_left, pm->ps->velocity, end );
 
 		// see if we can make it there
-		pm->trace ( &trace, pm->ps->origin, pm->mins, pm->maxs, end, pm->ps->clientNum, slideMoveContents );
+		pm->trace ( &trace, pm->ps->origin, pm->mins, pm->maxs, end, pm->ps->clientNum, slideMoveContents, G2_NOCOLLIDE, 0 );
 		if ( (trace.contents&CONTENTS_BOTCLIP)
 			&& (slideMoveContents&CONTENTS_BOTCLIP) )
 		{//hit a do not enter brush
 			if ( trace.allsolid || trace.startsolid  )//inside the botclip
 			{//crap, we're in a do not enter brush, take it out for the remainder of the traces and re-trace this one right now without it
 				slideMoveContents &= ~CONTENTS_BOTCLIP;
-				pm->trace ( &trace, pm->ps->origin, pm->mins, pm->maxs, end, pm->ps->clientNum, slideMoveContents );
+				pm->trace ( &trace, pm->ps->origin, pm->mins, pm->maxs, end, pm->ps->clientNum, slideMoveContents, G2_NOCOLLIDE, 0 );
 			}
 			else if ( trace.plane.normal[2] > 0.0f )
 			{//on top of a do not enter brush, it, just redo this one trace without it
-				pm->trace ( &trace, pm->ps->origin, pm->mins, pm->maxs, end, pm->ps->clientNum, (slideMoveContents&~CONTENTS_BOTCLIP) );
+				pm->trace ( &trace, pm->ps->origin, pm->mins, pm->maxs, end, pm->ps->clientNum, (slideMoveContents&~CONTENTS_BOTCLIP), G2_NOCOLLIDE, 0 );
 			}
 		}
 
@@ -370,7 +372,7 @@ void PM_StepSlideMove( float gravMod )
 	//Q3Final addition...
 	VectorCopy(start_o, down);
 	down[2] -= stepSize;
-	pm->trace (&trace, start_o, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask);
+	pm->trace (&trace, start_o, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask, G2_NOCOLLIDE, 0);
 	VectorSet(up, 0, 0, 1);
 	// never step up when you still have up velocity
 	if ( pm->ps->velocity[2] > 0 && (trace.fraction == 1.0 ||
@@ -391,7 +393,7 @@ void PM_StepSlideMove( float gravMod )
 
 	// test the player position if they were a stepheight higher
 
-	pm->trace (&trace, start_o, pm->mins, pm->maxs, up, pm->ps->clientNum, pm->tracemask);
+	pm->trace (&trace, start_o, pm->mins, pm->maxs, up, pm->ps->clientNum, pm->tracemask, G2_NOCOLLIDE, 0);
 	if ( trace.allsolid || trace.startsolid || trace.fraction == 0) {
 		if ( pm->debugLevel ) {
 			Com_Printf("%i:bend can't step\n", c_pmove);
@@ -431,7 +433,7 @@ void PM_StepSlideMove( float gravMod )
 		// push down the final amount
 		VectorCopy (pm->ps->origin, down);
 		down[2] -= stepSize;
-		pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask);
+		pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask, G2_NOCOLLIDE, 0);
 		if ( pm->debugLevel )
 		{
 			G_DebugLine(pm->ps->origin,trace.endpos,2000,0xffffff,qtrue);

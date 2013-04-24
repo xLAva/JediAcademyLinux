@@ -18,7 +18,6 @@ typedef struct {
 	void		(*Printf)( const char *fmt, ... );
 } gameinfo_import_t;
 
-
 void GI_Init( gameinfo_import_t *import );
 
 #endif

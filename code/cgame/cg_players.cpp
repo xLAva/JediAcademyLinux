@@ -6,11 +6,14 @@
 //#include "cg_local.h"
 #include "cg_media.h"
 #include "FxScheduler.h"
-#include "..\game\ghoul2_shared.h"
-#include "..\game\anims.h"
-#include "..\game\wp_saber.h"
-#include "..\game\g_vehicles.h"
-#include "..\Rufl\hstring.h"
+#include "../game/ghoul2_shared.h"
+#include "../game/anims.h"
+#include "../game/wp_saber.h"
+#include "../game/g_vehicles.h"
+#include "../Rufl/hstring.h"
+#include "../game/g_local.h"
+#include "../game/b_local.h"
+
 
 #define	LOOK_SWING_SCALE	0.5f
 #define	CG_SWINGSPEED		0.3f
@@ -2078,7 +2081,7 @@ static void CG_G2ClientSpineAngles( centity_t *cent, vec3_t viewAngles, const ve
 			if ( !dummyGhoul2.size() )
 			{//set it up
 				int dummyHModel = cgi_R_RegisterModel( "models/players/_humanoid/_humanoid.glm" );
-				gi.G2API_InitGhoul2Model( dummyGhoul2, "models/players/_humanoid/_humanoid.glm", dummyHModel, 0 );
+				gi.G2API_InitGhoul2Model( dummyGhoul2, "models/players/_humanoid/_humanoid.glm", dummyHModel, NULL, NULL, 0, 0 );
 				dummyRootBone = gi.G2API_GetBoneIndex( &dummyGhoul2[0], "model_root", qtrue );
 				dummyHipsBolt = gi.G2API_AddBolt( &dummyGhoul2[0], "pelvis" );
 			}
@@ -3904,10 +3907,10 @@ static void _PlayerSplash( const vec3_t origin, const vec3_t velocity, const flo
 	float alpha = ( t / 8192.0f ) * 0.6f + 0.2f;
 
 	FX_AddOrientedParticle( -1, end, trace.plane.normal, NULL, NULL, 
-								6.0f, radius + random() * 48.0f, 0, 
+								6.0f, radius + randomLava() * 48.0f, 0, 
 								alpha, 0.0f, 0.0f,
 								WHITE, WHITE, 0.0f, 
-								random() * 360, crandom() * 6.0f, NULL, NULL, 0.0f, 0 ,0, 1200, 
+								randomLava() * 360, crandom() * 6.0f, NULL, NULL, 0.0f, 0 ,0, 1200, 
 								cgs.media.wakeMarkShader, FX_ALPHA_LINEAR | FX_SIZE_LINEAR );
 }
 
@@ -3961,7 +3964,7 @@ static void CG_PlayerSplash( centity_t *cent )
 				_PlayerSplash( cent->lerpOrigin, cl->ps.velocity, 36, cl->renderInfo.eyePoint[2] - cent->lerpOrigin[2] + 5 );	
 			}
 
-			cent->gent->disconnectDebounceTime = cg.time + 125 + random() * 50.0f;
+			cent->gent->disconnectDebounceTime = cg.time + 125 + randomLava() * 50.0f;
 		}
 	}
 }
@@ -4017,7 +4020,7 @@ static void CG_LightningBolt( centity_t *cent, vec3_t origin )
 	if ( cent->gent->fx_time < cg.time && !(trace.surfaceFlags & SURF_NOIMPACT ))
 	{
 		spark = qtrue;
-		cent->gent->fx_time = cg.time + random() * 100 + 100;
+		cent->gent->fx_time = cg.time + randomLava() * 100 + 100;
 	}
 
 	// Don't draw certain kinds of impacts when it hits a player and such..or when we hit a surface with a NOIMPACT flag
@@ -4367,7 +4370,7 @@ static void CG_ForceElectrocution( centity_t *cent, const vec3_t origin, vec3_t 
 	if ( found )
 	{
 		gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, fxOrg );
-		if ( random() > 0.5f )
+		if ( randomLava() > 0.5f )
 		{
 			gi.G2API_GiveMeVectorFromMatrix( boltMatrix, NEGATIVE_X, dir );
 		}
@@ -4403,19 +4406,19 @@ static void CG_ForceElectrocution( centity_t *cent, const vec3_t origin, vec3_t 
 		}
 	}
 
-	VectorMA( fxOrg, random() * 40 + 40, dir, fxOrg2 );
+	VectorMA( fxOrg, randomLava() * 40 + 40, dir, fxOrg2 );
 
 	trace_t	tr;
 
 	CG_Trace( &tr, fxOrg, NULL, NULL, fxOrg2, -1, CONTENTS_SOLID );
 
-	if ( tr.fraction < 1.0f || random() > 0.94f || alwaysDo )
+	if ( tr.fraction < 1.0f || randomLava() > 0.94f || alwaysDo )
 	{
 		FX_AddElectricity( -1, fxOrg, tr.endpos,
 			1.5f, 4.0f, 0.0f, 
 			1.0f, 0.5f, 0.0f,
 			rgb, rgb, 0.0f,
-			5.5f, random() * 50 + 100, shader, FX_ALPHA_LINEAR | FX_SIZE_LINEAR | FX_BRANCH | FX_GROW | FX_TAPER, -1, -1 );
+			5.5f, randomLava() * 50 + 100, shader, FX_ALPHA_LINEAR | FX_SIZE_LINEAR | FX_BRANCH | FX_GROW | FX_TAPER, -1, -1 );
 	}
 }
 
@@ -4674,7 +4677,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 		ent->customShader = 0;
 		cgi_R_AddRefEntityToScene( ent );
 
-		if ( cg.time - ent->endTime < 1000 && (cg_timescale.value * cg_timescale.value * random()) > 0.05f )
+		if ( cg.time - ent->endTime < 1000 && (cg_timescale.value * cg_timescale.value * randomLava()) > 0.05f )
 		{
 			vec3_t fxOrg;
 			mdxaBone_t	boltMatrix;
@@ -4688,7 +4691,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 			fxOrg[2] += crandom() * 20;
 			theFxScheduler.PlayEffect( "disruptor/death_smoke", fxOrg );
 
-			if ( random() > 0.5f )
+			if ( randomLava() > 0.5f )
 			{
 				theFxScheduler.PlayEffect( "disruptor/death_smoke", fxOrg );
 			}
@@ -4765,7 +4768,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 	{
 		int	dif = gent->client->ps.powerups[PW_SHOCKED] - cg.time;
 
-		if ( dif > 0 && random() > 0.4f )
+		if ( dif > 0 && randomLava() > 0.4f )
 		{
 			// fade out over the last 500 ms
 			int brightness = 255;
@@ -4790,7 +4793,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 
 			cgi_R_AddRefEntityToScene( ent );
 
-			if ( random() > 0.9f )
+			if ( randomLava() > 0.9f )
 				cgi_S_StartSound ( ent->origin, gent->s.number, CHAN_AUTO, cgi_S_RegisterSound( "sound/effects/energy_crackle.wav" ) );
 		}
 	} 
@@ -5072,7 +5075,7 @@ static void CG_G2SetHeadBlink( centity_t *cent, qboolean bStart )
 	if (bStart)
 	{
 		desiredAngles[YAW] = -38;
-		if ( !in_camera && random() > 0.95f )
+		if ( !in_camera && randomLava() > 0.95f )
 		{
 			bWink = qtrue;
 			blendTime /=3;
@@ -5959,8 +5962,8 @@ static void CG_CreateSaberMarks( vec3_t start, vec3_t end, vec3_t normal )
 			VectorScale( mid, 0.5f, mid );
 			VectorSubtract( v->xyz, mid, delta );
 
-			v->st[0] = 0.5 + DotProduct( delta, axis[1] ) * (0.05f + random() * 0.03f);
-			v->st[1] = 0.5 + DotProduct( delta, axis[2] ) * (0.15f + random() * 0.05f);
+			v->st[0] = 0.5 + DotProduct( delta, axis[1] ) * (0.05f + randomLava() * 0.03f);
+			v->st[1] = 0.5 + DotProduct( delta, axis[2] ) * (0.15f + randomLava() * 0.05f);
 		}
 
 		// save it persistantly, do burn first
@@ -5979,9 +5982,9 @@ static void CG_CreateSaberMarks( vec3_t start, vec3_t end, vec3_t normal )
 		mark->alphaFade = qfalse;
 		mark->markShader = cgi_R_RegisterShader("gfx/effects/saberDamageGlow" );
 		mark->poly.numVerts = mf->numPoints;
-		mark->color[0] = 215 + random() * 40.0f;
-		mark->color[1] = 96 + random() * 32.0f;
-		mark->color[2] = mark->color[3] = random()*15.0f;
+		mark->color[0] = 215 + randomLava() * 40.0f;
+		mark->color[1] = 96 + randomLava() * 32.0f;
+		mark->color[2] = mark->color[3] = randomLava()*15.0f;
 		memcpy( mark->verts, verts, mf->numPoints * sizeof( verts[0] ) );
 	}
 }
@@ -6439,7 +6442,7 @@ Ghoul2 Insert End
 		{
 			VectorCopy( cent->lerpOrigin, rootOrigin );
 		}
-		gi.trace( &trace, rootOrigin, NULL, NULL, cent->gent->client->ps.saber[saberNum].blade[bladeNum].muzzlePoint, cent->currentState.number, CONTENTS_SOLID );
+		gi.trace( &trace, rootOrigin, NULL, NULL, cent->gent->client->ps.saber[saberNum].blade[bladeNum].muzzlePoint, cent->currentState.number, CONTENTS_SOLID,G2_NOCOLLIDE, 0 );
 	}
 
 	if ( trace.fraction < 1.0f )
@@ -6483,11 +6486,11 @@ Ghoul2 Insert End
 		{
 			if ( i )
 			{//tracing from end to base
-				gi.trace( &trace, end, NULL, NULL, org_, cent->currentState.clientNum, traceMask );
+				gi.trace( &trace, end, NULL, NULL, org_, cent->currentState.clientNum, traceMask, G2_NOCOLLIDE, 0 );
 			}
 			else
 			{//tracing from base to end
-				gi.trace( &trace, org_, NULL, NULL, end, cent->currentState.clientNum, traceMask|CONTENTS_WATER|CONTENTS_SLIME );
+				gi.trace( &trace, org_, NULL, NULL, end, cent->currentState.clientNum, traceMask|CONTENTS_WATER|CONTENTS_SLIME, G2_NOCOLLIDE, 0 );
 			}
 			
 			if ( trace.fraction < 1.0f )
@@ -8482,9 +8485,9 @@ Ghoul2 Insert End
 				CGCam_Shake( val * val * 0.3f, 100 );
 			}
 
-			val += random() * 0.5f;
+			val += randomLava() * 0.5f;
 
-			FX_AddSprite( cent->gent->client->renderInfo.muzzlePoint, NULL, NULL, 3.0f * val * scale, 0.0f, 0.7f, 0.7f, WHITE, WHITE, random() * 360, 0.0f, 1.0f, shader, FX_USE_ALPHA );
+			FX_AddSprite( cent->gent->client->renderInfo.muzzlePoint, NULL, NULL, 3.0f * val * scale, 0.0f, 0.7f, 0.7f, WHITE, WHITE, randomLava() * 360, 0.0f, 1.0f, shader, FX_USE_ALPHA );
 		}
 	}
 }

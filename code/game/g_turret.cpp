@@ -4,6 +4,7 @@
 #include "g_local.h"
 #include "g_functions.h"
 #include "b_local.h"
+#include "../cgame/cg_local.h"
 
 extern	cvar_t	*g_spskill;
 
@@ -35,7 +36,7 @@ void TurretPain( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, con
 	if ( mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT )
 	{
 		// DEMP2 makes the turret stop shooting for a bit..and does extra feedback
-		self->attackDebounceTime = level.time + 800 + random() * 500;
+		self->attackDebounceTime = level.time + 800 + randomLava() * 500;
 		G_PlayEffect( "sparks/spark_exp_nosnd", point, dir );
 	}
 
@@ -486,7 +487,7 @@ static qboolean turret_find_enemies( gentity_t *self )
 		}
 
 		trace_t	tr;
-		gi.trace( &tr, org2, NULL, NULL, org, self->s.number, MASK_SHOT );
+		gi.trace( &tr, org2, NULL, NULL, org, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 
 		if ( !tr.allsolid && !tr.startsolid && ( tr.fraction == 1.0 || tr.entityNum == target->s.number ))
 		{
@@ -595,7 +596,7 @@ void turret_base_think( gentity_t *self )
 					{
 						org2[2] -= 10;
 					}
-					gi.trace( &tr, org2, NULL, NULL, org, self->s.number, MASK_SHOT );
+					gi.trace( &tr, org2, NULL, NULL, org, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 
 					if ( self->spawnflags & SPF_TURRETG2_TURBO || ( !tr.allsolid && !tr.startsolid && tr.entityNum == self->enemy->s.number ) )
 					{
@@ -618,7 +619,7 @@ void turret_base_think( gentity_t *self )
 	else
 	{
 		// keep our enemy for a minimum of 2 seconds from now
-		self->bounceCount = level.time + 2000 + random() * 150;
+		self->bounceCount = level.time + 2000 + randomLava() * 150;
 	}
 
 	turret_aim( self );
@@ -856,7 +857,7 @@ void SP_misc_turret( gentity_t *base )
 	base->s.radius = 80.0f;*/
 	turret_set_models( base, qfalse );
 
-	gi.G2API_SetBoneAngles( &base->ghoul2[base->playerModel], "Bone_body", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, NULL ); 
+	gi.G2API_SetBoneAngles( &base->ghoul2[base->playerModel], "Bone_body", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, NULL, 0, 0 ); 
 	base->torsoBolt = gi.G2API_AddBolt( &base->ghoul2[base->playerModel], "*flash03" );
 
 	finish_spawning_turret( base );
@@ -939,7 +940,7 @@ void finish_spawning_turret( gentity_t *base )
 		// How quickly to fire
 		if ( !base->wait )
 		{
-			base->wait = 500;// + random() * 500;
+			base->wait = 500;// + randomLava() * 500;
 		}
 
 		if ( !base->splashDamage )
@@ -979,7 +980,7 @@ void finish_spawning_turret( gentity_t *base )
 	else
 	{
 		// this is a random time offset for the no-enemy-search-around-mode
-		base->count = random() * 9000;
+		base->count = randomLava() * 9000;
 
 		if ( !base->health )
 		{
@@ -995,7 +996,7 @@ void finish_spawning_turret( gentity_t *base )
 		// How quickly to fire
 		if ( !base->wait )
 		{
-			base->wait = 150 + random() * 55;
+			base->wait = 150 + randomLava() * 55;
 		}
 
 		if ( !base->splashDamage )
@@ -1102,10 +1103,10 @@ void SP_misc_ns_turret( gentity_t *base )
 {
 	base->s.modelindex = G_ModelIndex( "models/map_objects/nar_shaddar/turret/turret.glm" );
 	base->s.modelindex2 = G_ModelIndex( "models/map_objects/imp_mine/turret_damage.md3" ); // FIXME!
-	base->playerModel = gi.G2API_InitGhoul2Model( base->ghoul2, "models/map_objects/nar_shaddar/turret/turret.glm", base->s.modelindex );
+	base->playerModel = gi.G2API_InitGhoul2Model( base->ghoul2, "models/map_objects/nar_shaddar/turret/turret.glm", base->s.modelindex, NULL, NULL, 0, 0 );
 	base->s.radius = 80.0f;
 
-	gi.G2API_SetBoneAngles( &base->ghoul2[base->playerModel], "Bone_body", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, NULL ); 
+	gi.G2API_SetBoneAngles( &base->ghoul2[base->playerModel], "Bone_body", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, NULL, 0, 0 ); 
 	base->torsoBolt = gi.G2API_AddBolt( &base->ghoul2[base->playerModel], "*flash02" );
 
 	finish_spawning_turret( base );
@@ -1136,7 +1137,7 @@ void laser_arm_fire (gentity_t *ent)
 	//VectorMA( start, -3, up, start );
 	VectorMA( start, 4096, fwd, end );
 	
-	gi.trace( &trace, start, NULL, NULL, end, ENTITYNUM_NONE, MASK_SHOT );//ignore
+	gi.trace( &trace, start, NULL, NULL, end, ENTITYNUM_NONE, MASK_SHOT, G2_NOCOLLIDE, 0 );//ignore
 	ent->fly_sound_debounce_time = level.time;//used as lastShotTime
 
 	// Only deal damage when in alt-fire mode
@@ -1507,7 +1508,7 @@ static qboolean pas_find_enemies( gentity_t *self )
 		}
 
 		trace_t	tr;
-		gi.trace( &tr, org2, NULL, NULL, org, self->s.number, MASK_SHOT );
+		gi.trace( &tr, org2, NULL, NULL, org, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 
 		if ( !tr.allsolid && !tr.startsolid && ( tr.fraction == 1.0 || tr.entityNum == target->s.number ))
 		{
@@ -1528,7 +1529,7 @@ static qboolean pas_find_enemies( gentity_t *self )
 					G_Sound( self, G_SoundIndex( "sound/chars/turret/startup.wav" ));
 
 					// Wind up turrets for a bit
-					self->attackDebounceTime = level.time + 900 + random() * 200;
+					self->attackDebounceTime = level.time + 900 + randomLava() * 200;
 				}
 
 				G_SetEnemy( self, target );
@@ -1556,7 +1557,7 @@ void pas_adjust_enemy( gentity_t *ent )
 	{
 		keep = qfalse;
 	}
-	else// if ( random() > 0.5f )
+	else// if ( randomLava() > 0.5f )
 	{
 		// do a trace every now and then.
 		mdxaBone_t	boltMatrix;
@@ -1581,7 +1582,7 @@ void pas_adjust_enemy( gentity_t *ent )
 		}
 
 		trace_t	tr;
-		gi.trace( &tr, org2, NULL, NULL, org, ent->s.number, MASK_SHOT );
+		gi.trace( &tr, org2, NULL, NULL, org, ent->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 
 		if ( tr.allsolid || tr.startsolid || tr.entityNum != ent->enemy->s.number )
 		{
@@ -1592,7 +1593,7 @@ void pas_adjust_enemy( gentity_t *ent )
 
 	if ( keep )
 	{
-		ent->bounceCount = level.time + 500 + random() * 150;
+		ent->bounceCount = level.time + 500 + randomLava() * 150;
 	}
 	else if ( ent->bounceCount < level.time ) // don't ping pong on and off
 	{
@@ -1613,7 +1614,7 @@ void pas_think( gentity_t *ent )
 	{
 		// let us do our animation, then we are good to go in terms of pounding the crap out of enemies.
 		ent->damage = 1;
-		gi.G2API_SetBoneAnimIndex( &ent->ghoul2[ent->playerModel], ent->rootBone, 0, 11, BONE_ANIM_OVERRIDE_FREEZE, 0.8f, cg.time );
+		gi.G2API_SetBoneAnimIndex( &ent->ghoul2[ent->playerModel], ent->rootBone, 0, 11, BONE_ANIM_OVERRIDE_FREEZE, 0.8f, cg.time, -1, -1 );
 		ent->nextthink = level.time + 1200;
 		return;
 	}
@@ -1725,7 +1726,7 @@ void pas_think( gentity_t *ent )
 		ent->s.loopSound = 0;
 	}
 
-	if ( ent->enemy && ent->attackDebounceTime < level.time && random() > 0.3f )
+	if ( ent->enemy && ent->attackDebounceTime < level.time && randomLava() > 0.3f )
 	{
 		ent->count--;
 
@@ -1776,14 +1777,14 @@ void SP_PAS( gentity_t *base )
 	base->speed = base->s.angles[YAW];
 
 	base->s.modelindex = G_ModelIndex( "models/items/psgun.glm" );
-	base->playerModel = gi.G2API_InitGhoul2Model( base->ghoul2, "models/items/psgun.glm", base->s.modelindex );
+	base->playerModel = gi.G2API_InitGhoul2Model( base->ghoul2, "models/items/psgun.glm", base->s.modelindex, NULL, NULL, 0, 0 );
 	base->s.radius = 30.0f;
 	VectorSet( base->s.modelScale, 1.0f, 1.0f, 1.0f );
 
 	base->rootBone = gi.G2API_GetBoneIndex( &base->ghoul2[base->playerModel], "model_root", qtrue );
-	gi.G2API_SetBoneAngles( &base->ghoul2[base->playerModel], "bone_hinge", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, NULL ); 
-	gi.G2API_SetBoneAngles( &base->ghoul2[base->playerModel], "bone_gback", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, NULL ); 
-	gi.G2API_SetBoneAngles( &base->ghoul2[base->playerModel], "bone_barrel", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, NULL ); 
+	gi.G2API_SetBoneAngles( &base->ghoul2[base->playerModel], "bone_hinge", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, NULL, 0, 0 ); 
+	gi.G2API_SetBoneAngles( &base->ghoul2[base->playerModel], "bone_gback", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, NULL, 0, 0 ); 
+	gi.G2API_SetBoneAngles( &base->ghoul2[base->playerModel], "bone_barrel", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, NULL, 0, 0 ); 
 
 	base->torsoBolt = gi.G2API_AddBolt( &base->ghoul2[base->playerModel], "*flash02" );
 
@@ -1867,14 +1868,14 @@ qboolean place_portable_assault_sentry( gentity_t *self, vec3_t origin, vec3_t a
 
 	// and move a consistent distance away from us so we don't have the dumb thing spawning inside of us.
 	VectorMA( origin, 30, fwd, pos );
-	gi.trace( &tr, origin, NULL, NULL, pos, self->s.number, MASK_SHOT );
+	gi.trace( &tr, origin, NULL, NULL, pos, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 
 	// find the ground
 	tr.endpos[2] += 20;
 	VectorCopy( tr.endpos, pos );
 	pos[2] -= 64;
 
-	gi.trace( &tr, tr.endpos, mins, maxs, pos, self->s.number, MASK_SHOT );
+	gi.trace( &tr, tr.endpos, mins, maxs, pos, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 
 	// check for a decent surface, meaning mostly flat...should probably also check surface parms so we don't set us down on lava or something.
 	if ( !tr.startsolid && !tr.allsolid && tr.fraction < 1.0f && tr.plane.normal[2] > 0.9f && tr.entityNum >= ENTITYNUM_WORLD )
@@ -1956,7 +1957,7 @@ void ion_cannon_think( gentity_t *self )
 		G_UseTargets2( self, self, self->target2 );
 	}
 
-	gi.G2API_SetBoneAnimIndex( &self->ghoul2[self->playerModel], self->rootBone, 0, 8, BONE_ANIM_OVERRIDE_FREEZE, 0.6f, cg.time );
+	gi.G2API_SetBoneAnimIndex( &self->ghoul2[self->playerModel], self->rootBone, 0, 8, BONE_ANIM_OVERRIDE_FREEZE, 0.6f, cg.time , -1, -1);
 	self->nextthink = level.time + self->wait + crandom() * self->random;
 }
 
@@ -2054,7 +2055,7 @@ void SP_misc_ion_cannon( gentity_t *base )
 	G_SetOrigin(base, base->s.origin);
 
 	base->s.modelindex = G_ModelIndex( "models/map_objects/imp_mine/ion_cannon.glm" );
-	base->playerModel = gi.G2API_InitGhoul2Model( base->ghoul2, "models/map_objects/imp_mine/ion_cannon.glm", base->s.modelindex );
+	base->playerModel = gi.G2API_InitGhoul2Model( base->ghoul2, "models/map_objects/imp_mine/ion_cannon.glm", base->s.modelindex, NULL, NULL, 0, 0 );
 	base->s.radius = 320.0f;
 	VectorSet( base->s.modelScale, 2.0f, 2.0f, 2.0f );
 
@@ -2166,7 +2167,7 @@ void spotlight_think( gentity_t *ent )
 	ent->s.apos.trType = TR_INTERPOLATE;
 
 	VectorMA( ent->currentOrigin, 2048, dir, end ); // just pick some max trace distance
-	gi.trace( &tr, ent->currentOrigin, vec3_origin, vec3_origin, end, ent->s.number, CONTENTS_SOLID );
+	gi.trace( &tr, ent->currentOrigin, vec3_origin, vec3_origin, end, ent->s.number, CONTENTS_SOLID, G2_NOCOLLIDE, 0 );
 
 	ent->radius = tr.fraction * 2048.0f;
 

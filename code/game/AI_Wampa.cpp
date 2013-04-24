@@ -3,6 +3,7 @@
 
 	    
 #include "b_local.h"
+#include "../game/g_navigator.h"
 
 // These define the working combat range for these suckers
 #define MIN_DISTANCE		48
@@ -292,7 +293,7 @@ void Wampa_Attack( float distance, qboolean doCharge )
 			TIMER_Set( NPC, "attack_dmg", 250 );
 		}
 
-		TIMER_Set( NPC, "attacking", NPC->client->ps.legsAnimTimer + random() * 200 );
+		TIMER_Set( NPC, "attacking", NPC->client->ps.legsAnimTimer + randomLava() * 200 );
 		//allow us to re-evaluate our running speed/anim
 		TIMER_Set( NPC, "runfar", -1 );
 		TIMER_Set( NPC, "runclose", -1 );
@@ -568,7 +569,7 @@ qboolean Wampa_CheckDropVictim( gentity_t *self, qboolean excludeMe )
 	{
 		gi.unlinkentity( self );
 	}
-	gi.trace( &trace, start, mins, maxs, end, self->activator->s.number, self->activator->clipmask );
+	gi.trace( &trace, start, mins, maxs, end, self->activator->s.number, self->activator->clipmask, G2_NOCOLLIDE, 0 );
 	if ( excludeMe )
 	{
 		gi.linkentity( self );

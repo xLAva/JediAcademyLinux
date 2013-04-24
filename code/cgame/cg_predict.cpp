@@ -7,8 +7,9 @@
 
 //#include "cg_local.h"
 #include "cg_media.h"
+#include "../game/g_local.h"
 
-#include "..\game\g_vehicles.h"
+#include "../game/g_vehicles.h"
 
 static	pmove_t		cg_pmove;
 

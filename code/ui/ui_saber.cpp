@@ -374,7 +374,7 @@ void UI_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 	/*
 	if ( doLight )
 	{//FIXME: RGB combine all the colors of the sabers you're using into one averaged color!
-		cgi_R_AddLightToScene( mid, (length*2.0f) + (random()*8.0f), rgb[0], rgb[1], rgb[2] );
+		cgi_R_AddLightToScene( mid, (length*2.0f) + (randomLava()*8.0f), rgb[0], rgb[1], rgb[2] );
 	}
 	*/
 

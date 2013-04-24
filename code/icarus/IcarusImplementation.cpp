@@ -1,6 +1,7 @@
 // IcarusImplementation.cpp
 
-#include "stdafx.h"
+
+#include "StdAfx.h"
 #include "IcarusImplementation.h"
 
 #include "BlockStream.h"
@@ -11,6 +12,9 @@
 #define STL_ITERATE( a, b )		for ( a = b.begin(); a != b.end(); a++ )
 #define STL_INSERT( a, b )		a.insert( a.end(), b );
 
+#ifdef LINUX
+#define stricmp strcasecmp
+#endif
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////

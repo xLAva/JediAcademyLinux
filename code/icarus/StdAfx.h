@@ -11,6 +11,11 @@
 #include <algorithm>
 #pragma warning (pop)
 
+#ifdef LINUX
+#include <string.h>
+#include <stdio.h>
+#endif
+
 using namespace std;
 
 #define STL_ITERATE( a, b )		for ( a = b.begin(); a != b.end(); a++ )

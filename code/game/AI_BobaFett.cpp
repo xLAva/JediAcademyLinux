@@ -12,7 +12,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 #include "g_headers.h"
 #include "b_local.h"
+#include "g_nav.h"
 
+#if !defined(RAVL_VEC_INC)
+	#include "../Ravl/CVec.h"
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // Forward References Of Functions
@@ -237,12 +241,12 @@ void	Boba_DustFallNear(const vec3_t origin, int dustcount)
 	VectorCopy(origin, testStartPos);
 	for (int i=0; i<dustcount; i++)
 	{
-		testDirection[0] = (random() * 2.0f) - 1.0f;
-		testDirection[1] = (random() * 2.0f) - 1.0f;
+		testDirection[0] = (randomLava() * 2.0f) - 1.0f;
+		testDirection[1] = (randomLava() * 2.0f) - 1.0f;
 		testDirection[2] = 1.0f;
 
 		VectorMA(origin, 1000.0f, testDirection, testEndPos);
-		gi.trace (&testTrace, origin, NULL, NULL, testEndPos, (player && player->inuse)?(0):(ENTITYNUM_NONE), MASK_SHOT );
+		gi.trace (&testTrace, origin, NULL, NULL, testEndPos, (player && player->inuse)?(0):(ENTITYNUM_NONE), MASK_SHOT, G2_NOCOLLIDE, 0 );
 
 		if (!testTrace.startsolid && 
 			!testTrace.allsolid && 
@@ -463,7 +467,7 @@ void Boba_FireFlameThrower( gentity_t *self )
 	{
 		CG_DrawEdge(start, end, EDGE_IMPACT_POSSIBLE);
 	}
-	gi.trace( &tr, start, self->mins, self->maxs, end, self->s.number, MASK_SHOT);
+	gi.trace( &tr, start, self->mins, self->maxs, end, self->s.number, MASK_SHOT, G2_NOCOLLIDE, 0);
 
 	traceEnt = &g_entities[tr.entityNum];
 	if ( tr.entityNum < ENTITYNUM_WORLD && traceEnt->takedamage )
@@ -1009,7 +1013,7 @@ void	Boba_Update()
 			trace_t		testTrace;
 			vec3_t		eyes;
 			CalcEntitySpot( NPC, SPOT_HEAD_LEAN, eyes );
-			gi.trace (&testTrace, eyes, NULL, NULL, NPC->enemy->currentOrigin, NPC->s.number, MASK_SHOT);
+			gi.trace (&testTrace, eyes, NULL, NULL, NPC->enemy->currentOrigin, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0);
 
 			bool	wasSeen = Boba_CanSeeEnemy(NPC);
 
@@ -1167,9 +1171,9 @@ bool	Boba_Flee()
 
 				case 1:
 					Boba_Printf("SPOOK: Footsteps");
-  					testDirection[0] =  (random() * 0.5f) - 1.0f;
+  					testDirection[0] =  (randomLava() * 0.5f) - 1.0f;
 	 		 		testDirection[0] += (testDirection[0]>0.0f)?(0.5f):(-0.5f);
-					testDirection[1] = (random() * 0.5f) - 1.0f;
+					testDirection[1] = (randomLava() * 0.5f) - 1.0f;
 					testDirection[1] += (testDirection[1]>0.0f)?(0.5f):(-0.5f);
 					testDirection[2] = 1.0f;
 		 	 		VectorMA(NPC->enemy->currentOrigin, 400.0f, testDirection, BobaFootStepLoc);

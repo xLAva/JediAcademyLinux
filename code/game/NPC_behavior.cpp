@@ -10,6 +10,9 @@ we need it...
 #include "g_headers.h"
 #include "g_navigator.h"
 #include "Q3_Interface.h"
+#include "../game/b_local.h"
+#include "../game/g_functions.h"
+#include "g_nav.h"
 
 extern cvar_t	*g_AIsurrender;
 extern	qboolean	showBBoxes;
@@ -87,13 +90,13 @@ void NPC_BSAdvanceFight (void)
 					trace_t		tr;
 					gentity_t	*traceEnt;
 					//are we gonna hit him if we shoot at his center?
-					gi.trace ( &tr, muzzle, NULL, NULL, enemy_org, NPC->s.number, MASK_SHOT );
+					gi.trace ( &tr, muzzle, NULL, NULL, enemy_org, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 					traceEnt = &g_entities[tr.entityNum];
 					if( traceEnt != NPC->enemy &&
 						(!traceEnt || !traceEnt->client || !NPC->client->enemyTeam || NPC->client->enemyTeam != traceEnt->client->playerTeam) )
 					{//no, so shoot for the head
 						attack_scale *= 0.75;
-						gi.trace ( &tr, muzzle, NULL, NULL, enemy_head, NPC->s.number, MASK_SHOT );
+						gi.trace ( &tr, muzzle, NULL, NULL, enemy_head, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 						traceEnt = &g_entities[tr.entityNum];
 					}
 
@@ -134,13 +137,13 @@ void NPC_BSAdvanceFight (void)
 						VectorMA ( muzzle, distanceToEnemy, forward, hitspot);
 						VectorSubtract(hitspot, enemy_org, diff);
 						aim_off = VectorLength(diff);
-						if(aim_off > random() * max_aim_off)//FIXME: use aim value to allow poor aim?
+						if(aim_off > randomLava() * max_aim_off)//FIXME: use aim value to allow poor aim?
 						{
 							attack_scale *= 0.75;
 							//see if where we're going to shoot is too far from his head
 							VectorSubtract(hitspot, enemy_head, diff);
 							aim_off = VectorLength(diff);
-							if(aim_off > random() * max_aim_off)
+							if(aim_off > randomLava() * max_aim_off)
 							{
 								attack_ok = qfalse;
 							}

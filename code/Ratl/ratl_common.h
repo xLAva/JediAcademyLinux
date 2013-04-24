@@ -71,6 +71,23 @@
 #define STRING_H_INC
 #endif
 
+#ifdef LINUX
+#define __cdecl
+#define stricmp strcasecmp
+#define strcmpi strcasecmp
+#define strnicmp strncasecmp
+#define _strnicmp strncasecmp
+//#include <assert.h>
+//#include <ctype.h>
+
+//char* strupr(char* s);
+
+//char* strlwr(char* s);
+
+//#include <math.h>
+//#define _isnan isnan
+
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // Forward Dec.
@@ -280,7 +297,7 @@ public:
 	{
 		return 1;
 	}
-#endif;
+#endif
 };
 
 
@@ -1030,7 +1047,7 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////
 	// Data
 	////////////////////////////////////////////////////////////////////////////////////
-	typedef typename T					TStorageTraits;
+	typedef T					TStorageTraits;
 	typedef typename T::TArray			TTArray;
 	typedef typename T::TValue			TTValue;
 	typedef typename T::TConstructed	TTConstructed;

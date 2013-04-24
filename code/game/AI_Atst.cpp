@@ -3,6 +3,7 @@
 
 	    
 #include "b_local.h"
+#include "../cgame/cg_local.h"
 
 
 #define	MIN_MELEE_RANGE		640
@@ -116,7 +117,7 @@ NPC_ATST_Pain
 void NPC_ATST_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, int mod,int hitLoc ) 
 {
 	G_ATSTCheckPain( self, other, point, damage, mod, hitLoc );
-	NPC_Pain( self, inflictor, other, point, damage, mod );
+	NPC_Pain( self, inflictor, other, point, damage, mod, HL_NONE );
 }
 
 /*

@@ -4,6 +4,7 @@
 
 #include "b_local.h"
 #include "g_nav.h"
+#include "../cgame/cg_local.h"
 
 gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, qboolean altFire = qfalse );
 extern gitem_t	*FindItemForAmmo( ammo_t ammo );
@@ -192,7 +193,7 @@ void ImperialProbe_Strafe( void )
 	dir = ( rand() & 1 ) ? -1 : 1;
 	VectorMA( NPC->currentOrigin, HUNTER_STRAFE_DIS * dir, right, end );
 
-	gi.trace( &tr, NPC->currentOrigin, NULL, NULL, end, NPC->s.number, MASK_SOLID );
+	gi.trace( &tr, NPC->currentOrigin, NULL, NULL, end, NPC->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
 
 	// Close enough
 	if ( tr.fraction > 0.9f )
@@ -204,7 +205,7 @@ void ImperialProbe_Strafe( void )
 
 		// Set the strafe start time so we can do a controlled roll
 		NPC->fx_time = level.time;
-		NPCInfo->standTime = level.time + 3000 + random() * 500;
+		NPCInfo->standTime = level.time + 3000 + randomLava() * 500;
 	}
 }
 
@@ -435,7 +436,7 @@ void NPC_Probe_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, co
 		trace_t	trace;
 
 		VectorSet( endPos, self->currentOrigin[0], self->currentOrigin[1], self->currentOrigin[2] - 128 );
-		gi.trace( &trace, self->currentOrigin, NULL, NULL, endPos, self->s.number, MASK_SOLID );
+		gi.trace( &trace, self->currentOrigin, NULL, NULL, endPos, self->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
 
 		if ( trace.fraction == 1.0f || mod == MOD_DEMP2 ) // demp2 always does this
 		{
@@ -476,13 +477,13 @@ void NPC_Probe_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, co
 	{
 		pain_chance = NPC_GetPainChance( self, damage );
 
-		if ( random() < pain_chance )	// Spin around in pain?
+		if ( randomLava() < pain_chance )	// Spin around in pain?
 		{
 			NPC_SetAnim( self, SETANIM_BOTH, BOTH_PAIN1, SETANIM_FLAG_OVERRIDE);
 		}	
 	}
 
-	NPC_Pain( self, inflictor, other, point, damage, mod);
+	NPC_Pain( self, inflictor, other, point, damage, mod, HL_NONE);
 }
 
 /*
@@ -558,7 +559,7 @@ void ImperialProbe_Wait(void)
 		NPCInfo->desiredYaw = AngleNormalize360( NPCInfo->desiredYaw + 25 );
 
 		VectorSet( endPos, NPC->currentOrigin[0], NPC->currentOrigin[1], NPC->currentOrigin[2] - 32 );
-		gi.trace( &trace, NPC->currentOrigin, NULL, NULL, endPos, NPC->s.number, MASK_SOLID );
+		gi.trace( &trace, NPC->currentOrigin, NULL, NULL, endPos, NPC->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
 
 		if ( trace.fraction != 1.0f )
 		{

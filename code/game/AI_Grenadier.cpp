@@ -94,7 +94,7 @@ void NPC_Grenadier_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other
 	TIMER_Set( self, "duck", -1 );
 	TIMER_Set( self, "stand", 2000 );
 
-	NPC_Pain( self, inflictor, other, point, damage, mod );
+	NPC_Pain( self, inflictor, other, point, damage, mod, HL_NONE );
 
 	if ( !damage && self->health > 0 )
 	{//FIXME: better way to know I was pushed
@@ -497,7 +497,7 @@ void NPC_BSGrenadier_Attack( void )
 		if ( NPC->client->ps.weapon == WP_THERMAL )
 		{//grenadier
 			trace_t	trace;
-			gi.trace ( &trace, NPC->currentOrigin, NPC->enemy->mins, NPC->enemy->maxs, NPC->enemy->currentOrigin, NPC->s.number, NPC->enemy->clipmask );
+			gi.trace ( &trace, NPC->currentOrigin, NPC->enemy->mins, NPC->enemy->maxs, NPC->enemy->currentOrigin, NPC->s.number, NPC->enemy->clipmask, G2_NOCOLLIDE, 0 );
 			if ( !trace.allsolid && !trace.startsolid && (trace.fraction == 1.0 || trace.entityNum == NPC->enemy->s.number ) )
 			{//I can get right to him
 				//reset fire-timing variables

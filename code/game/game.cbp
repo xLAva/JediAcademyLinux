@@ -28,6 +28,7 @@
 					<Add option="-fPIC" />
 					<Add option="-ffast-math" />
 					<Add option="-fno-operator-names" />
+					<Add option="-fpermissive" />
 					<Add option="-DLINUX" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_IMMERSION_DISABLED" />
@@ -261,10 +262,10 @@
 		<Unit filename="AI_Tusken.cpp" />
 		<Unit filename="AI_Utils.cpp" />
 		<Unit filename="AI_Wampa.cpp" />
-		<Unit filename="AnimalNPC.c">
+		<Unit filename="AnimalNPC.cpp">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="FighterNPC.c">
+		<Unit filename="FighterNPC.cpp">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="G_Timer.cpp" />
@@ -282,10 +283,10 @@
 		<Unit filename="NPC_utils.cpp" />
 		<Unit filename="Q3_Interface.cpp" />
 		<Unit filename="Q3_Interface.h" />
-		<Unit filename="SpeederNPC.c">
+		<Unit filename="SpeederNPC.cpp">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="WalkerNPC.c">
+		<Unit filename="WalkerNPC.cpp">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="anims.h" />
@@ -301,7 +302,7 @@
 		<Unit filename="bg_pmove.cpp" />
 		<Unit filename="bg_public.h" />
 		<Unit filename="bg_slidemove.cpp" />
-		<Unit filename="bg_vehicleLoad.c">
+		<Unit filename="bg_vehicleLoad.cpp">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="bset.h" />
@@ -356,7 +357,7 @@
 		<Unit filename="g_turret.cpp" />
 		<Unit filename="g_usable.cpp" />
 		<Unit filename="g_utils.cpp" />
-		<Unit filename="g_vehicles.c">
+		<Unit filename="g_vehicles.cpp">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="g_vehicles.h" />
@@ -383,17 +384,17 @@
 		<Unit filename="../ghoul2/G2.h" />
 		<Unit filename="../ghoul2/ghoul2_gore.h" />
 		<Unit filename="../icarus/BlockStream.cpp" />
+		<Unit filename="../icarus/BlockStream.h" />
 		<Unit filename="../icarus/IcarusImplementation.cpp" />
 		<Unit filename="../icarus/IcarusImplementation.h" />
 		<Unit filename="../icarus/IcarusInterface.h" />
 		<Unit filename="../icarus/Sequence.cpp" />
+		<Unit filename="../icarus/Sequence.h" />
 		<Unit filename="../icarus/Sequencer.cpp" />
+		<Unit filename="../icarus/Sequencer.h" />
 		<Unit filename="../icarus/StdAfx.h" />
 		<Unit filename="../icarus/TaskManager.cpp" />
-		<Unit filename="../icarus/blockstream.h" />
-		<Unit filename="../icarus/sequence.h" />
-		<Unit filename="../icarus/sequencer.h" />
-		<Unit filename="../icarus/taskmanager.h" />
+		<Unit filename="../icarus/TaskManager.h" />
 		<Unit filename="../qcommon/sstring.h" />
 		<Unit filename="../qcommon/tags.h" />
 		<Unit filename="../qcommon/timing.h" />
@@ -409,7 +410,12 @@
 		</Unit>
 		<Unit filename="../ui/gameinfo.cpp" />
 		<Unit filename="../ui/gameinfo.h" />
-		<Unit filename="../win32/game.rc" />
+		<Unit filename="../win32/game.rc">
+			<Option target="SHDebug Win32" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="FinalBuild Win32" />
+		</Unit>
 		<Extensions>
 			<code_completion />
 			<debugger />

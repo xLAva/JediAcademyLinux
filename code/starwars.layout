@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="Release Linux" />
+	<File name="game/q_shared.h" open="0" top="0" tabpos="0">
+		<Cursor position="3285" topLine="91" />
+	</File>
+	<File name="renderer/qgl.h" open="1" top="1" tabpos="0">
+		<Cursor position="500" topLine="63" />
+	</File>
+	<File name="renderer/tr_cmds.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="7620" topLine="274" />
+	</File>
+	<File name="renderer/tr_surface.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="38887" topLine="1233" />
+	</File>
+	<File name="ui/ui_saber.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="9273" topLine="361" />
+	</File>
+</CodeBlocks_layout_file>

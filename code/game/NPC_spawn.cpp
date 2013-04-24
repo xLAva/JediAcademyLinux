@@ -1474,7 +1474,7 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent, qboolean fullSpawnNow )
 		VectorCopy( ent->currentOrigin, saveOrg );
 		VectorCopy( ent->currentOrigin, bottom );
 		bottom[2] = MIN_WORLD_COORD;
-		gi.trace( &tr, ent->currentOrigin, ent->mins, ent->maxs, bottom, ent->s.number, MASK_NPCSOLID );
+		gi.trace( &tr, ent->currentOrigin, ent->mins, ent->maxs, bottom, ent->s.number, MASK_NPCSOLID, G2_NOCOLLIDE, 0 );
 		if ( !tr.allsolid && !tr.startsolid && tr.fraction < 1.0 )
 		{
 			G_SetOrigin( ent, tr.endpos );
@@ -4101,10 +4101,10 @@ static void NPC_Spawn_f(void)
 	AngleVectors(g_entities[0].client->ps.viewangles, forward, NULL, NULL);
 	VectorNormalize(forward);
 	VectorMA(g_entities[0].currentOrigin, 64, forward, end);
-	gi.trace(&trace, g_entities[0].currentOrigin, NULL, NULL, end, 0, MASK_SOLID);
+	gi.trace(&trace, g_entities[0].currentOrigin, NULL, NULL, end, 0, MASK_SOLID, G2_NOCOLLIDE, 0);
 	VectorCopy(trace.endpos, end);
 	end[2] -= 24;
-	gi.trace(&trace, trace.endpos, NULL, NULL, end, 0, MASK_SOLID);
+	gi.trace(&trace, trace.endpos, NULL, NULL, end, 0, MASK_SOLID, G2_NOCOLLIDE, 0);
 	VectorCopy(trace.endpos, end);
 	end[2] += 24;
 	G_SetOrigin(NPCspawner, end);

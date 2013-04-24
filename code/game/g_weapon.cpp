@@ -12,6 +12,7 @@
 #include "b_local.h"
 #include "wp_saber.h"
 #include "g_vehicles.h"
+#include "../cgame/cg_local.h"
 
 static	vec3_t	forward, vright, up;
 static	vec3_t	muzzle;
@@ -312,7 +313,7 @@ static void WP_TraceSetStart( const gentity_t *ent, vec3_t start, const vec3_t m
 	VectorCopy( ent->currentOrigin, newstart );
 	newstart[2] = start[2]; // force newstart to be on the same plane as the muzzle ( start )
 
-	gi.trace( &tr, newstart, entMins, entMaxs, start, ent->s.number, MASK_SOLID|CONTENTS_SHOTCLIP );
+	gi.trace( &tr, newstart, entMins, entMaxs, start, ent->s.number, MASK_SOLID|CONTENTS_SHOTCLIP, G2_NOCOLLIDE, 0 );
 
 	if ( tr.startsolid || tr.allsolid )
 	{
@@ -617,7 +618,7 @@ int WP_FindClosestBodyPart(gentity_t *ent, gentity_t *other, vec3_t point, vec3_
 
 		if (where < 2 && c == 0) 
 		{
-			if (random() < .75f)		// 25% chance to actualy hit the head or eye
+			if (randomLava() < .75f)		// 25% chance to actualy hit the head or eye
 				where = 7;
 		}
 
@@ -675,9 +676,9 @@ int WP_FindClosestBodyPart(gentity_t *ent, gentity_t *other, vec3_t point, vec3_
 	if (c == 0)
 	{
 		// Add a bit of chance to the actual location
-		float r = random() * 8.0f - 4.0f;
-		float r2 = random() * 8.0f - 4.0f;
-		float r3 = random() * 10.0f - 5.0f;
+		float r = randomLava() * 8.0f - 4.0f;
+		float r2 = randomLava() * 8.0f - 4.0f;
+		float r3 = randomLava() * 10.0f - 5.0f;
 
 		out[0] += r;
 		out[1] += r2;
@@ -2147,7 +2148,7 @@ void WP_flechette_alt_blow( gentity_t *ent )
 static void WP_CreateFlechetteBouncyThing( vec3_t start, vec3_t fwd, gentity_t *self )
 //------------------------------------------------------------------------------
 {
-	gentity_t	*missile = CreateMissile( start, fwd, 950 + random() * 700, 1500 + random() * 2000, self, qtrue );
+	gentity_t	*missile = CreateMissile( start, fwd, 950 + randomLava() * 700, 1500 + randomLava() * 2000, self, qtrue );
 	
 	missile->e_ThinkFunc = thinkF_WP_flechette_alt_blow;
 
@@ -2194,7 +2195,7 @@ static void WP_FlechetteAltFire( gentity_t *self )
 	{
 		VectorCopy( angs, dir );
 
-		dir[PITCH] -= random() * 4 + 8; // make it fly upwards
+		dir[PITCH] -= randomLava() * 4 + 8; // make it fly upwards
 		dir[YAW] += crandom() * 2;
 		AngleVectors( dir, fwd, NULL, NULL );
 
@@ -2433,7 +2434,7 @@ static void WP_FireRocket( gentity_t *ent, qboolean alt_fire )
 			// if we are fully locked, always take on the enemy.  
 			//	Also give a slight advantage to higher, but not quite full charges.  
 			//	Finally, just give any amount of charge a very slight random chance of locking.
-			if ( dif == 8 || random() * dif > 2 || random() > 0.97f )
+			if ( dif == 8 || randomLava() * dif > 2 || randomLava() > 0.97f )
 			{
 				missile->enemy = &g_entities[lockEntNum];
 
@@ -2861,7 +2862,7 @@ static void WP_DropDetPack( gentity_t *self, vec3_t start, vec3_t dir )
 
 	missile->s.radius = 30;
 	VectorSet( missile->s.modelScale, 1.0f, 1.0f, 1.0f );
-	gi.G2API_InitGhoul2Model( missile->ghoul2, weaponData[WP_DET_PACK].missileMdl, G_ModelIndex( weaponData[WP_DET_PACK].missileMdl ));
+	gi.G2API_InitGhoul2Model( missile->ghoul2, weaponData[WP_DET_PACK].missileMdl, G_ModelIndex( weaponData[WP_DET_PACK].missileMdl ), NULL, NULL, 0, 0);
 
 	AddSoundEvent( NULL, missile->currentOrigin, 128, AEL_MINOR, qtrue );
 	AddSightEvent( NULL, missile->currentOrigin, 128, AEL_SUSPICIOUS, 10 );
@@ -2889,7 +2890,7 @@ static void WP_FireDetPack( gentity_t *ent, qboolean alt_fire )
 				{
 					VectorCopy( found->currentOrigin, found->s.origin );
 					found->e_ThinkFunc = thinkF_WP_Explode;
-					found->nextthink = level.time + 100 + random() * 100;
+					found->nextthink = level.time + 100 + randomLava() * 100;
 					G_Sound( found, G_SoundIndex( "sound/weapons/detpack/warning.wav" ));
 
 					// would be nice if this actually worked?
@@ -3095,7 +3096,7 @@ void CreateLaserTrap( gentity_t *laserTrap, vec3_t start, gentity_t *owner )
 
 	laserTrap->s.radius = 60;
 	VectorSet( laserTrap->s.modelScale, 1.0f, 1.0f, 1.0f );
-	gi.G2API_InitGhoul2Model( laserTrap->ghoul2, weaponData[WP_TRIP_MINE].missileMdl, G_ModelIndex( weaponData[WP_TRIP_MINE].missileMdl ));
+	gi.G2API_InitGhoul2Model( laserTrap->ghoul2, weaponData[WP_TRIP_MINE].missileMdl, G_ModelIndex( weaponData[WP_TRIP_MINE].missileMdl ), NULL, NULL, 0, 0);
 }
 
 //---------------------------------------------------------
@@ -3321,7 +3322,7 @@ qboolean WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, 
 					elapsedTime = floor( travelTime );
 				}
 				EvaluateTrajectory( &tr, level.time + elapsedTime, testPos );
-				gi.trace( &trace, lastPos, mins, maxs, testPos, ignoreEntNum, clipmask );
+				gi.trace( &trace, lastPos, mins, maxs, testPos, ignoreEntNum, clipmask, G2_NOCOLLIDE, 0 );
 
 				if ( trace.allsolid || trace.startsolid )
 				{
@@ -3854,7 +3855,7 @@ void WP_FireStunBaton( gentity_t *ent, qboolean alt_fire )
 	VectorSet( maxs, 5, 5, 5 );
 	VectorScale( maxs, -1, mins );
 
-	gi.trace ( &tr, start, mins, maxs, end, ent->s.number, CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_SHOTCLIP );
+	gi.trace ( &tr, start, mins, maxs, end, ent->s.number, CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_SHOTCLIP, G2_NOCOLLIDE, 0 );
 
 	if ( tr.entityNum >= ENTITYNUM_WORLD || tr.entityNum < 0 )
 	{
@@ -3893,7 +3894,7 @@ void WP_Melee( gentity_t *ent )
 	VectorSet( maxs, 6, 6, 6 );
 	VectorScale( maxs, -1, mins );
 
-	gi.trace ( &tr, muzzle, mins, maxs, end, ent->s.number, MASK_SHOT );
+	gi.trace ( &tr, muzzle, mins, maxs, end, ent->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 
 	if ( tr.entityNum >= ENTITYNUM_WORLD )
 	{
@@ -4380,7 +4381,7 @@ void WP_RocketLock( gentity_t *ent, float lockDist )
 	ang[1] = muzzlePoint[1] + ang[1]*lockDist;
 	ang[2] = muzzlePoint[2] + ang[2]*lockDist;
 
-	gi.trace(&tr, muzzlePoint, NULL, NULL, ang, ent->client->ps.clientNum, MASK_PLAYERSOLID);
+	gi.trace(&tr, muzzlePoint, NULL, NULL, ang, ent->client->ps.clientNum, MASK_PLAYERSOLID, G2_NOCOLLIDE, 0);
 
 	if (tr.fraction != 1 && tr.entityNum < ENTITYNUM_NONE && tr.entityNum != ent->client->ps.clientNum)
 	{
@@ -4715,7 +4716,7 @@ void FireVehicleWeapon( gentity_t *ent, qboolean alt_fire )
 							AngleVectors( pVeh->m_vOrientation, dir, NULL, NULL );
 							//VectorMA( ent->currentOrigin, 32768, dir, end );
 							VectorMA( ent->currentOrigin, 8192, dir, end );
-							gi.trace( &trace, ent->currentOrigin, vec3_origin, vec3_origin, end, ent->s.number, MASK_SHOT );
+							gi.trace( &trace, ent->currentOrigin, vec3_origin, vec3_origin, end, ent->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 							//if ( trace.fraction < 1.0f && !trace.allsolid && !trace.startsolid )
 							//bah, always point at end of trace
 							{
@@ -5273,7 +5274,7 @@ void misc_weapon_shooter_fire( gentity_t *self )
 		self->e_ThinkFunc = thinkF_misc_weapon_shooter_fire;
 		if (self->random)
 		{
-			self->nextthink = level.time + self->wait + (int)(random()*self->random);
+			self->nextthink = level.time + self->wait + (int)(randomLava()*self->random);
 		}
 		else
 		{

@@ -9,6 +9,7 @@
 #include "g_nav.h"
 #include "g_navigator.h"
 #include "wp_saber.h"
+#include "../game/g_functions.h"
 
 extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
 extern void G_SetEnemy( gentity_t *self, gentity_t *enemy );
@@ -1310,7 +1311,7 @@ qboolean ShotThroughGlass (trace_t *tr, gentity_t *target, vec3_t spot, int mask
 		vec3_t		muzzle;
 
 		VectorCopy(tr->endpos, muzzle);
-		gi.trace (tr, muzzle, NULL, NULL, spot, skip, mask );
+		gi.trace (tr, muzzle, NULL, NULL, spot, skip, mask, G2_NOCOLLIDE, 0 );
 		return qtrue;
 	}
 
@@ -1335,7 +1336,7 @@ qboolean CanShoot ( gentity_t *ent, gentity_t *shooter )
 	CalcEntitySpot( shooter, SPOT_WEAPON, muzzle );
 	CalcEntitySpot( ent, SPOT_ORIGIN, spot );		//FIXME preferred target locations for some weapons (feet for R/L)
 
-	gi.trace ( &tr, muzzle, NULL, NULL, spot, shooter->s.number, MASK_SHOT );
+	gi.trace ( &tr, muzzle, NULL, NULL, spot, shooter->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 	traceEnt = &g_entities[ tr.entityNum ];
 
 	// point blank, baby!
@@ -1358,7 +1359,7 @@ qboolean CanShoot ( gentity_t *ent, gentity_t *shooter )
 	else
 	{//ok, can't hit them in center, try their head
 		CalcEntitySpot( ent, SPOT_HEAD, spot );
-		gi.trace ( &tr, muzzle, NULL, NULL, spot, shooter->s.number, MASK_SHOT );
+		gi.trace ( &tr, muzzle, NULL, NULL, spot, shooter->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 		traceEnt = &g_entities[ tr.entityNum ];
 		if ( traceEnt == ent) 
 		{
@@ -1369,7 +1370,7 @@ qboolean CanShoot ( gentity_t *ent, gentity_t *shooter )
 	//Actually, we should just check to fire in dir we're facing and if it's close enough,
 	//and we didn't hit someone on our own team, shoot
 	VectorSubtract(spot, tr.endpos, diff);
-	if(VectorLength(diff) < random() * 32)
+	if(VectorLength(diff) < randomLava() * 32)
 	{
 		return qtrue;
 	}
@@ -2255,11 +2256,11 @@ qboolean NPC_ClearShot( gentity_t *ent )
 		vec3_t	mins = { -2, -2, -2 };
 		vec3_t	maxs = {  2,  2,  2 };
 
-		gi.trace ( &tr, muzzle, mins, maxs, ent->currentOrigin, NPC->s.number, MASK_SHOT );
+		gi.trace ( &tr, muzzle, mins, maxs, ent->currentOrigin, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 	}
 	else
 	{
-		gi.trace ( &tr, muzzle, NULL, NULL, ent->currentOrigin, NPC->s.number, MASK_SHOT );
+		gi.trace ( &tr, muzzle, NULL, NULL, ent->currentOrigin, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 	}
 	
 	if ( tr.startsolid || tr.allsolid )
@@ -2298,7 +2299,7 @@ int NPC_ShotEntity( gentity_t *ent, vec3_t impactPos )
 		AngleVectors( angles, forward, NULL, NULL );
 		VectorMA( muzzle, 8, forward, end );
 		end[2] += 24;
-		gi.trace ( &tr, muzzle, vec3_origin, vec3_origin, end, NPC->s.number, MASK_SHOT );
+		gi.trace ( &tr, muzzle, vec3_origin, vec3_origin, end, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 		VectorCopy( tr.endpos, muzzle );
 	}
 	else
@@ -2315,11 +2316,11 @@ int NPC_ShotEntity( gentity_t *ent, vec3_t impactPos )
 		vec3_t	mins = { -2, -2, -2 };
 		vec3_t	maxs = {  2,  2,  2 };
 
-		gi.trace ( &tr, muzzle, mins, maxs, targ, NPC->s.number, MASK_SHOT );
+		gi.trace ( &tr, muzzle, mins, maxs, targ, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 	}
 	else
 	{
-		gi.trace ( &tr, muzzle, NULL, NULL, targ, NPC->s.number, MASK_SHOT );
+		gi.trace ( &tr, muzzle, NULL, NULL, targ, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 	}
 	//FIXME: if using a bouncing weapon like the bowcaster, should we check the reflection of the wall, too?
 	if ( impactPos )
@@ -2382,7 +2383,7 @@ qboolean NPC_CheckDefend (float scale)
 	if(!scale)
 		scale = 1.0;
 
-	if((float)(NPCInfo->stats.evasion) > random() * 4 * scale)
+	if((float)(NPCInfo->stats.evasion) > randomLava() * 4 * scale)
 		return qtrue;
 
 	return qfalse;
@@ -2477,7 +2478,7 @@ qboolean NPC_CheckCanAttack (float attack_scale, qboolean stationary)
 			//NEW: use actual forward facing
 			AngleVectors( client->ps.viewangles, forward, NULL, NULL );
 			VectorMA( muzzle, distanceToEnemy, forward, hitspot );
-			gi.trace( &tr, muzzle, NULL, NULL, hitspot, NPC->s.number, MASK_SHOT );
+			gi.trace( &tr, muzzle, NULL, NULL, hitspot, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 			ShotThroughGlass( &tr, NPC->enemy, hitspot, MASK_SHOT );
 			/*
 			//OLD: trace regardless of facing
@@ -2557,13 +2558,13 @@ qboolean NPC_CheckCanAttack (float attack_scale, qboolean stationary)
 					VectorMA ( muzzle, distanceToEnemy, forward, hitspot);
 					VectorSubtract(hitspot, enemy_org, diff);
 					aim_off = VectorLength(diff);
-					if(aim_off > random() * max_aim_off)//FIXME: use aim value to allow poor aim?
+					if(aim_off > randomLava() * max_aim_off)//FIXME: use aim value to allow poor aim?
 					{
 						attack_scale *= 0.75;
 						//see if where we're going to shoot is too far from his head
 						VectorSubtract(hitspot, enemy_org, diff);
 						aim_off = VectorLength(diff);
-						if(aim_off > random() * max_aim_off)
+						if(aim_off > randomLava() * max_aim_off)
 						{
 							attack_ok = qfalse;
 						}
@@ -2919,7 +2920,7 @@ int NPC_FindCombatPoint( const vec3_t position, const vec3_t avoidPosition, vec3
 		}
 
 		//Okay, now make sure it's not blocked
-		gi.trace( &tr, level.combatPoints[i].origin, NPC->mins, NPC->maxs, level.combatPoints[i].origin, NPC->s.number, NPC->clipmask );
+		gi.trace( &tr, level.combatPoints[i].origin, NPC->mins, NPC->maxs, level.combatPoints[i].origin, NPC->s.number, NPC->clipmask, G2_NOCOLLIDE, 0 );
 		if ( tr.allsolid || tr.startsolid )
 		{
 			continue;

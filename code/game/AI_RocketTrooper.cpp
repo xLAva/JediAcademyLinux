@@ -196,7 +196,7 @@ void RT_FireDecide( void )
 							vec3_t	forward, end;
 							AngleVectors( NPC->client->ps.viewangles, forward, NULL, NULL );
 							VectorMA( muzzle, 8192, forward, end );
-							gi.trace( &tr, muzzle, vec3_origin, vec3_origin, end, NPC->s.number, MASK_SHOT );
+							gi.trace( &tr, muzzle, vec3_origin, vec3_origin, end, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 							VectorCopy( tr.endpos, impactPos );
 						}
 
@@ -614,7 +614,7 @@ void RT_Flying_Strafe( void )
 	vec3_t	end, right, dir;
 	trace_t	tr;
 
-	if ( random() > 0.7f 
+	if ( randomLava() > 0.7f 
 		|| !NPC->enemy 
 		|| !NPC->enemy->client )
 	{
@@ -626,7 +626,7 @@ void RT_Flying_Strafe( void )
 		side = ( rand() & 1 ) ? -1 : 1;
 		VectorMA( NPC->currentOrigin, RT_FLYING_STRAFE_DIS * side, right, end );
 
-		gi.trace( &tr, NPC->currentOrigin, NULL, NULL, end, NPC->s.number, MASK_SOLID );
+		gi.trace( &tr, NPC->currentOrigin, NULL, NULL, end, NPC->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
 
 		// Close enough
 		if ( tr.fraction > 0.9f )
@@ -650,7 +650,7 @@ void RT_Flying_Strafe( void )
 				}
 			}
 
-			NPCInfo->standTime = level.time + 1000 + random() * 500;
+			NPCInfo->standTime = level.time + 1000 + randomLava() * 500;
 		}
 	}
 	else
@@ -666,7 +666,7 @@ void RT_Flying_Strafe( void )
 		// then add a very small bit of random in front of/behind the player action
 		VectorMA( end, crandom() * 25, dir, end );
 
-		gi.trace( &tr, NPC->currentOrigin, NULL, NULL, end, NPC->s.number, MASK_SOLID );
+		gi.trace( &tr, NPC->currentOrigin, NULL, NULL, end, NPC->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
 
 		// Close enough
 		if ( tr.fraction > 0.9f )
@@ -703,7 +703,7 @@ void RT_Flying_Strafe( void )
 				}
 			}
 
-			NPCInfo->standTime = level.time + 2500 + random() * 500;
+			NPCInfo->standTime = level.time + 2500 + randomLava() * 500;
 		}
 	}
 }
@@ -844,7 +844,7 @@ void RT_Flying_Think( void )
 	if ( NPC->random == 0.0f )
 	{
 		// used to offset seekers around a circle so they don't occupy the same spot.  This is not a fool-proof method.
-		NPC->random = random() * 6.3f; // roughly 2pi
+		NPC->random = randomLava() * 6.3f; // roughly 2pi
 	}
 
 	if ( NPC->enemy && NPC->enemy->health && NPC->enemy->inuse )

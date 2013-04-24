@@ -4,6 +4,7 @@
 
 #include "g_local.h"
 #include "g_functions.h"
+#include "../game/b_local.h"
 
 extern void G_MoverTouchPushTriggers( gentity_t *ent, vec3_t oldOrg );
 void G_StopObjectMoving( gentity_t *object );
@@ -102,7 +103,7 @@ void G_RunObject( gentity_t *ent )
 	// trace a line from the previous position to the current position,
 	// ignoring interactions with the missile owner
 	gi.trace( &tr, ent->currentOrigin, ent->mins, ent->maxs, origin, 
-		ent->owner ? ent->owner->s.number : ent->s.number, ent->clipmask );
+		ent->owner ? ent->owner->s.number : ent->s.number, ent->clipmask, G2_NOCOLLIDE, 0 );
 
 	if ( !tr.startsolid && !tr.allsolid && tr.fraction ) 
 	{

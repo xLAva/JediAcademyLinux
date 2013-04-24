@@ -38,7 +38,7 @@ void NPC_Remote_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, c
 	Remote_Strafe();
 	RestoreNPCGlobals();
 
-	NPC_Pain( self, inflictor, other, point, damage, mod );
+	NPC_Pain( self, inflictor, other, point, damage, mod, HL_NONE );
 }
 
 /*
@@ -154,7 +154,7 @@ void Remote_Strafe( void )
 	dir = ( rand() & 1 ) ? -1 : 1;
 	VectorMA( NPC->currentOrigin, REMOTE_STRAFE_DIS * dir, right, end );
 
-	gi.trace( &tr, NPC->currentOrigin, NULL, NULL, end, NPC->s.number, MASK_SOLID );
+	gi.trace( &tr, NPC->currentOrigin, NULL, NULL, end, NPC->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
 
 	// Close enough
 	if ( tr.fraction > 0.9f )
@@ -168,7 +168,7 @@ void Remote_Strafe( void )
 
 		// Set the strafe start time so we can do a controlled roll
 		NPC->fx_time = level.time;
-		NPCInfo->standTime = level.time + 3000 + random() * 500;
+		NPCInfo->standTime = level.time + 3000 + randomLava() * 500;
 	}
 }
 

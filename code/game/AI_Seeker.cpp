@@ -4,6 +4,7 @@
 
 #include "b_local.h"
 #include "g_nav.h"
+#include "../cgame/cg_local.h"
 
 extern void NPC_BSST_Patrol( void );
 extern void Boba_FireDecide( void );
@@ -48,7 +49,7 @@ void NPC_Seeker_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, c
 	SetNPCGlobals( self );
 	Seeker_Strafe();
 	RestoreNPCGlobals();
-	NPC_Pain( self, inflictor, other, point, damage, mod );
+	NPC_Pain( self, inflictor, other, point, damage, mod, HL_NONE );
 }
 
 //------------------------------------
@@ -158,7 +159,7 @@ void Seeker_Strafe( void )
 	vec3_t	end, right, dir;
 	trace_t	tr;
 
-	if ( random() > 0.7f || !NPC->enemy || !NPC->enemy->client )
+	if ( randomLava() > 0.7f || !NPC->enemy || !NPC->enemy->client )
 	{
 		// Do a regular style strafe
 		AngleVectors( NPC->client->renderInfo.eyeAngles, NULL, right, NULL );
@@ -168,7 +169,7 @@ void Seeker_Strafe( void )
 		side = ( rand() & 1 ) ? -1 : 1;
 		VectorMA( NPC->currentOrigin, SEEKER_STRAFE_DIS * side, right, end );
 
-		gi.trace( &tr, NPC->currentOrigin, NULL, NULL, end, NPC->s.number, MASK_SOLID );
+		gi.trace( &tr, NPC->currentOrigin, NULL, NULL, end, NPC->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
 
 		// Close enough
 		if ( tr.fraction > 0.9f )
@@ -188,7 +189,7 @@ void Seeker_Strafe( void )
 			// Add a slight upward push
 			NPC->client->ps.velocity[2] += upPush;
 
-			NPCInfo->standTime = level.time + 1000 + random() * 500;
+			NPCInfo->standTime = level.time + 1000 + randomLava() * 500;
 		}
 	}
 	else
@@ -208,7 +209,7 @@ void Seeker_Strafe( void )
 		// then add a very small bit of random in front of/behind the player action
 		VectorMA( end, crandom() * 25, dir, end );
 
-		gi.trace( &tr, NPC->currentOrigin, NULL, NULL, end, NPC->s.number, MASK_SOLID );
+		gi.trace( &tr, NPC->currentOrigin, NULL, NULL, end, NPC->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
 
 		// Close enough
 		if ( tr.fraction > 0.9f )
@@ -233,7 +234,7 @@ void Seeker_Strafe( void )
 			// Add a slight upward push
 			NPC->client->ps.velocity[2] += upPush;
 
-			NPCInfo->standTime = level.time + 2500 + random() * 500;
+			NPCInfo->standTime = level.time + 2500 + randomLava() * 500;
 		}
 	}
 }
@@ -414,7 +415,7 @@ void Seeker_FindEnemy( void )
 	if ( best )
 	{
 		// used to offset seekers around a circle so they don't occupy the same spot.  This is not a fool-proof method.
-		NPC->random = random() * 6.3f; // roughly 2pi
+		NPC->random = randomLava() * 6.3f; // roughly 2pi
 
 		NPC->enemy = best;
 	}
@@ -470,7 +471,7 @@ void Seeker_FollowPlayer( void )
 		{
 			if ( TIMER_Done( NPC, "seekerhiss" ))
 			{
-				TIMER_Set( NPC, "seekerhiss", 1000 + random() * 1000 );
+				TIMER_Set( NPC, "seekerhiss", 1000 + randomLava() * 1000 );
 				G_Sound( NPC, G_SoundIndex( "sound/chars/seeker/misc/hiss" ));
 			}
 		}
@@ -507,7 +508,7 @@ void NPC_BSSeeker_Default( void )
 	if ( NPC->random == 0.0f )
 	{
 		// used to offset seekers around a circle so they don't occupy the same spot.  This is not a fool-proof method.
-		NPC->random = random() * 6.3f; // roughly 2pi
+		NPC->random = randomLava() * 6.3f; // roughly 2pi
 	}
 
 	if ( NPC->enemy && NPC->enemy->health && NPC->enemy->inuse )

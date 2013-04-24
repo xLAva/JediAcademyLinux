@@ -36,7 +36,7 @@ template <class T>
 class stack_base : public ratl_base
 {
 public:
-	typedef typename T TStorageTraits;
+	typedef T TStorageTraits;
 	typedef typename T::TValue TTValue;
     ////////////////////////////////////////////////////////////////////////////////////
 	// Capacity Enum

@@ -12,6 +12,9 @@
 #include "wp_saber.h"
 #include "g_vehicles.h"
 #include "../ghoul2/ghoul2_gore.h"
+#include "../game/b_local.h"
+#include "../cgame/cg_local.h"
+#include "../game/g_functions.h"
 
 extern void CG_SetClientViewAngles( vec3_t angles, qboolean overrideViewEnt );
 extern qboolean PM_InAnimForSaberMove( int anim, int saberMove );
@@ -306,7 +309,7 @@ void PM_IKUpdate( gentity_t *ent )
 					trace_t trace;
 					vec3_t destOrg;
 					VectorAdd( ent->currentOrigin, grabDiff, destOrg );
-					gi.trace( &trace, ent->currentOrigin, ent->mins, ent->maxs, destOrg, ent->s.number, (ent->clipmask&~holder->contents) );
+					gi.trace( &trace, ent->currentOrigin, ent->mins, ent->maxs, destOrg, ent->s.number, (ent->clipmask&~holder->contents), G2_NOCOLLIDE, 0 );
 					G_SetOrigin( ent, trace.endpos );
 					//FIXME: better yet: do an actual slidemove to the new pos?
 					//FIXME: if I'm alive, just tell me to walk some?
@@ -350,7 +353,7 @@ void BG_G2SetBoneAngles( centity_t *cent, gentity_t *gent, int boneIndex, const 
 {
 	if (boneIndex!=-1)
 	{
-		gi.G2API_SetBoneAnglesIndex( &cent->gent->ghoul2[0], boneIndex, angles, flags, up, right, forward, modelList ); 
+		gi.G2API_SetBoneAnglesIndex( &cent->gent->ghoul2[0], boneIndex, angles, flags, up, right, forward, modelList, 0, 0); 
 	}
 }
 
@@ -465,7 +468,7 @@ qboolean PM_AdjustAngleForWallRun( gentity_t *ent, usercmd_t *ucmd, qboolean doM
 			yawAdjust = 90;
 		}
 		VectorMA( ent->currentOrigin, dist, rt, traceTo );
-		gi.trace( &trace, ent->currentOrigin, mins, maxs, traceTo, ent->s.number, ent->clipmask );
+		gi.trace( &trace, ent->currentOrigin, mins, maxs, traceTo, ent->s.number, ent->clipmask , G2_NOCOLLIDE, 0);
 		if ( trace.fraction < 1.0f 
 			&& (trace.plane.normal[2] >= 0.0f && trace.plane.normal[2] <= 0.4f) )//&& ent->client->ps.groundEntityNum == ENTITYNUM_NONE )
 		{
@@ -477,7 +480,7 @@ qboolean PM_AdjustAngleForWallRun( gentity_t *ent, usercmd_t *ucmd, qboolean doM
 			AngleVectors( wallRunAngles, wallRunFwd, NULL, NULL );
 
 			VectorMA( ent->currentOrigin, 32, wallRunFwd, traceTo2 );
-			gi.trace( &trace2, ent->currentOrigin, mins, maxs, traceTo2, ent->s.number, ent->clipmask );
+			gi.trace( &trace2, ent->currentOrigin, mins, maxs, traceTo2, ent->s.number, ent->clipmask, G2_NOCOLLIDE, 0 );
 			if ( trace2.fraction < 1.0f && DotProduct( trace2.plane.normal, wallRunFwd ) <= -0.999f )
 			{//wall we can't run on in front of us
 				trace.fraction = 1.0f;//just a way to get it to kick us off the wall below
@@ -826,7 +829,7 @@ qboolean PM_AdjustAngleForWallRunUp( gentity_t *ent, usercmd_t *ucmd, qboolean d
 
 		AngleVectors( fwdAngles, fwd, NULL, NULL );
 		VectorMA( ent->currentOrigin, dist, fwd, traceTo );
-		gi.trace( &trace, ent->currentOrigin, mins, maxs, traceTo, ent->s.number, ent->clipmask );
+		gi.trace( &trace, ent->currentOrigin, mins, maxs, traceTo, ent->s.number, ent->clipmask, G2_NOCOLLIDE, 0 );
 		if ( trace.fraction > 0.5f )
 		{//hmm, some room, see if there's a floor right here
 			trace_t	trace2;
@@ -835,7 +838,7 @@ qboolean PM_AdjustAngleForWallRunUp( gentity_t *ent, usercmd_t *ucmd, qboolean d
 			top[2] += (ent->mins[2]*-1) + 4.0f;
 			VectorCopy( top, bottom );
 			bottom[2] -= 64.0f;//was 32.0f
-			gi.trace( &trace2, top, ent->mins, ent->maxs, bottom, ent->s.number, ent->clipmask );
+			gi.trace( &trace2, top, ent->mins, ent->maxs, bottom, ent->s.number, ent->clipmask, G2_NOCOLLIDE, 0 );
 			if ( !trace2.allsolid 
 				&& !trace2.startsolid 
 				&& trace2.fraction < 1.0f 
@@ -862,7 +865,7 @@ qboolean PM_AdjustAngleForWallRunUp( gentity_t *ent, usercmd_t *ucmd, qboolean d
 			trace_t	trace2;
 			VectorCopy( ent->currentOrigin, traceTo );
 			traceTo[2] += 64;
-			gi.trace( &trace2, ent->currentOrigin, mins, maxs, traceTo, ent->s.number, ent->clipmask );
+			gi.trace( &trace2, ent->currentOrigin, mins, maxs, traceTo, ent->s.number, ent->clipmask, G2_NOCOLLIDE, 0 );
 			if ( trace2.fraction < 1.0f )
 			{//will hit a ceiling, so force jump-off right now
 				//NOTE: hits any entity or clip brush in the way, too, not just architecture!
@@ -1003,7 +1006,7 @@ qboolean PM_AdjustAngleForWallJump( gentity_t *ent, usercmd_t *ucmd, qboolean do
 			}
 		}
 		VectorMA( ent->currentOrigin, dist, checkDir, traceTo );
-		gi.trace( &trace, ent->currentOrigin, mins, maxs, traceTo, ent->s.number, ent->clipmask );
+		gi.trace( &trace, ent->currentOrigin, mins, maxs, traceTo, ent->s.number, ent->clipmask, G2_NOCOLLIDE, 0 );
 		if ( //ucmd->upmove <= 0 && 
 			ent->client->ps.legsAnimTimer > 100 &&
 			trace.fraction < 1.0f && fabs(trace.plane.normal[2]) <= MAX_WALL_GRAB_SLOPE )
@@ -1776,7 +1779,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 				VectorSet( tmaxs, 8, 8, 4 );
 				//if we don't trace EVERY frame, can TURN while leaning and
 				//end up leaning into solid architecture (sigh)
-				gi.trace( &trace, start, tmins, tmaxs, end, gent->s.number, MASK_PLAYERSOLID );
+				gi.trace( &trace, start, tmins, tmaxs, end, gent->s.number, MASK_PLAYERSOLID, G2_NOCOLLIDE, 0 );
 
 				ps->leanofs = floor((float)leanofs * trace.fraction);
 

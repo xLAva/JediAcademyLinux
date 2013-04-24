@@ -19,21 +19,22 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 #include "b_local.h"
 #if !defined(RAVL_VEC_INC)
-	#include "..\Ravl\CVec.h"
+	#include "../Ravl/CVec.h"
 #endif
 #if !defined(RATL_ARRAY_VS_INC)
-	#include "..\Ratl\array_vs.h"
+	#include "../Ratl/array_vs.h"
 #endif
 #if !defined(RATL_VECTOR_VS_INC)
-	#include "..\Ratl\vector_vs.h"
+	#include "../Ratl/vector_vs.h"
 #endif
 #if !defined(RATL_HANDLE_POOL_VS_INC)
-	#include "..\Ratl\handle_pool_vs.h"
+	#include "../Ratl/handle_pool_vs.h"
 #endif
 #if !defined(RUFL_HSTRING_INC)
-	#include "..\Rufl\hstring.h"
+	#include "../Rufl/hstring.h"
 #endif
-
+#include "../game/g_navigator.h"
+#include "g_nav.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // Defines 
@@ -67,7 +68,7 @@ enum
 extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
 static void HT_Speech( gentity_t *self, int speechType, float failChance )
 {
-	if ( random() < failChance )
+	if ( randomLava() < failChance )
 	{
 		return;
 	}
@@ -737,7 +738,7 @@ private:
 					mActors[0]->maxs, 
 					mOrders[0].mPosition.v, 
 					mActors[0]->s.number, 
-					mActors[0]->clipmask
+					mActors[0]->clipmask, G2_NOCOLLIDE, 0
 					);
 
 			if (trace.fraction<1.0f)
@@ -869,7 +870,7 @@ private:
 					mActors[actorIndex]->maxs, 
 					OrderUp.v, 
 					mActors[actorIndex]->s.number, 
-					CONTENTS_SOLID|CONTENTS_TERRAIN|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP);
+					CONTENTS_SOLID|CONTENTS_TERRAIN|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP, G2_NOCOLLIDE, 0);
 
 				if (trace.startsolid || trace.allsolid)
 				{
@@ -1146,7 +1147,7 @@ void		Trooper_UpdateTroop(gentity_t* actor)
 						actor->maxs, 
 						iTroop->TroopLeader()->currentOrigin, 
 						actor->s.number, 
-						CONTENTS_SOLID|CONTENTS_TERRAIN|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP);
+						CONTENTS_SOLID|CONTENTS_TERRAIN|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP, G2_NOCOLLIDE, 0);
 
 					if (!trace.allsolid && 
 						!trace.startsolid && 
@@ -1303,7 +1304,7 @@ int			Trooper_CanHitTarget(gentity_t* actor, gentity_t* target, CTroop& troop, f
 	{
 		// Clear Line Of Sight To Target?
 		//--------------------------------
-		gi.trace(&tr, MuzzlePoint.v, NULL, NULL, troop.TargetVisablePosition().v, actor->s.number, MASK_SHOT);
+		gi.trace(&tr, MuzzlePoint.v, NULL, NULL, troop.TargetVisablePosition().v, actor->s.number, MASK_SHOT, G2_NOCOLLIDE, 0);
 		if (tr.startsolid || tr.allsolid)
 		{
 			return ENTITYNUM_NONE;

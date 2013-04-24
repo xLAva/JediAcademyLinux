@@ -10,7 +10,7 @@
 #include "anims.h"
 #include "g_functions.h"
 #include "wp_saber.h"
-#include "g_Vehicles.h"
+#include "g_vehicles.h"
 
 extern qboolean G_CheckForStrongAttackMomentum( gentity_t *self );
 extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
@@ -128,7 +128,7 @@ static void NPC_CheckAttacker( gentity_t *other, int mod )
 		}
 
 		//Randomly pick up the target
-		if ( random() > luckThreshold )
+		if ( randomLava() > luckThreshold )
 		{
 			G_ClearEnemy( other );
 			other->enemy = NPC;
@@ -283,7 +283,7 @@ void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, const vec3_t po
 	}
 
 	//See if we're going to flinch
-	if ( random() < pain_chance )
+	if ( randomLava() < pain_chance )
 	{
 		//Pick and play our animation
 		if ( (self->client->ps.eFlags&EF_FORCE_GRIPPED) )

@@ -64,14 +64,16 @@
 #if !defined(FINAL_BUILD)
 	#if !defined(RAGL_PROFILE_INC) && !defined(_XBOX)
 		#define  RAGL_PROFILE_INC
-		#include "Windows.h"
+		#if !defined(LINUX)
+			#include "Windows.h"
+		#endif
 	#endif
 #endif
 #if !defined(RAVL_VEC_INC)
-	#include "..\Ravl\CVec.h"
+	#include "../Ravl/CVec.h"
 #endif
 #if !defined(RATL_COMMON_INC)
-	#include "..\Ratl\ratl_common.h"
+	#include "../Ratl/ratl_common.h"
 #endif
 namespace ragl
 {

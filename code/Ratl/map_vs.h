@@ -98,7 +98,7 @@ template<class T, int IS_MULTI>
 class tree_base
 {
 public:
-	typedef typename T TStorageTraits;
+	typedef T TStorageTraits;
 	typedef typename T::TValue TTValue;
     ////////////////////////////////////////////////////////////////////////////////////
 	// Capacity Enum
@@ -831,7 +831,7 @@ class set_base : public tree_base<T,IS_MULTI>
 {
 
 public:
-	typedef typename T TStorageTraits;
+	typedef T TStorageTraits;
 	typedef typename T::TValue TTValue;
     ////////////////////////////////////////////////////////////////////////////////////
 	// Capacity Enum
@@ -1195,9 +1195,9 @@ template<class K,class V,int IS_MULTI>
 class map_base : public tree_base<K,IS_MULTI>
 {
 public:
-	typedef typename K TKeyStorageTraits;
+	typedef K TKeyStorageTraits;
 	typedef typename K::TValue TKTValue;
-	typedef typename V TValueStorageTraits;
+	typedef V TValueStorageTraits;
 	typedef typename V::TValue TVTValue;
     ////////////////////////////////////////////////////////////////////////////////////
 	// Capacity Enum

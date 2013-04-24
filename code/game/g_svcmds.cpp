@@ -7,6 +7,9 @@
 
 #include "g_local.h"
 #include "wp_saber.h"
+#include "../cgame/cg_camera.h"
+#include "../game/g_functions.h"
+#include "../cgame/cg_local.h"
 
 extern void G_NextTestAxes( void );
 extern void G_ChangePlayerModel( gentity_t *ent, const char *newModel );

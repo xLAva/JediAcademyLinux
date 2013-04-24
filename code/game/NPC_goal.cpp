@@ -7,6 +7,7 @@
 
 #include "b_local.h"
 #include "Q3_Interface.h"
+#include "../game/g_navigator.h"
 
 extern qboolean FlyingCreature( gentity_t *ent );
 /*

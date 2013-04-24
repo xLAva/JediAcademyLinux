@@ -6,8 +6,9 @@
 
 //#include "cg_local.h"
 #include "cg_media.h"
-#include "..\game\objectives.h"
-#include "..\game\g_vehicles.h"
+#include "../game/objectives.h"
+#include "../game/g_vehicles.h"
+#include "../game/g_local.h"
 
 #ifdef _XBOX
 #include "../client/fffx.h"
@@ -1948,7 +1949,7 @@ static void CG_DrawZoomMask( void )
 			CG_DrawPic( 307, 40, 26, 30, cgs.media.binocularTri );
 		}
 
-		if ( random() > 0.98f && ( cg.time & 1024 ))
+		if ( randomLava() > 0.98f && ( cg.time & 1024 ))
 		{
 			flip = !flip;
 		}

@@ -42,7 +42,7 @@ template <class T>
 class handle_pool_base : public pool_root<T>
 {
 public:
-	typedef typename T TStorageTraits;
+	typedef T TStorageTraits;
 	typedef typename T::TValue TTValue;
  	////////////////////////////////////////////////////////////////////////////////////
 	// Capacity Enum
@@ -130,14 +130,14 @@ public:
 	TTValue&			operator[](int i)											
 	{
 		assert(is_used(i));		//typically this is a stale handle (already been freed)
-		return value_at_index(i&mMASK_HANDLE_TO_INDEX);
+		return this->value_at_index(i&mMASK_HANDLE_TO_INDEX);
 	}
 
 	bool				is_used(int i) const
 	{
 		if (mHandles[i&mMASK_HANDLE_TO_INDEX]==i)
 		{
-			return is_used_index(i&mMASK_HANDLE_TO_INDEX);
+			return this->is_used_index(i&mMASK_HANDLE_TO_INDEX);
 		}
 		return false;
 	}
@@ -231,7 +231,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////
 	// Get An Iterator To The Object At handle
     ////////////////////////////////////////////////////////////////////////////////////
-	pool_root<T>::iterator	at(int handle)
+	typename pool_root<T>::iterator	at(int handle)
 	{
 		assert(is_used(handle));
 		return at_index(handle&mMASK_HANDLE_TO_INDEX);
@@ -240,7 +240,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////
 	// Get An Iterator To The Object At handle
     ////////////////////////////////////////////////////////////////////////////////////
-	pool_root<T>::const_iterator	at(int handle) const
+	typename pool_root<T>::const_iterator	at(int handle) const
 	{
 		assert(is_used(handle));
 		return at_index(handle&mMASK_HANDLE_TO_INDEX);

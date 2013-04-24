@@ -6,8 +6,9 @@
 #include "cg_media.h"
 #include "FxScheduler.h"
 
-#include "..\client\vmachine.h"
+#include "../client/vmachine.h"
 #include "cg_lights.h"
+#include "../game/g_local.h"
 
 #ifdef _IMMERSION
 #include "../ff/ff.h"
@@ -2039,8 +2040,8 @@ void CG_WriteTheEvilCGHackStuff(void)
 }
 void CG_ReadTheEvilCGHackStuff(void)
 {
-	gi.ReadFromSaveGame('FPSL', (void *)&gi_cg_forcepowerSelect, sizeof(gi_cg_forcepowerSelect));
-	gi.ReadFromSaveGame('IVSL', (void *)&gi_cg_inventorySelect,  sizeof(gi_cg_inventorySelect));
+	gi.ReadFromSaveGame('FPSL', (void *)&gi_cg_forcepowerSelect, sizeof(gi_cg_forcepowerSelect), NULL);
+	gi.ReadFromSaveGame('IVSL', (void *)&gi_cg_inventorySelect,  sizeof(gi_cg_inventorySelect), NULL);
 	gbUseTheseValuesFromLoadSave = qtrue;
 }
 

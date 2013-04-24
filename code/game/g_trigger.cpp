@@ -6,6 +6,7 @@
 #include "g_functions.h"
 #include "b_local.h"
 #include "anims.h"
+#include "../cgame/cg_local.h"
 
 #define ENTDIST_PLAYER	1
 #define ENTDIST_NPC		2
@@ -814,7 +815,7 @@ void trigger_push_checkclear( gentity_t *self )
 	VectorScale( center, 0.5, center );
 
 	gentity_t *target = G_Find( NULL, FOFS(targetname), self->target );
-	gi.trace( &trace, center, vec3_origin, vec3_origin, target->currentOrigin, ENTITYNUM_NONE, CONTENTS_SOLID );
+	gi.trace( &trace, center, vec3_origin, vec3_origin, target->currentOrigin, ENTITYNUM_NONE, CONTENTS_SOLID, G2_NOCOLLIDE, 0 );
 
 	if ( trace.fraction >= 1.0f )
 	{//can trace, turn on

@@ -103,7 +103,7 @@ void NPC_Sniper_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, v
 	TIMER_Set( self, "duck", -1 );
 	TIMER_Set( self, "stand", 2000 );
 
-	NPC_Pain( self, inflictor, other, point, damage, mod );
+	NPC_Pain( self, inflictor, other, point, damage, mod, HL_NONE );
 
 	if ( !damage && self->health > 0 )
 	{//FIXME: better way to know I was pushed
@@ -587,7 +587,7 @@ void Sniper_FaceEnemy( void )
 								VectorMA( target, NPC->enemy->mins[2]*Q_flrand(1.5, 4), up, target );
 							}
 						}
-						gi.trace( &trace, muzzle, vec3_origin, vec3_origin, target, NPC->s.number, MASK_SHOT );
+						gi.trace( &trace, muzzle, vec3_origin, vec3_origin, target, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 						hit = Sniper_EvaluateShot( trace.entityNum );
 					}
 					NPC->count++;
@@ -709,7 +709,7 @@ void NPC_BSSniper_Attack( void )
 			if ( NPCInfo->scriptFlags & SCF_ALT_FIRE )
 			{//use primary fire
 				trace_t	trace;
-				gi.trace ( &trace, NPC->enemy->currentOrigin, NPC->enemy->mins, NPC->enemy->maxs, NPC->currentOrigin, NPC->enemy->s.number, NPC->enemy->clipmask );
+				gi.trace ( &trace, NPC->enemy->currentOrigin, NPC->enemy->mins, NPC->enemy->maxs, NPC->currentOrigin, NPC->enemy->s.number, NPC->enemy->clipmask, G2_NOCOLLIDE, 0 );
 				if ( !trace.allsolid && !trace.startsolid && (trace.fraction == 1.0 || trace.entityNum == NPC->s.number ) )
 				{//he can get right to me
 					NPCInfo->scriptFlags &= ~SCF_ALT_FIRE;

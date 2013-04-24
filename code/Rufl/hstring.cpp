@@ -21,7 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 #include "hstring.h"
 #include <string.h>
-#include "..\Ratl\hash_pool_vs.h"
+#include "../Ratl/hash_pool_vs.h"
 
 
 
@@ -43,7 +43,7 @@
 typedef	ratl::hash_pool<BLOCK_SIZE, MAX_HASH>		TStrPool;
 
 
-TStrPool&	Pool()
+TStrPool&	PoolStr()
 {
 	static TStrPool TSP;
 	return TSP;
@@ -121,7 +121,7 @@ const char*	hstring::c_str(void) const
 	{
 		return("");
 	}
-	return ((const char*)Pool()[mHandle]);
+	return ((const char*)PoolStr()[mHandle]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -161,10 +161,10 @@ void		hstring::init(const char *str)
 	}
 	else
 	{
-		mHandle = Pool().get_handle(str, strlen(str)+1);		// +1 for null character
+		mHandle = PoolStr().get_handle(str, strlen(str)+1);		// +1 for null character
 	}
 	#ifdef _DEBUG
-	mStr	= (char*)Pool()[mHandle];
+	mStr	= (char*)PoolStr()[mHandle];
 	#endif
 }
 
@@ -173,11 +173,11 @@ void		hstring::init(const char *str)
 // 
 ////////////////////////////////////////////////////////////////////////////////////
 #ifdef _DEBUG
-float		hstring::ave_collisions()	{return Pool().average_collisions();}
-int			hstring::total_strings()	{return Pool().total_allocs();}
-int			hstring::total_bytes()		{return Pool().size();}
-int			hstring::total_finds()		{return Pool().total_finds();}
-int			hstring::total_collisions()	{return Pool().total_collisions();}
+float		hstring::ave_collisions()	{return PoolStr().average_collisions();}
+int			hstring::total_strings()	{return PoolStr().total_allocs();}
+int			hstring::total_bytes()		{return PoolStr().size();}
+int			hstring::total_finds()		{return PoolStr().total_finds();}
+int			hstring::total_collisions()	{return PoolStr().total_collisions();}
 #endif
 
 #ifdef _XBOX

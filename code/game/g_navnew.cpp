@@ -1,5 +1,6 @@
 // leave this line at the top for all g_xxxx.cpp files...
 #include "g_headers.h"
+#include "../game/b_local.h"
 
 extern qboolean G_EntIsUnlockedDoor( int entityNum );
 extern qboolean FlyingCreature( gentity_t *ent );
@@ -74,12 +75,12 @@ qboolean NAV_CheckAhead( gentity_t *self, vec3_t end, trace_t &trace, int clipma
 	//Offset the step height
 	VectorSet( mins, self->mins[0], self->mins[1], self->mins[2] + STEPSIZE );
 	
-	gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask );
+	gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, G2_NOCOLLIDE, 0 );
 
 	if ( trace.startsolid&&(trace.contents&CONTENTS_BOTCLIP) )
 	{//started inside do not enter, so ignore them
 		clipmask &= ~CONTENTS_BOTCLIP;
-		gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask );
+		gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, clipmask, G2_NOCOLLIDE, 0 );
 	}
 	//Do a simple check
 	if ( ( trace.allsolid == qfalse ) && ( trace.startsolid == qfalse ) && ( trace.fraction == 1.0f ) )
@@ -179,7 +180,7 @@ qboolean NAV_DirSafe( gentity_t *self, vec3_t dir, float dist )
 	//Offset the step height
 	VectorSet( mins, self->mins[0], self->mins[1], self->mins[2] + STEPSIZE );
 	
-	gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, CONTENTS_BOTCLIP );
+	gi.trace( &trace, self->currentOrigin, mins, self->maxs, end, self->s.number, CONTENTS_BOTCLIP, G2_NOCOLLIDE, 0 );
 
 	//Do a simple check
 	if ( ( trace.allsolid == qfalse ) && ( trace.startsolid == qfalse ) && ( trace.fraction == 1.0f ) )

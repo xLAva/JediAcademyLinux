@@ -3,7 +3,7 @@
 //	-- jweier
 
 // this include must remain at the top of every Icarus CPP file
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "IcarusImplementation.h"
 
 #include "BlockStream.h"
@@ -1235,7 +1235,7 @@ int CSequencer::EvaluateConditional( CBlock *block , CIcarus* icarus)
 	case CIcarus::ID_RANDOM:
 		{
 			float	min, max;
-			//FIXME: This will not account for nested random() statements
+			//FIXME: This will not account for nested randomLava() statements
 
 			min	= *(float *) block->GetMemberData( memberNum++ );
 			max	= *(float *) block->GetMemberData( memberNum++ );
@@ -1406,7 +1406,7 @@ int CSequencer::EvaluateConditional( CBlock *block , CIcarus* icarus)
 		
 		{
 			float	min, max;
-			//FIXME: This will not account for nested random() statements
+			//FIXME: This will not account for nested randomLava() statements
 
 			min	= *(float *) block->GetMemberData( memberNum++ );
 			max	= *(float *) block->GetMemberData( memberNum++ );
@@ -2383,7 +2383,10 @@ int CSequencer::DestroySequence( CSequence *sequence, CIcarus* icarus )
 	{
 		if((*tsi).second == sequence)
 		{
-			tsi = m_taskSequences.erase(tsi);
+		  // LAvaPort -> might not work (untested)
+		  taskSequence_m::iterator eraseIt = tsi;
+		  ++tsi;
+			m_taskSequences.erase(eraseIt);
 		}
 		else
 		{
@@ -2476,7 +2479,7 @@ int	CSequencer::Save()
 	pIcarus->BufferWrite( &numSequences, sizeof( numSequences ) );
 
 	//Second pass, save out all sequences, in order
-	sequence_l::iterator iterSeq = NULL;
+	sequence_l::iterator iterSeq;
 	STL_ITERATE( iterSeq, m_sequences )
 	{
 		id = (*iterSeq)->GetID();

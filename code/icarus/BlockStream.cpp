@@ -3,7 +3,9 @@
 //	-- jweier
 
 // this include must remain at the top of every Icarus CPP file
-#include "stdafx.h"
+
+#include "StdAfx.h"
+
 
 #include "IcarusInterface.h"
 #include "IcarusImplementation.h"

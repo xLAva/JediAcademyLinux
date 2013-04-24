@@ -15,11 +15,12 @@
 #include "b_local.h"
 #include "anims.h"
 #include "g_navigator.h"
-#include "g_Vehicles.h"
+#include "g_vehicles.h"
 #if !defined(RATL_VECTOR_VS_INC)
-	#include "..\Ratl\vector_vs.h"
+	#include "../Ratl/vector_vs.h"
 #endif
-
+#include "../game/g_functions.h"
+#include "g_nav.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // Defines
@@ -133,7 +134,7 @@ void	Pilot_Update(void)
 				0, 
 				projectedPosition, 
 				player->s.number, 
- 				MASK_SHOT);
+ 				MASK_SHOT, G2_NOCOLLIDE, 0);
 
 			if ((mPilotViewTrace.allsolid==qfalse) && 
 				(mPilotViewTrace.startsolid==qfalse) && 
@@ -363,7 +364,7 @@ void	Pilot_Update_Enemy()
 				0, 
 				NPC->enemy->currentOrigin, 
 				NPC->s.number, 
-				MASK_SHOT);
+				MASK_SHOT, G2_NOCOLLIDE, 0);
 
 			if ((mPilotViewTrace.allsolid==qfalse) && 
 				(mPilotViewTrace.startsolid==qfalse ) && 

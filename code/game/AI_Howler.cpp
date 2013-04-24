@@ -3,6 +3,7 @@
 
 	    
 #include "b_local.h"
+#include "../cgame/cg_camera.h"
 
 // These define the working combat range for these suckers
 #define MIN_DISTANCE		54
@@ -214,7 +215,7 @@ static void Howler_TryDamage( int damage, qboolean tongue, qboolean knockdown )
 	}
 #endif
 	// Should probably trace from the mouth, but, ah well.
-	gi.trace( &tr, start, vec3_origin, vec3_origin, end, NPC->s.number, MASK_SHOT );
+	gi.trace( &tr, start, vec3_origin, vec3_origin, end, NPC->s.number, MASK_SHOT, G2_NOCOLLIDE, 0 );
 
 	if ( tr.entityNum < ENTITYNUM_WORLD )
 	{//hit *something*

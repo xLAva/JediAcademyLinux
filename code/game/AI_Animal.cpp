@@ -4,7 +4,13 @@
 	    
 #include "b_local.h"
 
-#include "..\Ratl\vector_vs.h"
+#include "../Ratl/vector_vs.h"
+
+#if !defined(RAVL_VEC_INC)
+	#include "../Ravl/CVec.h"
+#endif
+
+#include "../game/g_navigator.h"
 
 #define MAX_PACKS			10
 

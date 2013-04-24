@@ -166,6 +166,27 @@ void Sys_PumpEvents( void );
 
 #define	PATH_SEP '/'
 
+#ifdef __linux__
+
+
+#define __cdecl
+#define stricmp strcasecmp
+#define strcmpi strcasecmp
+#define strnicmp strncasecmp
+#define _strnicmp strncasecmp
+#define _snprintf snprintf
+#include <assert.h>
+#include <ctype.h>
+
+char* strupr(char* s);
+
+char* strlwr(char* s);
+
+#include <math.h>
+#define _isnan isnan
+
+#endif
+
 #endif
 
 //=============================================================
@@ -980,13 +1001,13 @@ inline int Q_irand(int min, int max) {
 }
 
 //returns a float between 0 and 1.0
-inline float random() {
+inline float randomLava() {
 	return (rand() / ((float)0x7fff));
 }
 
 //returns a float between -1 and 1.0
 inline float crandom() {
-	return (2.0F * (random() - 0.5F));
+	return (2.0F * (randomLava() - 0.5F));
 }
 
 float erandom( float mean );
@@ -1367,7 +1388,7 @@ Ghoul2 Insert Start
 */
 
 #if !defined(GHOUL2_SHARED_H_INC)
-	#include "..\game\ghoul2_shared.h"	//for CGhoul2Info_v
+	#include "../game/ghoul2_shared.h"	//for CGhoul2Info_v
 #endif
 
 /*

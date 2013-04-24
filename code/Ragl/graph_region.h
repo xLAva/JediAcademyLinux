@@ -183,7 +183,7 @@ public:
 	bool	find_regions(const typename TGraph::user& user)
 	{
 		int		CurNodeIndex;
-		for (TGraph::TNodes::iterator i=mGraph.nodes_begin(); i!=mGraph.nodes_end(); i++)
+		for (typename TGraph::TNodes::iterator i=mGraph.nodes_begin(); i!=mGraph.nodes_end(); i++)
 		{
 			CurNodeIndex = i.index();
 			if (mRegions[CurNodeIndex] == NULL_REGION)
@@ -399,7 +399,7 @@ public:
 		if (mRegionCount)
 		{
 			int RegionEdges = 0;
-			for (TEdges::iterator it=mEdges.begin(); it!=mEdges.end(); it++)
+			for (typename TEdges::iterator it=mEdges.begin(); it!=mEdges.end(); it++)
 			{
 				RegionEdges += (*it).size();
 			}

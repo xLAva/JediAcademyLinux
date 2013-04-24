@@ -4,6 +4,7 @@
 
 #include "g_local.h"
 #include "g_functions.h"
+#include "../game/b_local.h"
 
 extern int	G_FindConfigstringIndex( const char *name, int start, int max, qboolean create );
 
@@ -48,7 +49,7 @@ void fx_runner_think( gentity_t *ent )
 	AngleVectors( ent->currentAngles, ent->pos3, NULL, NULL );
 	MakeNormalVectors( ent->pos3, ent->pos4, temp ); // there IS a reason this is done...it's so that it doesn't break every effect in the game...
 
-	ent->nextthink = level.time + ent->delay + random() * ent->random;
+	ent->nextthink = level.time + ent->delay + randomLava() * ent->random;
 
 	if ( ent->spawnflags & 4 ) // damage
 	{
@@ -1007,7 +1008,7 @@ void fx_target_beam_fire( gentity_t *ent )
 	VectorSubtract( org, ent->s.origin, dir );
 	VectorNormalize( dir );
 
-	gi.trace( &trace, ent->s.origin, NULL, NULL, org, ENTITYNUM_NONE, MASK_SHOT );//ignore
+	gi.trace( &trace, ent->s.origin, NULL, NULL, org, ENTITYNUM_NONE, MASK_SHOT, G2_NOCOLLIDE, 0 );//ignore
 	if ( ent->spawnflags & 2 )
 	{
 		open = qtrue;

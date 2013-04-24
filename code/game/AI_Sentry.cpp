@@ -4,6 +4,8 @@
 
 #include "b_local.h"
 #include "g_nav.h"
+#include "../cgame/cg_local.h"
+#include "../game/g_functions.h"
 
 gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, qboolean altFire = qfalse );
 extern gitem_t	*FindItemForAmmo( ammo_t ammo );
@@ -78,7 +80,7 @@ NPC_Sentry_Pain
 */
 void NPC_Sentry_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const vec3_t point, int damage, int mod,int hitLoc ) 
 {		
-	NPC_Pain( self, inflictor, other, point, damage, mod );
+	NPC_Pain( self, inflictor, other, point, damage, mod, HL_NONE );
 
 	if ( mod == MOD_DEMP2 || mod == MOD_DEMP2_ALT )
 	{
@@ -345,7 +347,7 @@ void Sentry_Strafe( void )
 	dir = ( rand() & 1 ) ? -1 : 1;
 	VectorMA( NPC->currentOrigin, SENTRY_STRAFE_DIS * dir, right, end );
 
-	gi.trace( &tr, NPC->currentOrigin, NULL, NULL, end, NPC->s.number, MASK_SOLID );
+	gi.trace( &tr, NPC->currentOrigin, NULL, NULL, end, NPC->s.number, MASK_SOLID, G2_NOCOLLIDE, 0 );
 
 	// Close enough
 	if ( tr.fraction > 0.9f )
@@ -357,7 +359,7 @@ void Sentry_Strafe( void )
 
 		// Set the strafe start time so we can do a controlled roll
 		NPC->fx_time = level.time;
-		NPCInfo->standTime = level.time + 3000 + random() * 500;
+		NPCInfo->standTime = level.time + 3000 + randomLava() * 500;
 	}
 }
 

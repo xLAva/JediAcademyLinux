@@ -4,6 +4,7 @@
 
 #include "b_local.h"
 #include "g_nav.h"
+#include "../cgame/cg_local.h"
 
 //#define AMMO_POD_HEALTH				40
 #define AMMO_POD_HEALTH				1
@@ -83,7 +84,7 @@ void NPC_Mark2_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, co
 {
 	int newBolt,i;
 	
-	NPC_Pain( self, inflictor, other, point, damage, mod );
+	NPC_Pain( self, inflictor, other, point, damage, mod, HL_NONE );
 
 	for (i=0;i<3;i++)
 	{

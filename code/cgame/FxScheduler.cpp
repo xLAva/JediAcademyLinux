@@ -85,14 +85,14 @@ void CFxScheduler::LoadSave_Read()
 {		
 	Clean();	// need to get rid of old pre-cache handles, or it thinks it has some older effects when it doesn't	
 	g_vstrEffectsNeededPerSlot.clear();	// jic
-	gi.ReadFromSaveGame('FXLE', (void *) &gLoopedEffectArray, sizeof(gLoopedEffectArray));
+	gi.ReadFromSaveGame('FXLE', (void *) &gLoopedEffectArray, sizeof(gLoopedEffectArray), NULL);
 	//
 	// now read in and re-register the effects we need for those structs...
 	//
 	for (int iFX = 0; iFX < MAX_LOOPED_FX; iFX++)
 	{
 		char sFX_Filename[MAX_QPATH];
-		gi.ReadFromSaveGame('FXFN', sFX_Filename, sizeof(sFX_Filename));
+		gi.ReadFromSaveGame('FXFN', sFX_Filename, sizeof(sFX_Filename), NULL);
 		g_vstrEffectsNeededPerSlot.push_back( sFX_Filename );
 	}
 }
@@ -980,7 +980,7 @@ void CFxScheduler::PlayEffect( const char *file, int clientID, bool isPortal )
 
 		if ( prim->mSpawnFlags & FX_EVEN_DISTRIBUTION )
 		{
-			factor = abs(prim->mSpawnDelay.GetMax() - prim->mSpawnDelay.GetMin()) / (float)count;
+			factor = abs((int)(prim->mSpawnDelay.GetMax() - prim->mSpawnDelay.GetMin())) / (float)count;
 		}
 
 		// Schedule the random number of bits
@@ -1061,7 +1061,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, int clientID, int delay
 	// handle RGB color
 	if ( fx->mSpawnFlags & FX_RGB_COMPONENT_INTERP )
 	{
-		float perc = random();
+		float perc = randomLava();
 
 		VectorSet( sRGB, fx->mRedStart.GetVal( perc ), fx->mGreenStart.GetVal( perc ), fx->mBlueStart.GetVal( perc ) );
 		VectorSet( eRGB, fx->mRedEnd.GetVal( perc ), fx->mGreenEnd.GetVal( perc ), fx->mBlueEnd.GetVal( perc ) );
@@ -1296,7 +1296,7 @@ void CFxScheduler::PlayEffect( int id, vec3_t origin, vec3_t axis[3], const int 
 
 		if ( prim->mSpawnFlags & FX_EVEN_DISTRIBUTION )
 		{
-			factor = abs(prim->mSpawnDelay.GetMax() - prim->mSpawnDelay.GetMin()) / (float)count;
+			factor = abs((int)(prim->mSpawnDelay.GetMax() - prim->mSpawnDelay.GetMin())) / (float)count;
 		}
 
 		// Schedule the random number of bits
@@ -1618,7 +1618,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
 
 	if( fx->mSpawnFlags & FX_RAND_ROT_AROUND_FWD )
 	{
-		RotatePointAroundVector( ax[1], ax[0], axis[1], random()*360.0f );
+		RotatePointAroundVector( ax[1], ax[0], axis[1], randomLava()*360.0f );
 		CrossProduct( ax[0], ax[1], ax[2] );
 	}
 
@@ -1645,8 +1645,8 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
 		float x, y;
 		float width, height;
 		
-		x = DEG2RAD( random() * 360.0f );
-		y = DEG2RAD( random() * 180.0f );
+		x = DEG2RAD( randomLava() * 360.0f );
+		y = DEG2RAD( randomLava() * 180.0f );
 
 		width = fx->mRadius.GetVal();
 		height = fx->mHeight.GetVal();
@@ -1669,7 +1669,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
 		// set up our point, then rotate around the current direction to.  Make unrotated cylinder centered around 0,0,0
 		VectorScale( ax[1], fx->mRadius.GetVal(), pt );
 		VectorMA( pt, crandom() * 0.5f * fx->mHeight.GetVal(), ax[0], pt );
-		RotatePointAroundVector( temp, ax[0], pt, random() * 360.0f );
+		RotatePointAroundVector( temp, ax[0], pt, randomLava() * 360.0f );
 
 		VectorAdd( org, temp, org );
 
@@ -1814,7 +1814,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
 	{
 		if ( fx->mSpawnFlags & FX_RGB_COMPONENT_INTERP )
 		{
-			float perc = random();
+			float perc = randomLava();
 
 			VectorSet( sRGB, fx->mRedStart.GetVal( perc ), fx->mGreenStart.GetVal( perc ), fx->mBlueStart.GetVal( perc ) );
 			VectorSet( eRGB, fx->mRedEnd.GetVal( perc ), fx->mGreenEnd.GetVal( perc ), fx->mBlueEnd.GetVal( perc ) );

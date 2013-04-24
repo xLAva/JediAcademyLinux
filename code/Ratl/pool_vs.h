@@ -40,7 +40,7 @@ template <class T>
 class pool_root : public ratl_base
 {
 public:
-	typedef typename T TStorageTraits;
+	typedef T TStorageTraits;
 	typedef typename T::TValue TTValue;
     ////////////////////////////////////////////////////////////////////////////////////
 	// Capacity Enum
@@ -512,7 +512,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////
 	// Get An Iterator To The Object At index
     ////////////////////////////////////////////////////////////////////////////////////
-	pool_root<T>::iterator	at(int index)
+	typename pool_root<T>::iterator	at(int index)
 	{
 		return at_index(index);
 	}
@@ -520,7 +520,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////
 	// Get An Iterator To The Object At index
     ////////////////////////////////////////////////////////////////////////////////////
-	pool_root<T>::const_iterator	at(int index) const
+	typename pool_root<T>::const_iterator	at(int index) const
 	{
 		return at_index(index);
 	}

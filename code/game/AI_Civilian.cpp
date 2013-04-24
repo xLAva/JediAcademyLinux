@@ -1,6 +1,7 @@
 // leave this line at the top of all AI_xxxx.cpp files for PCH reasons...
 #include "g_headers.h"
 #include "Q3_Interface.h"
+#include "../game/b_local.h"
 
 extern qboolean NPC_CheckSurrender( void );
 extern void NPC_BehaviorSet_Default( int bState );

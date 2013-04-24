@@ -3,7 +3,7 @@
 
 //#include "cg_local.h"
 #include "cg_media.h"
-#include "..\game\objectives.h"
+#include "../game/objectives.h"
 
 
 // For printing objectives
