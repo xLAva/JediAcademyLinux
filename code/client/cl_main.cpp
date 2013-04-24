@@ -14,7 +14,7 @@
 #else
 #include "fffx.h"
 #endif // _IMMERSION
-#include "../ghoul2/g2.h"
+#include "../ghoul2/G2.h"
 
 #include "../RMG/RM_Headers.h"
 

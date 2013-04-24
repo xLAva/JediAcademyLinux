@@ -224,6 +224,17 @@ void S_SetLipSyncs();
 
 // EAX Related
 
+#ifdef LINUX
+typedef int GUID;
+#define LPEAXMANAGER int
+#define HINSTANCE int
+#define EAXSet int
+#define EAXGet int
+#define EAXREVERBPROPERTIES int
+#define EAX_MAX_FXSLOTS 1
+#define EMPOINT int
+#endif
+
 typedef struct
 {
 	ALuint		ulNumApertures;
@@ -274,6 +285,7 @@ static void UpdateEAXBuffer(channel_t *ch);
 static void EALFileInit(char *level);
 float CalcDistance(EMPOINT A, EMPOINT B);
 
+#ifndef LINUX
 void Normalize(EAXVECTOR *v)
 {
 	float flMagnitude;
@@ -284,6 +296,7 @@ void Normalize(EAXVECTOR *v)
 	v->y = v->y / flMagnitude;
 	v->z = v->z / flMagnitude;	
 }
+
 
 // EAX 4.0 GUIDS ... confidential information ...
 
@@ -304,6 +317,8 @@ const GUID EAX_NULL_GUID = { 0x00000000, 0x0000, 0x0000, { 0x00, 0x00, 0x00, 0x0
 const GUID EAX_PrimaryFXSlotID = { 0xf317866d, 0x924c, 0x450c, { 0x86, 0x1b, 0xe6, 0xda, 0xa2, 0x5e, 0x7c, 0x20} };
 
 const GUID EAX_REVERB_EFFECT = { 0xcf95c8f, 0xa3cc, 0x4849, { 0xb0, 0xb6, 0x83, 0x2e, 0xcc, 0x18, 0x22, 0xdf} };
+
+#endif
 
 /**************************************************************************************************\
 *
@@ -538,11 +553,13 @@ void S_Init( void ) {
 				// Without this call reverb sends from the sources will attenuate too quickly
 				// with distance, especially for the non-primary reverb zones.
 
+				#ifndef EAX_DISABLED
 				unsigned long ulFlags = 0;
 
 				if (s_eaxSet(&EAXPROPERTYID_EAX40_Source, EAXSOURCE_FLAGS,
 							s_channels[i].alSource, &ulFlags, sizeof(ulFlags))!=AL_NO_ERROR)
 							OutputDebugString("Failed to to remove Source flags\n");
+				#endif
 			}
 
 			s_numChannels++;
@@ -555,7 +572,7 @@ void S_Init( void ) {
 			for (j = 0; j < NUM_STREAMING_BUFFERS; j++)
 			{
 				alGenBuffers(1, &(ch->buffers[j].BufferID));
-				ch->buffers[j].Status = UNQUEUED;
+				ch->buffers[j].StatusLava = UNQUEUED;
 				ch->buffers[j].Data = (char *)Z_Malloc(STREAMING_BUFFER_SIZE, TAG_SND_RAWDATA, qfalse);
 			}
 		}
@@ -672,7 +689,7 @@ void S_Shutdown( void )
 			{
 				alDeleteBuffers(1, &(ch->buffers[j].BufferID));
 				ch->buffers[j].BufferID = 0;
-				ch->buffers[j].Status = UNQUEUED;
+				ch->buffers[j].StatusLava = UNQUEUED;
 				if (ch->buffers[j].Data)
 				{
 					Z_Free(ch->buffers[j].Data);
@@ -930,6 +947,7 @@ void S_BeginRegistration( void )
 
 static void EALFileInit(char *level)
 {
+	#ifndef EAX_DISABLED
 	long		lRoom;
 	char		name[MAX_QPATH];
 	char		szEALFilename[MAX_QPATH];
@@ -958,7 +976,7 @@ static void EALFileInit(char *level)
 
 	if (s_bEALFileLoaded)
 	{
-		s_lLastEnvUpdate = timeGetTime();
+		s_lLastEnvUpdate = Com_Milliseconds();
 	}
 	else
 	{
@@ -973,6 +991,7 @@ static void EALFileInit(char *level)
 			}
 		}
 	}
+	#endif
 }
 
 
@@ -2414,8 +2433,10 @@ Change the volumes of all the playing sounds for changes in their positions
 */
 void S_Respatialize( int entityNum, const vec3_t head, vec3_t axis[3], qboolean inwater )
 {
+	#ifndef EAX_DISABLED
 	EAXOCCLUSIONPROPERTIES eaxOCProp;
 	EAXACTIVEFXSLOTS eaxActiveSlots;
+	#endif
 	unsigned int ulEnvironment;
 	int			i;
 	channel_t	*ch;
@@ -2439,6 +2460,7 @@ void S_Respatialize( int entityNum, const vec3_t head, vec3_t axis[3], qboolean 
 		listener_ori[5] = -axis[2][1];
 		alListenerfv(AL_ORIENTATION, listener_ori);
 
+		#ifndef EAX_DISABLED
 		// Update EAX effects here
 		if (s_bEALFileLoaded)
 		{
@@ -2510,6 +2532,7 @@ void S_Respatialize( int entityNum, const vec3_t head, vec3_t axis[3], qboolean 
 				}
 			}
 		}
+		#endif
 	}
 	else
 	{
@@ -2605,7 +2628,7 @@ qboolean S_ScanChannelStarts( void ) {
 // this is now called AFTER the DMA painting, since it's only the painter calls that cause the MP3s to be unpacked,
 //	and therefore to have data readable by the lip-sync volume calc code.
 //
-void S_DoLipSynchs( const s_oldpaintedtime )
+void S_DoLipSynchs( const int s_oldpaintedtime )
 {
 	channel_t		*ch;
 	int				i;
@@ -2862,7 +2885,7 @@ void S_Update_(void) {
 
 				// Reset streaming buffers status's
 				for (i = 0; i < NUM_STREAMING_BUFFERS; i++)
-					ch->buffers[i].Status = UNQUEUED;
+					ch->buffers[i].StatusLava = UNQUEUED;
 
 				// Decode (STREAMING_BUFFER_SIZE / 1152) MP3 frames for each of the NUM_STREAMING_BUFFERS AL Buffers
 				for (i = 0; i < NUM_STREAMING_BUFFERS; i++)
@@ -2914,7 +2937,7 @@ void S_Update_(void) {
 					alSourceQueueBuffers(s_channels[source].alSource, 1, &(ch->buffers[i].BufferID));
 					if (alGetError() == AL_NO_ERROR)
 					{
-						ch->buffers[i].Status = QUEUED;
+						ch->buffers[i].StatusLava = QUEUED;
 					}
 				}
 
@@ -2931,7 +2954,7 @@ void S_Update_(void) {
 					if (ch->thesfx->lipSyncData)
 					{
 						// Record start time for Lip-syncing
-						s_channels[source].iStartTime = timeGetTime();
+						s_channels[source].iStartTime = Com_Milliseconds();
 
 						// Prepare lipsync value(s)
 						s_entityWavVol[ ch->entnum ] = ch->thesfx->lipSyncData[0];
@@ -2965,7 +2988,7 @@ void S_Update_(void) {
 					if (ch->thesfx->lipSyncData)
 					{
 						// Record start time for Lip-syncing
-						s_channels[source].iStartTime = timeGetTime();
+						s_channels[source].iStartTime = Com_Milliseconds();
 
 						// Prepare lipsync value(s)
 						s_entityWavVol[ ch->entnum ] = ch->thesfx->lipSyncData[0];
@@ -3095,7 +3118,7 @@ void UpdateSingleShotSounds()
 						{
 							if (ch->buffers[j].BufferID == buffer)
 							{
-								ch->buffers[j].Status = UNQUEUED;
+								ch->buffers[j].StatusLava = UNQUEUED;
 								break;
 							}
 						}
@@ -3106,7 +3129,7 @@ void UpdateSingleShotSounds()
 
 					for (j = 0; j < NUM_STREAMING_BUFFERS; j++)
 					{
-						if ((ch->buffers[j].Status == UNQUEUED) & (ch->MP3StreamHeader.iSourceBytesRemaining > 0))
+						if ((ch->buffers[j].StatusLava == UNQUEUED) & (ch->MP3StreamHeader.iSourceBytesRemaining > 0))
 						{
 							nTotalBytesDecoded = 0;
 		
@@ -3156,7 +3179,7 @@ void UpdateSingleShotSounds()
 								alSourceQueueBuffers(ch->alSource, 1, &(ch->buffers[j].BufferID));
 
 								// Update status of Buffer
-								ch->buffers[j].Status = QUEUED;
+								ch->buffers[j].StatusLava = QUEUED;
 
 								break;
 							}
@@ -3169,7 +3192,7 @@ void UpdateSingleShotSounds()
 								alSourceQueueBuffers(ch->alSource, 1, &(ch->buffers[j].BufferID));
 								
 								// Update status of Buffer
-								ch->buffers[j].Status = QUEUED;
+								ch->buffers[j].StatusLava = QUEUED;
 							}
 						}
 					}
@@ -3420,7 +3443,7 @@ void AL_UpdateRawSamples()
 		size = (s_rawend - s_paintedtime)<<2;
 		if (size > (MAX_RAW_SAMPLES<<2))
 		{
-			OutputDebugString("UpdateRawSamples :- Raw Sample buffer has overflowed !!!\n");
+			//OutputDebugString("UpdateRawSamples :- Raw Sample buffer has overflowed !!!\n");
 			size = MAX_RAW_SAMPLES<<2;
 			s_paintedtime = s_rawend - MAX_RAW_SAMPLES;
 		}
@@ -3543,7 +3566,7 @@ void S_SetLipSyncs()
 	char szString[256];
 #endif
 
-	currentTime = timeGetTime();
+	currentTime = Com_Milliseconds();
 
 	memset(s_entityWavVol, 0, sizeof(s_entityWavVol));
 
@@ -5241,6 +5264,7 @@ qboolean SND_RegisterAudio_LevelLoadEnd(qboolean bDeleteEverythingNotUsedThisLev
 */
 void InitEAXManager()
 {
+	#ifndef EAX_DISABLED
 	LPEAXMANAGERCREATE lpEAXManagerCreateFn;
 	EAXFXSLOTPROPERTIES FXSlotProp;
 	GUID	Effect;
@@ -5345,7 +5369,8 @@ void InitEAXManager()
 		FreeLibrary(s_hEAXManInst);
 		s_hEAXManInst = NULL;
 	}
-
+	
+	#endif
 	s_lpEAXManager = NULL;
 	s_bEAX = false;
 
@@ -5360,7 +5385,8 @@ void ReleaseEAXManager()
 	s_bEAX = false;
 
 	UnloadEALFile();
-
+	
+	#ifndef EAX_DISABLED
 	if (s_lpEAXManager)
 	{
 		s_lpEAXManager->Release();
@@ -5371,6 +5397,7 @@ void ReleaseEAXManager()
 		FreeLibrary(s_hEAXManInst);
 		s_hEAXManInst = NULL;
 	}
+	#endif
 }
 
 
@@ -5379,6 +5406,7 @@ void ReleaseEAXManager()
 */
 static bool LoadEALFile(char *szEALFilename)
 {
+	#ifndef EAX_DISABLED
 	char		*ealData = NULL;
 	HRESULT		hr;
 	long		i, j, lID, lEnvID;
@@ -5653,6 +5681,7 @@ static bool LoadEALFile(char *szEALFilename)
 		return true;
 	}
 
+	#endif
 	
 	Com_DPrintf( S_COLOR_YELLOW "Failed to load %s\n", szEALFilename);
 	return false;
@@ -5663,6 +5692,7 @@ static bool LoadEALFile(char *szEALFilename)
 */
 static void UnloadEALFile()
 {
+	#ifndef EAX_DISABLED
 	HRESULT hr;
 
 	if ((!s_lpEAXManager) || (!s_bEAX))
@@ -5677,6 +5707,7 @@ static void UnloadEALFile()
 		s_lpEnvTable = NULL;
 	}
 
+	#endif
 	return;
 }
 
@@ -5685,6 +5716,7 @@ static void UnloadEALFile()
 */
 static void UpdateEAXListener()
 {
+	#ifndef EAX_DISABLED
 	EMPOINT ListPos, ListOri;
 	EMPOINT EMAperture;
 	EMPOINT EMSourcePoint;
@@ -6131,6 +6163,8 @@ static void UpdateEAXListener()
 				OutputDebugString("Failed to set FX Slot Volume to 0\n");
 		}
 	}
+	
+	#endif
 
 	return;
 }
@@ -6140,6 +6174,7 @@ static void UpdateEAXListener()
 */
 static void UpdateEAXBuffer(channel_t *ch)
 {
+	#ifndef EAX_DISABLED
 	HRESULT hr;
 	EMPOINT EMSourcePoint;
 	EMPOINT EMVirtualSourcePoint;
@@ -6270,11 +6305,16 @@ static void UpdateEAXBuffer(channel_t *ch)
 				ch->alSource, &eaxOCProp, sizeof(EAXOCCLUSIONPROPERTIES));
 		}
 	}
-
+	#endif
 	return;
 }
 
+
 float CalcDistance(EMPOINT A, EMPOINT B)
 {
+	#ifndef EAX_DISABLED
 	return (float)sqrt(sqr(A.fX - B.fX)+sqr(A.fY - B.fY) + sqr(A.fZ - B.fZ));
+	#else
+	return 0.0f;
+	#endif
 }

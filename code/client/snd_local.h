@@ -9,10 +9,12 @@
 #include "../mp3code/mp3struct.h"
 
 // Open AL Specific
-#include "openal\al.h"
-#include "openal\alc.h"
+#include "OpenAL/al.h"
+#include "OpenAL/alc.h"
+#ifdef _WINDOWS
 #include "eax\eax.h"
 #include "eax\eaxman.h"
+#endif
 
 // Added for Open AL to know when to mute all sounds (e.g when app. loses focus)
 void S_AL_MuteAllSounds(qboolean bMute);
@@ -80,7 +82,7 @@ typedef struct {
 typedef struct
 {
 	ALuint	BufferID;
-	ALuint	Status;
+	ALuint	StatusLava;
 	char	*Data;
 } STREAMINGBUFFER;
 

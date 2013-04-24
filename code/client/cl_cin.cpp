@@ -1855,9 +1855,9 @@ void SCR_RunCinematic (void)
 	CL_CheckPendingCinematic();
 
 	if (CL_handle >= 0 && CL_handle < MAX_VIDEO_HANDLES) {
-		e_status Status = CIN_RunCinematic(CL_handle);
+		e_status StatusLava = CIN_RunCinematic(CL_handle);
 		
-		if (CL_IsRunningInGameCinematic() && Status == FMV_IDLE  && !cinTable[CL_handle].holdAtEnd)
+		if (CL_IsRunningInGameCinematic() && StatusLava == FMV_IDLE  && !cinTable[CL_handle].holdAtEnd)
 		{
 			SCR_StopCinematic();	// change ROQ from FMV_IDLE to FMV_EOF, and clear some other vars
 		}

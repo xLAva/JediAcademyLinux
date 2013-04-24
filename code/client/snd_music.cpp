@@ -17,6 +17,10 @@
 #include "cl_mp3.h"
 #endif
 
+#ifdef LINUX
+#include <string>
+#endif
+
 //
 #include "snd_music.h"
 

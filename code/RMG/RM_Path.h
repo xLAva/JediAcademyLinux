@@ -18,6 +18,10 @@
 #include "../qcommon/cm_randomterrain.h"
 #endif
 
+#ifdef LINUX
+#include <string>
+#endif
+
 class CRMPathManager;
 
 // directions you can proceed from cells 
@@ -42,7 +46,7 @@ class CRMNode
 {
 private:
 
-	string			mName;					// name of node - "" if not used yet
+	std::string			mName;					// name of node - "" if not used yet
 	vec3_t			mPos;					// where node is
 	int				mPathID[DIR_MAX]; 		// path id's that lead from this node
 	bool			mAreaPointPlaced;		// false if no area point here yet.

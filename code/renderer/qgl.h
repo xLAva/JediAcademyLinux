@@ -28,8 +28,8 @@
 
 #include <GL/gl.h>
 #include <GL/glx.h>
-#include <GL/fxmesa.h>
-
+//#include <GL/glxew.h>
+//#include <GL/fxmesa.h> //LAvaPort 
 #else
 
 #include <gl.h>
@@ -170,6 +170,7 @@ extern PFNGLGETFINALCOMBINERINPUTPARAMETERIVNV	qglGetFinalCombinerInputParameter
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Pixel Format extension definitions. - AReis
 /***********************************************************************************************************/
+#ifdef _WINDOWS
 #define WGL_COLOR_BITS_ARB             0x2014
 #define WGL_ALPHA_BITS_ARB             0x201B
 #define WGL_DEPTH_BITS_ARB             0x2022
@@ -178,6 +179,7 @@ extern PFNGLGETFINALCOMBINERINPUTPARAMETERIVNV	qglGetFinalCombinerInputParameter
 typedef BOOL (WINAPI * PFNWGLGETPIXELFORMATATTRIBIVARBPROC) (HDC hdc, int iPixelFormat, int iLayerPlane, UINT nAttributes, const int *piAttributes, int *piValues);
 typedef BOOL (WINAPI * PFNWGLGETPIXELFORMATATTRIBFVARBPROC) (HDC hdc, int iPixelFormat, int iLayerPlane, UINT nAttributes, const int *piAttributes, FLOAT *pfValues);
 typedef BOOL (WINAPI * PFNWGLCHOOSEPIXELFORMATARBPROC) (HDC hdc, const int *piAttribIList, const FLOAT *pfAttribFList, UINT nMaxFormats, int *piFormats, UINT *nNumFormats);
+
 /***********************************************************************************************************/
 
 // Declare Pixel Format function pointers.
@@ -185,10 +187,26 @@ extern PFNWGLGETPIXELFORMATATTRIBIVARBPROC		qwglGetPixelFormatAttribivARB;
 extern PFNWGLGETPIXELFORMATATTRIBFVARBPROC		qwglGetPixelFormatAttribfvARB;
 extern PFNWGLCHOOSEPIXELFORMATARBPROC			qwglChoosePixelFormatARB;
 
+#endif
+#ifdef LINUX
+
+typedef GLXFBConfig* ( * PFNGLXCHOOSEFBCONFIGPROC) (Display *dpy, int screen, const int *attrib_list, int *nelements);
+typedef GLXContext ( * PFNGLXCREATENEWCONTEXTPROC) (Display *dpy, GLXFBConfig config, int render_type, GLXContext share_list, Bool direct);
+typedef int ( * PFNGLXGETFBCONFIGATTRIBPROC) (Display *dpy, GLXFBConfig config, int attribute, int *value);
+typedef XVisualInfo* ( * PFNGLXGETVISUALFROMFBCONFIGPROC) (Display *dpy, GLXFBConfig config);
+
+
+extern PFNGLXCHOOSEFBCONFIGPROC qglXChooseFBConfig;
+extern PFNGLXCREATENEWCONTEXTPROC qglXCreateNewContext;
+extern PFNGLXGETFBCONFIGATTRIBPROC qglXGetFBConfigAttrib;
+extern PFNGLXGETVISUALFROMFBCONFIGPROC qglXGetVisualFromFBConfig;
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Pixel Buffer extension definitions. - AReis
 /***********************************************************************************************************/
+
+#ifdef _WINDOWS
 DECLARE_HANDLE(HPBUFFERARB);
 
 #define WGL_SUPPORT_OPENGL_ARB         0x2010
@@ -213,11 +231,21 @@ extern PFNWGLGETPBUFFERDCARBPROC				qwglGetPbufferDCARB;
 extern PFNWGLRELEASEPBUFFERDCARBPROC			qwglReleasePbufferDCARB;
 extern PFNWGLDESTROYPBUFFERARBPROC				qwglDestroyPbufferARB;
 extern PFNWGLQUERYPBUFFERARBPROC				qwglQueryPbufferARB;
+#endif
+#ifdef _LINUX
+
+typedef GLXPbuffer ( * PFNGLXCREATEPBUFFERPROC) (Display *dpy, GLXFBConfig config, const int *attrib_list);
+typedef void ( * PFNGLXDESTROYPBUFFERPROC) (Display *dpy, GLXPbuffer pbuf);
 
 
+extern PFNGLXCREATEPBUFFERPROC qglXCreatePbufferARB;
+extern PFNGLXDESTROYPBUFFERPROC qglXDestroyPbufferARB;
+
+#endif
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Render-Texture extension definitions. - AReis
 /***********************************************************************************************************/
+#ifdef _WINDOWS
 #define WGL_BIND_TO_TEXTURE_RGBA_ARB       0x2071
 #define WGL_TEXTURE_FORMAT_ARB             0x2072
 #define WGL_TEXTURE_TARGET_ARB             0x2073
@@ -235,7 +263,7 @@ typedef BOOL (WINAPI * PFNWGLSETPBUFFERATTRIBARBPROC) (HPBUFFERARB hPbuffer, con
 extern PFNWGLBINDTEXIMAGEARBPROC			qwglBindTexImageARB;
 extern PFNWGLRELEASETEXIMAGEARBPROC			qwglReleaseTexImageARB;
 extern PFNWGLSETPBUFFERATTRIBARBPROC		qwglSetPbufferAttribARB;
-
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Vertex and Fragment Program extension definitions. - AReis
@@ -712,12 +740,12 @@ extern BOOL ( WINAPI * qwglSwapIntervalEXT)( int interval );
 #if defined( __linux__ )
 
 //FX Mesa Functions
-extern fxMesaContext (*qfxMesaCreateContext)(GLuint win, GrScreenResolution_t, GrScreenRefresh_t, const GLint attribList[]);
-extern fxMesaContext (*qfxMesaCreateBestContext)(GLuint win, GLint width, GLint height, const GLint attribList[]);
-extern void (*qfxMesaDestroyContext)(fxMesaContext ctx);
-extern void (*qfxMesaMakeCurrent)(fxMesaContext ctx);
-extern fxMesaContext (*qfxMesaGetCurrentContext)(void);
-extern void (*qfxMesaSwapBuffers)(void);
+//extern fxMesaContext (*qfxMesaCreateContext)(GLuint win, GrScreenResolution_t, GrScreenRefresh_t, const GLint attribList[]);
+//extern fxMesaContext (*qfxMesaCreateBestContext)(GLuint win, GLint width, GLint height, const GLint attribList[]);
+//extern void (*qfxMesaDestroyContext)(fxMesaContext ctx);
+//extern void (*qfxMesaMakeCurrent)(fxMesaContext ctx);
+//extern fxMesaContext (*qfxMesaGetCurrentContext)(void);
+//extern void (*qfxMesaSwapBuffers)(void);
 
 //GLX Functions
 extern XVisualInfo * (*qglXChooseVisual)( Display *dpy, int screen, int *attribList );
@@ -726,6 +754,7 @@ extern void (*qglXDestroyContext)( Display *dpy, GLXContext ctx );
 extern Bool (*qglXMakeCurrent)( Display *dpy, GLXDrawable drawable, GLXContext ctx);
 extern void (*qglXCopyContext)( Display *dpy, GLXContext src, GLXContext dst, GLuint mask );
 extern void (*qglXSwapBuffers)( Display *dpy, GLXDrawable drawable );
+extern Bool (*qglXSwapIntervalEXT) (int interval);
 
 #endif // __linux__
 

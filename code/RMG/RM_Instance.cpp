@@ -1,6 +1,6 @@
 #include "../server/exe_headers.h"
 
-#include "rm_headers.h"
+#include "RM_Headers.h"
 #include "../qcommon/cm_terrainmap.h"
 
 /************************************************************************************************

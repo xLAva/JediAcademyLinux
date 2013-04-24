@@ -119,7 +119,7 @@ typedef struct image_s {
 	char		imgName[MAX_QPATH];		// game path, including extension
 	int			frameUsed;			// for texture usage in frame statistics
 #endif
-	USHORT		width, height;				// source image
+	int		width, height;				// source image
 //	int			imgfileSize;
 
 	GLuint		texnum;					// gl texture binding
@@ -1679,7 +1679,12 @@ struct shaderCommands_s
 	bool		fading;
 };
 
+
+#ifdef LINUX
+typedef shaderCommands_s	shaderCommands_t; //LAvaPort -> check this later
+#else
 typedef __declspec(align(16)) shaderCommands_s	shaderCommands_t;
+#endif
 
 extern	shaderCommands_t	tess;
 

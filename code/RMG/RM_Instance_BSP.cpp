@@ -11,9 +11,9 @@
 
 #include "../qcommon/cm_local.h"
 #include "../server/server.h"
-#include "rm_headers.h"
+#include "RM_Headers.h"
 
-#include "rm_instance_bsp.h"
+#include "RM_Instance_BSP.h"
 
 #include "../client/vmachine.h"
 

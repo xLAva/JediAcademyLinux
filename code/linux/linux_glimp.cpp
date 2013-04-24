@@ -101,6 +101,14 @@ static int mouse_accel_numerator;
 static int mouse_accel_denominator;
 static int mouse_threshold;   
 
+// Whether the current hardware supports dynamic glows/flares.
+extern bool g_bDynamicGlowSupported;
+
+// Hack variable for deciding which kind of texture rectangle thing to do (for some
+// reason it acts different on radeon! It's against the spec!).
+bool g_bTextureRectangleHack = false;
+
+
 
 static void		GLW_InitExtensions( void );
 int GLW_SetMode( const char *drivername, int mode, qboolean fullscreen );
@@ -158,10 +166,10 @@ static qboolean GLW_StartDriverAndSetMode( const char *drivername,
 	switch ( err )
 	{
 	case RSERR_INVALID_FULLSCREEN:
-		ri.Printf( PRINT_ALL, "...WARNING: fullscreen unavailable in this mode\n" );
+		VID_Printf( PRINT_ALL, "...WARNING: fullscreen unavailable in this mode\n" );
 		return qfalse;
 	case RSERR_INVALID_MODE:
-		ri.Printf( PRINT_ALL, "...WARNING: could not set the given mode (%d)\n", mode );
+		VID_Printf( PRINT_ALL, "...WARNING: could not set the given mode (%d)\n", mode );
 		return qfalse;
 	default:
 		break;
@@ -174,7 +182,7 @@ static int CheckXRandR()
 {
 	int major;
 	int minor;
-	int	r_useXRandr = (int) ri.Cvar_Get( "r_useXRandr", "1", CVAR_ARCHIVE);
+	int	r_useXRandr = (int) Cvar_Get( "r_useXRandr", "1", CVAR_ARCHIVE);
 	if (r_useXRandr)
 	{
     /* Query the extension version */
@@ -241,7 +249,7 @@ void GLW_SetModeXRandr(int* actualWidth, int* actualHeight, qboolean* fullscreen
 	if (primaryWidth == -1 || primaryHeight == -1)
 	{
 		disablePrimary = true;
-		ri.Printf( PRINT_ALL, "...WARNING: xrandr query for the primary display resolution failed.\n" );
+		VID_Printf( PRINT_ALL, "...WARNING: xrandr query for the primary display resolution failed.\n" );
 	}
 
 	int best_fit, best_dist, dist, x, y;
@@ -295,7 +303,7 @@ void GLW_SetModeXRandr(int* actualWidth, int* actualHeight, qboolean* fullscreen
 				if (primaryWidth == xrrs[i].width && primaryHeight == xrrs[i].height)
 				{
 					best_fit = i;
-					glConfig.windowAspect = 1;
+					//glConfig.windowAspect = 1;
 					break;
 				}
 			}			
@@ -316,7 +324,7 @@ void GLW_SetModeXRandr(int* actualWidth, int* actualHeight, qboolean* fullscreen
 			//XF86VidModeSetViewPort(dpy, scrnum, 0, 0);
 		} else{
 			(*fullscreen) = 0;
-			ri.Printf( PRINT_ALL, "...WARNING: fullscreen unavailable in this mode\n" );
+			VID_Printf( PRINT_ALL, "...WARNING: fullscreen unavailable in this mode\n" );
 		}
 	}
 }
@@ -353,18 +361,18 @@ int GLW_SetMode( const char *drivername, int mode, qboolean fullscreen )
 	int i;
 
 
-	r_fakeFullscreen = ri.Cvar_Get( "r_fakeFullscreen", "0", CVAR_ARCHIVE);
+	r_fakeFullscreen = Cvar_Get( "r_fakeFullscreen", "0", CVAR_ARCHIVE);
 
-	ri.Printf( PRINT_ALL, "Initializing OpenGL display\n");
+	VID_Printf( PRINT_ALL, "Initializing OpenGL display\n");
 
-	ri.Printf (PRINT_ALL, "...setting mode %d:", mode );
+	VID_Printf (PRINT_ALL, "...setting mode %d:", mode );
 
-	if ( !R_GetModeInfo( &glConfig.vidWidth, &glConfig.vidHeight, &glConfig.windowAspect, mode ) )
+	if ( !R_GetModeInfo( &glConfig.vidWidth, &glConfig.vidHeight, mode ) )
 	{
-		ri.Printf( PRINT_ALL, " invalid mode\n" );
+		Com_Error( PRINT_ALL, " invalid mode\n" );
 		return RSERR_INVALID_MODE;
 	}
-	ri.Printf( PRINT_ALL, " %d %d\n", glConfig.vidWidth, glConfig.vidHeight);
+	VID_Printf( PRINT_ALL, " %d %d\n", glConfig.vidWidth, glConfig.vidHeight);
 
 	if (!(dpy = XOpenDisplay(NULL))) {
 		fprintf(stderr, "Error couldn't open the X display\n");
@@ -398,7 +406,7 @@ int GLW_SetMode( const char *drivername, int mode, qboolean fullscreen )
 			if (!XF86VidModeQueryVersion(dpy, &MajorVersion, &MinorVersion)) { 
 				vidmode_ext = qfalse;
 			} else {
-				ri.Printf(PRINT_ALL, "Using XFree86-VidModeExtension Version %d.%d\n",
+				VID_Printf(PRINT_ALL, "Using XFree86-VidModeExtension Version %d.%d\n",
 					MajorVersion, MinorVersion);
 				vidmode_ext = qtrue;
 			}
@@ -563,7 +571,7 @@ int GLW_SetMode( const char *drivername, int mode, qboolean fullscreen )
 		ri.Printf( PRINT_DEVELOPER, "Successful\n");
 #endif
 
-		ri.Printf( PRINT_ALL, "Using %d/%d/%d Color bits, %d depth, %d stencil display.\n", 
+		VID_Printf( PRINT_ALL, "Using %d/%d/%d Color bits, %d depth, %d stencil display.\n", 
 			attrib[ATTR_RED_IDX], attrib[ATTR_GREEN_IDX], attrib[ATTR_BLUE_IDX],
 			attrib[ATTR_DEPTH_IDX], attrib[ATTR_STENCIL_IDX]);
 
@@ -574,7 +582,7 @@ int GLW_SetMode( const char *drivername, int mode, qboolean fullscreen )
 	}
 
 	if (!visinfo) {
-		ri.Printf( PRINT_ALL, "Couldn't get a visual\n" );
+		VID_Printf( PRINT_ALL, "Couldn't get a visual\n" );
 		return RSERR_INVALID_MODE;
 	}
 
@@ -606,10 +614,10 @@ int GLW_SetMode( const char *drivername, int mode, qboolean fullscreen )
 	//if (in_dgamouse->value) {
 		if (!XF86DGAQueryVersion(dpy, &MajorVersion, &MinorVersion)) { 
 			// unable to query, probalby not supported
-			ri.Printf( PRINT_ALL, "Failed to detect XF86DGA Mouse\n" );
-			ri.Cvar_Set( "in_dgamouse", "0" );
+			VID_Printf( PRINT_ALL, "Failed to detect XF86DGA Mouse\n" );
+			Cvar_Set( "in_dgamouse", "0" );
 		} else
-			ri.Printf( PRINT_ALL, "XF86DGA Mouse (Version %d.%d) initialized\n",
+			VID_Printf( PRINT_ALL, "XF86DGA Mouse (Version %d.%d) initialized\n",
 				MajorVersion, MinorVersion);
 	//}
 
@@ -635,26 +643,26 @@ static void GLW_InitTextureCompression( void )
 
 	if ( old_tc )
 	{
-		ri.Printf( PRINT_ALL, "...GL_S3_s3tc available\n" );
+		VID_Printf( PRINT_ALL, "...GL_S3_s3tc available\n" );
 	}
 
 	if ( newer_tc )
 	{
-		ri.Printf( PRINT_ALL, "...GL_EXT_texture_compression_s3tc available\n" );
+		VID_Printf( PRINT_ALL, "...GL_EXT_texture_compression_s3tc available\n" );
 	}
 
 	if ( !r_ext_compressed_textures->value )
 	{
 		// Compressed textures are off
 		glConfig.textureCompression = TC_NONE;
-		ri.Printf( PRINT_ALL, "...ignoring texture compression\n" );
+		VID_Printf( PRINT_ALL, "...ignoring texture compression\n" );
 	}
 	else if ( !old_tc && !newer_tc )
 	{
 		// Requesting texture compression, but no method found
 		glConfig.textureCompression = TC_NONE;
-		ri.Printf( PRINT_ALL, "...no supported texture compression method found\n" );
-		ri.Printf( PRINT_ALL, ".....ignoring texture compression\n" );
+		VID_Printf( PRINT_ALL, "...no supported texture compression method found\n" );
+		VID_Printf( PRINT_ALL, ".....ignoring texture compression\n" );
 	}
 	else
 	{
@@ -664,14 +672,14 @@ static void GLW_InitTextureCompression( void )
 			// No preference, so pick the best
 			if ( newer_tc )
 			{
-				ri.Printf( PRINT_ALL, "...no tc preference specified\n" );
-				ri.Printf( PRINT_ALL, ".....using GL_EXT_texture_compression_s3tc\n" );
+				VID_Printf( PRINT_ALL, "...no tc preference specified\n" );
+				VID_Printf( PRINT_ALL, ".....using GL_EXT_texture_compression_s3tc\n" );
 				glConfig.textureCompression = TC_S3TC_DXT;
 			}
 			else
 			{
-				ri.Printf( PRINT_ALL, "...no tc preference specified\n" );
-				ri.Printf( PRINT_ALL, ".....using GL_S3_s3tc\n" );
+				VID_Printf( PRINT_ALL, "...no tc preference specified\n" );
+				VID_Printf( PRINT_ALL, ".....using GL_S3_s3tc\n" );
 				glConfig.textureCompression = TC_S3TC;
 			}
 		}
@@ -683,12 +691,12 @@ static void GLW_InitTextureCompression( void )
 				// both are avaiable, so we can use the desired tc method
 				if ( r_ext_preferred_tc_method->integer == TC_S3TC )
 				{
-					ri.Printf( PRINT_ALL, "...using preferred tc method, GL_S3_s3tc\n" );
+					VID_Printf( PRINT_ALL, "...using preferred tc method, GL_S3_s3tc\n" );
 					glConfig.textureCompression = TC_S3TC;
 				}
 				else
 				{
-					ri.Printf( PRINT_ALL, "...using preferred tc method, GL_EXT_texture_compression_s3tc\n" );
+					VID_Printf( PRINT_ALL, "...using preferred tc method, GL_EXT_texture_compression_s3tc\n" );
 					glConfig.textureCompression = TC_S3TC_DXT;
 				}
 			}
@@ -700,14 +708,14 @@ static void GLW_InitTextureCompression( void )
 					// Preferring to user older compression
 					if ( old_tc )
 					{
-						ri.Printf( PRINT_ALL, "...using GL_S3_s3tc\n" );
+						VID_Printf( PRINT_ALL, "...using GL_S3_s3tc\n" );
 						glConfig.textureCompression = TC_S3TC;
 					}
 					else
 					{
 						// Drat, preference can't be honored 
-						ri.Printf( PRINT_ALL, "...preferred tc method, GL_S3_s3tc not available\n" );
-						ri.Printf( PRINT_ALL, ".....falling back to GL_EXT_texture_compression_s3tc\n" );
+						VID_Printf( PRINT_ALL, "...preferred tc method, GL_S3_s3tc not available\n" );
+						VID_Printf( PRINT_ALL, ".....falling back to GL_EXT_texture_compression_s3tc\n" );
 						glConfig.textureCompression = TC_S3TC_DXT;
 					}
 				}
@@ -716,14 +724,14 @@ static void GLW_InitTextureCompression( void )
 					// Preferring to user newer compression
 					if ( newer_tc )
 					{
-						ri.Printf( PRINT_ALL, "...using GL_EXT_texture_compression_s3tc\n" );
+						VID_Printf( PRINT_ALL, "...using GL_EXT_texture_compression_s3tc\n" );
 						glConfig.textureCompression = TC_S3TC_DXT;
 					}
 					else
 					{
 						// Drat, preference can't be honored 
-						ri.Printf( PRINT_ALL, "...preferred tc method, GL_EXT_texture_compression_s3tc not available\n" );
-						ri.Printf( PRINT_ALL, ".....falling back to GL_S3_s3tc\n" );
+						VID_Printf( PRINT_ALL, "...preferred tc method, GL_EXT_texture_compression_s3tc not available\n" );
+						VID_Printf( PRINT_ALL, ".....falling back to GL_S3_s3tc\n" );
 						glConfig.textureCompression = TC_S3TC;
 					}
 				}
@@ -735,16 +743,17 @@ static void GLW_InitTextureCompression( void )
 /*
 ** GLW_InitExtensions
 */
-cvar_t *r_ATI_NPATCH_available = NULL;
 static void GLW_InitExtensions( void )
 {
 	if ( !r_allowExtensions->integer )
 	{
-		ri.Printf( PRINT_ALL, "*** IGNORING OPENGL EXTENSIONS ***\n" );
+		VID_Printf( PRINT_ALL, "*** IGNORING OPENGL EXTENSIONS ***\n" );
+		g_bDynamicGlowSupported = false;
+		Cvar_Set( "r_DynamicGlow","0" );
 		return;
 	}
 
-	ri.Printf( PRINT_ALL, "Initializing OpenGL extensions\n" );
+	VID_Printf( PRINT_ALL, "Initializing OpenGL extensions\n" );
 
 	// Select our tc scheme
 	GLW_InitTextureCompression();
@@ -756,40 +765,45 @@ static void GLW_InitExtensions( void )
 		if ( r_ext_texture_env_add->integer )
 		{
 			glConfig.textureEnvAddAvailable = qtrue;
-			ri.Printf( PRINT_ALL, "...using GL_EXT_texture_env_add\n" );
+			VID_Printf( PRINT_ALL, "...using GL_EXT_texture_env_add\n" );
 		}
 		else
 		{
 			glConfig.textureEnvAddAvailable = qfalse;
-			ri.Printf( PRINT_ALL, "...ignoring GL_EXT_texture_env_add\n" );
+			VID_Printf( PRINT_ALL, "...ignoring GL_EXT_texture_env_add\n" );
 		}
 	}
 	else
 	{
-		ri.Printf( PRINT_ALL, "...GL_EXT_texture_env_add not found\n" );
+		VID_Printf( PRINT_ALL, "...GL_EXT_texture_env_add not found\n" );
 	}
 
 	// GL_EXT_texture_filter_anisotropic
-	glConfig.textureFilterAnisotropicAvailable = qfalse;
+	glConfig.maxTextureFilterAnisotropy = 0;
 	if ( strstr( glConfig.extensions_string, "EXT_texture_filter_anisotropic" ) )
 	{
-		glConfig.textureFilterAnisotropicAvailable = qtrue;
-		ri.Printf( PRINT_ALL, "...GL_EXT_texture_filter_anisotropic available\n" );
+#define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF	//can't include glext.h here ... sigh
+		qglGetFloatv( GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glConfig.maxTextureFilterAnisotropy );
+		Com_Printf ("...GL_EXT_texture_filter_anisotropic available\n" );
 
-		if ( r_ext_texture_filter_anisotropic->integer )
+		if ( r_ext_texture_filter_anisotropic->integer>1 )
 		{
-			ri.Printf( PRINT_ALL, "...using GL_EXT_texture_filter_anisotropic\n" );
+			Com_Printf ("...using GL_EXT_texture_filter_anisotropic\n" );
 		}
 		else
 		{
-			ri.Printf( PRINT_ALL, "...ignoring GL_EXT_texture_filter_anisotropic\n" );
+			Com_Printf ("...ignoring GL_EXT_texture_filter_anisotropic\n" );
 		}
-		ri.Cvar_Set( "r_ext_texture_filter_anisotropic_avail", "1" );
+		Cvar_Set( "r_ext_texture_filter_anisotropic_avail", va("%f",glConfig.maxTextureFilterAnisotropy) );
+		if ( r_ext_texture_filter_anisotropic->value > glConfig.maxTextureFilterAnisotropy )
+		{
+			Cvar_Set( "r_ext_texture_filter_anisotropic", va("%f",glConfig.maxTextureFilterAnisotropy) );
+		}
 	}
 	else
 	{
-		ri.Printf( PRINT_ALL, "...GL_EXT_texture_filter_anisotropic not found\n" );
-		ri.Cvar_Set( "r_ext_texture_filter_anisotropic_avail", "0" );
+		Com_Printf ("...GL_EXT_texture_filter_anisotropic not found\n" );
+		Cvar_Set( "r_ext_texture_filter_anisotropic_avail", "0" );
 	}
 
 	// GL_EXT_clamp_to_edge
@@ -797,21 +811,22 @@ static void GLW_InitExtensions( void )
 	if ( strstr( glConfig.extensions_string, "GL_EXT_texture_edge_clamp" ) )
 	{
 		glConfig.clampToEdgeAvailable = qtrue;
-		ri.Printf( PRINT_ALL, "...Using GL_EXT_texture_edge_clamp\n" );
+		VID_Printf( PRINT_ALL, "...Using GL_EXT_texture_edge_clamp\n" );
 	}
 
 	// WGL_EXT_swap_control
-	// LAvaPort - what is this - do we need it?
-//	qwglSwapIntervalEXT = ( BOOL (WINAPI *)(int)) qwglGetProcAddress( "wglSwapIntervalEXT" );
-//	if ( qwglSwapIntervalEXT )
-//	{
-//		ri.Printf( PRINT_ALL, "...using WGL_EXT_swap_control\n" );
-//		r_swapInterval->modified = qtrue;	// force a set next frame
-//	}
-//	else
-//	{
-//		ri.Printf( PRINT_ALL, "...WGL_EXT_swap_control not found\n" );
-//	}
+	#if 0
+	qwglSwapIntervalEXT = ( BOOL (WINAPI *)(int)) dlsym( glw_state.OpenGLLib, "wglSwapIntervalEXT" );
+	if ( qwglSwapIntervalEXT )
+	{
+		VID_Printf( PRINT_ALL, "...using WGL_EXT_swap_control\n" );
+		r_swapInterval->modified = qtrue;	// force a set next frame
+	}
+	else
+	{
+		VID_Printf( PRINT_ALL, "...WGL_EXT_swap_control not found\n" );
+	}
+	#endif
 
 	// GL_ARB_multitexture
 	qglMultiTexCoord2fARB = NULL;
@@ -831,25 +846,25 @@ static void GLW_InitExtensions( void )
 
 				if ( glConfig.maxActiveTextures > 1 )
 				{
-					ri.Printf( PRINT_ALL, "...using GL_ARB_multitexture\n" );
+					VID_Printf( PRINT_ALL, "...using GL_ARB_multitexture\n" );
 				}
 				else
 				{
 					qglMultiTexCoord2fARB = NULL;
 					qglActiveTextureARB = NULL;
 					qglClientActiveTextureARB = NULL;
-					ri.Printf( PRINT_ALL, "...not using GL_ARB_multitexture, < 2 texture units\n" );
+					VID_Printf( PRINT_ALL, "...not using GL_ARB_multitexture, < 2 texture units\n" );
 				}
 			}
 		}
 		else
 		{
-			ri.Printf( PRINT_ALL, "...ignoring GL_ARB_multitexture\n" );
+			VID_Printf( PRINT_ALL, "...ignoring GL_ARB_multitexture\n" );
 		}
 	}
 	else
 	{
-		ri.Printf( PRINT_ALL, "...GL_ARB_multitexture not found\n" );
+		VID_Printf( PRINT_ALL, "...GL_ARB_multitexture not found\n" );
 	}
 
 	// GL_EXT_compiled_vertex_array
@@ -859,75 +874,316 @@ static void GLW_InitExtensions( void )
 	{
 		if ( r_ext_compiled_vertex_array->integer )
 		{
-			ri.Printf( PRINT_ALL, "...using GL_EXT_compiled_vertex_array\n" );
+			VID_Printf( PRINT_ALL, "...using GL_EXT_compiled_vertex_array\n" );
 			qglLockArraysEXT = ( void ( APIENTRY * )( int, int ) ) dlsym( glw_state.OpenGLLib, "glLockArraysEXT" );
 			qglUnlockArraysEXT = ( void ( APIENTRY * )( void ) ) dlsym( glw_state.OpenGLLib, "glUnlockArraysEXT" );
 			if (!qglLockArraysEXT || !qglUnlockArraysEXT) {
-				ri.Error (ERR_FATAL, "bad getprocaddress");
+				Com_Error (ERR_FATAL, "bad getprocaddress");
 			}
 		}
 		else
 		{
-			ri.Printf( PRINT_ALL, "...ignoring GL_EXT_compiled_vertex_array\n" );
+			VID_Printf( PRINT_ALL, "...ignoring GL_EXT_compiled_vertex_array\n" );
 		}
 	}
 	else
 	{
-		ri.Printf( PRINT_ALL, "...GL_EXT_compiled_vertex_array not found\n" );
+		VID_Printf( PRINT_ALL, "...GL_EXT_compiled_vertex_array not found\n" );
 	}
 
+	// GL_EXT_point_parameters
 	qglPointParameterfEXT = NULL;
 	qglPointParameterfvEXT = NULL;
 	if ( strstr( glConfig.extensions_string, "GL_EXT_point_parameters" ) )
 	{
-		if ( r_ext_compiled_vertex_array->integer || 1)
+		if ( r_ext_point_parameters->integer )
 		{
-			ri.Printf( PRINT_ALL, "...using GL_EXT_point_parameters\n" );
 			qglPointParameterfEXT = ( void ( APIENTRY * )( GLenum, GLfloat) ) dlsym( glw_state.OpenGLLib, "glPointParameterfEXT" );
 			qglPointParameterfvEXT = ( void ( APIENTRY * )( GLenum, GLfloat *) ) dlsym( glw_state.OpenGLLib, "glPointParameterfvEXT" );
 			if (!qglPointParameterfEXT || !qglPointParameterfvEXT) 
 			{
-				ri.Error (ERR_FATAL, "bad getprocaddress");
+				VID_Printf( ERR_FATAL, "Bad GetProcAddress for GL_EXT_point_parameters");
 			}
+			VID_Printf( PRINT_ALL, "...using GL_EXT_point_parameters\n" );
 		}
 		else
 		{
-			ri.Printf( PRINT_ALL, "...ignoring GL_EXT_point_parameters\n" );
+			VID_Printf( PRINT_ALL, "...ignoring GL_EXT_point_parameters\n" );
 		}
 	}
 	else
 	{
-		ri.Printf( PRINT_ALL, "...GL_EXT_point_parameters not found\n" );
+		VID_Printf( PRINT_ALL, "...GL_EXT_point_parameters not found\n" );
 	}
 
-#ifdef _NPATCH
-	// GL_ATI_pn_triangles
-	qglPNTrianglesiATI = NULL;
-	r_ATI_NPATCH_available = ri.Cvar_Get( "r_ATI_NPATCH_available", "0",CVAR_ROM );
-/*	if ( strstr( glConfig.extensions_string, "GL_ATI_pn_triangles" ) )
+	// GL_NV_point_sprite
+	qglPointParameteriNV = NULL;
+	qglPointParameterivNV = NULL;
+	if ( strstr( glConfig.extensions_string, "GL_NV_point_sprite" ) )
 	{
-		ri.Cvar_Set( "r_ATI_NPATCH_available", "1" );
-		if ( r_ati_pn_triangles->integer )
-		{	
-			ri.Printf( PRINT_ALL, "...using GL_ATI_pn_triangles\n" );
-			qglPNTrianglesiATI = ( void ( APIENTRY * )( GLenum, GLint ) ) qwglGetProcAddress( "glPNTrianglesiATI" );
-			if (!qglPNTrianglesiATI) {
-				ri.Error (ERR_FATAL, "bad getprocaddress");
+		if ( r_ext_nv_point_sprite->integer )
+		{
+			qglPointParameteriNV = ( void ( APIENTRY * )( GLenum, GLint) ) dlsym( glw_state.OpenGLLib, "glPointParameteriNV" );
+			qglPointParameterivNV = ( void ( APIENTRY * )( GLenum, const GLint *) ) dlsym( glw_state.OpenGLLib, "glPointParameterivNV" );
+			if (!qglPointParameteriNV || !qglPointParameterivNV) 
+			{
+				VID_Printf( ERR_FATAL, "Bad GetProcAddress for GL_NV_point_sprite");
 			}
+			VID_Printf( PRINT_ALL, "...using GL_NV_point_sprite\n" );
 		}
 		else
 		{
-			ri.Printf( PRINT_ALL, "...ignoring GL_ATI_pn_triangles\n" );
+			VID_Printf( PRINT_ALL,  "...ignoring GL_NV_point_sprite\n" );
 		}
 	}
 	else
 	{
-		ri.Printf( PRINT_ALL, "...GL_ATI_pn_triangles not found\n" );
+		VID_Printf( PRINT_ALL, "...GL_NV_point_sprite not found\n" );
 	}
-*/
-#endif // _NPATCH
+
+	bool bNVRegisterCombiners = false;
+	// Register Combiners.
+	if ( strstr( glConfig.extensions_string, "GL_NV_register_combiners" ) )
+	{
+		// NOTE: This extension requires multitexture support (over 2 units).
+		if ( glConfig.maxActiveTextures >= 2 )
+		{
+			bNVRegisterCombiners = true;
+			// Register Combiners function pointer address load.	- AReis
+			// NOTE: VV guys will _definetly_ not be able to use regcoms. Pixel Shaders are just as good though :-)
+			// NOTE: Also, this is an nVidia specific extension (of course), so fragment shaders would serve the same purpose
+			// if we needed some kind of fragment/pixel manipulation support.
+			qglCombinerParameterfvNV = ( PFNGLCOMBINERPARAMETERFVNV ) dlsym( glw_state.OpenGLLib, "glCombinerParameterfvNV" );
+			qglCombinerParameterivNV = ( PFNGLCOMBINERPARAMETERIVNV ) dlsym( glw_state.OpenGLLib, "glCombinerParameterivNV" );
+			qglCombinerParameterfNV = ( PFNGLCOMBINERPARAMETERFNV ) dlsym( glw_state.OpenGLLib, "glCombinerParameterfNV" );
+			qglCombinerParameteriNV = ( PFNGLCOMBINERPARAMETERINV ) dlsym( glw_state.OpenGLLib, "glCombinerParameteriNV" );
+			qglCombinerInputNV = ( PFNGLCOMBINERINPUTNV ) dlsym( glw_state.OpenGLLib, "glCombinerInputNV" );
+			qglCombinerOutputNV = ( PFNGLCOMBINEROUTPUTNV ) dlsym( glw_state.OpenGLLib, "glCombinerOutputNV" );
+			qglFinalCombinerInputNV = ( PFNGLFINALCOMBINERINPUTNV ) dlsym( glw_state.OpenGLLib, "glFinalCombinerInputNV" );
+			qglGetCombinerInputParameterfvNV	= ( PFNGLGETCOMBINERINPUTPARAMETERFVNV ) dlsym( glw_state.OpenGLLib, "glGetCombinerInputParameterfvNV" );
+			qglGetCombinerInputParameterivNV	= ( PFNGLGETCOMBINERINPUTPARAMETERIVNV ) dlsym( glw_state.OpenGLLib, "glGetCombinerInputParameterivNV" );
+			qglGetCombinerOutputParameterfvNV = ( PFNGLGETCOMBINEROUTPUTPARAMETERFVNV ) dlsym( glw_state.OpenGLLib, "glGetCombinerOutputParameterfvNV" );
+			qglGetCombinerOutputParameterivNV = ( PFNGLGETCOMBINEROUTPUTPARAMETERIVNV ) dlsym( glw_state.OpenGLLib, "glGetCombinerOutputParameterivNV" );
+			qglGetFinalCombinerInputParameterfvNV = ( PFNGLGETFINALCOMBINERINPUTPARAMETERFVNV ) dlsym( glw_state.OpenGLLib, "glGetFinalCombinerInputParameterfvNV" );
+			qglGetFinalCombinerInputParameterivNV = ( PFNGLGETFINALCOMBINERINPUTPARAMETERIVNV ) dlsym( glw_state.OpenGLLib, "glGetFinalCombinerInputParameterivNV" );
+
+			// Validate the functions we need.
+			if ( !qglCombinerParameterfvNV || !qglCombinerParameterivNV || !qglCombinerParameterfNV || !qglCombinerParameteriNV || !qglCombinerInputNV ||
+				 !qglCombinerOutputNV || !qglFinalCombinerInputNV || !qglGetCombinerInputParameterfvNV || !qglGetCombinerInputParameterivNV ||
+				 !qglGetCombinerOutputParameterfvNV || !qglGetCombinerOutputParameterivNV || !qglGetFinalCombinerInputParameterfvNV || !qglGetFinalCombinerInputParameterivNV )
+			{
+				bNVRegisterCombiners = false;
+				qglCombinerParameterfvNV = NULL;
+				qglCombinerParameteriNV = NULL;
+				Com_Printf ("...GL_NV_register_combiners failed\n" );
+			}
+		}
+		else
+		{
+			bNVRegisterCombiners = false;
+			Com_Printf ("...ignoring GL_NV_register_combiners\n" );
+		}
+	}
+	else
+	{
+		bNVRegisterCombiners = false;
+		Com_Printf ("...GL_NV_register_combiners not found\n" );
+	}
+
+	// NOTE: Vertex and Fragment Programs are very dependant on each other - this is actually a
+	// good thing! So, just check to see which we support (one or the other) and load the shared
+	// function pointers. ARB rocks!
+
+	// Vertex Programs.
+	bool bARBVertexProgram = false;
+	if ( strstr( glConfig.extensions_string, "GL_ARB_vertex_program" ) )
+	{
+		bARBVertexProgram = true;
+	}
+	else
+	{
+		bARBVertexProgram = false;
+		Com_Printf ("...GL_ARB_vertex_program not found\n" );
+	}
+
+	bool bARBFragmentProgram = false;
+	// Fragment Programs.
+	if ( strstr( glConfig.extensions_string, "GL_ARB_fragment_program" ) )
+	{
+		bARBFragmentProgram = true;
+	}
+	else
+	{
+		bARBFragmentProgram = false;
+		Com_Printf ("...GL_ARB_fragment_program not found\n" );
+	}
+
+	// If we support one or the other, load the shared function pointers.
+	if ( bARBVertexProgram || bARBFragmentProgram )
+	{
+		qglProgramStringARB					= (PFNGLPROGRAMSTRINGARBPROC)  dlsym( glw_state.OpenGLLib,"glProgramStringARB");
+		qglBindProgramARB					= (PFNGLBINDPROGRAMARBPROC)    dlsym( glw_state.OpenGLLib,"glBindProgramARB");
+		qglDeleteProgramsARB				= (PFNGLDELETEPROGRAMSARBPROC) dlsym( glw_state.OpenGLLib,"glDeleteProgramsARB");
+		qglGenProgramsARB					= (PFNGLGENPROGRAMSARBPROC)    dlsym( glw_state.OpenGLLib,"glGenProgramsARB");
+		qglProgramEnvParameter4dARB			= (PFNGLPROGRAMENVPARAMETER4DARBPROC)    dlsym( glw_state.OpenGLLib,"glProgramEnvParameter4dARB");
+		qglProgramEnvParameter4dvARB		= (PFNGLPROGRAMENVPARAMETER4DVARBPROC)   dlsym( glw_state.OpenGLLib,"glProgramEnvParameter4dvARB");
+		qglProgramEnvParameter4fARB			= (PFNGLPROGRAMENVPARAMETER4FARBPROC)    dlsym( glw_state.OpenGLLib,"glProgramEnvParameter4fARB");
+		qglProgramEnvParameter4fvARB		= (PFNGLPROGRAMENVPARAMETER4FVARBPROC)   dlsym( glw_state.OpenGLLib,"glProgramEnvParameter4fvARB");
+		qglProgramLocalParameter4dARB		= (PFNGLPROGRAMLOCALPARAMETER4DARBPROC)  dlsym( glw_state.OpenGLLib,"glProgramLocalParameter4dARB");
+		qglProgramLocalParameter4dvARB		= (PFNGLPROGRAMLOCALPARAMETER4DVARBPROC) dlsym( glw_state.OpenGLLib,"glProgramLocalParameter4dvARB");
+		qglProgramLocalParameter4fARB		= (PFNGLPROGRAMLOCALPARAMETER4FARBPROC)  dlsym( glw_state.OpenGLLib,"glProgramLocalParameter4fARB");
+		qglProgramLocalParameter4fvARB		= (PFNGLPROGRAMLOCALPARAMETER4FVARBPROC) dlsym( glw_state.OpenGLLib,"glProgramLocalParameter4fvARB");
+		qglGetProgramEnvParameterdvARB		= (PFNGLGETPROGRAMENVPARAMETERDVARBPROC) dlsym( glw_state.OpenGLLib,"glGetProgramEnvParameterdvARB");
+		qglGetProgramEnvParameterfvARB		= (PFNGLGETPROGRAMENVPARAMETERFVARBPROC) dlsym( glw_state.OpenGLLib,"glGetProgramEnvParameterfvARB");
+		qglGetProgramLocalParameterdvARB	= (PFNGLGETPROGRAMLOCALPARAMETERDVARBPROC) dlsym( glw_state.OpenGLLib,"glGetProgramLocalParameterdvARB");
+		qglGetProgramLocalParameterfvARB	= (PFNGLGETPROGRAMLOCALPARAMETERFVARBPROC) dlsym( glw_state.OpenGLLib,"glGetProgramLocalParameterfvARB");
+		qglGetProgramivARB					= (PFNGLGETPROGRAMIVARBPROC)     dlsym( glw_state.OpenGLLib,"glGetProgramivARB");
+		qglGetProgramStringARB				= (PFNGLGETPROGRAMSTRINGARBPROC) dlsym( glw_state.OpenGLLib,"glGetProgramStringARB");
+		qglIsProgramARB						= (PFNGLISPROGRAMARBPROC)        dlsym( glw_state.OpenGLLib,"glIsProgramARB");
+
+		// Validate the functions we need.
+		if ( !qglProgramStringARB || !qglBindProgramARB || !qglDeleteProgramsARB || !qglGenProgramsARB ||
+			 !qglProgramEnvParameter4dARB || !qglProgramEnvParameter4dvARB || !qglProgramEnvParameter4fARB ||
+             !qglProgramEnvParameter4fvARB || !qglProgramLocalParameter4dARB || !qglProgramLocalParameter4dvARB ||
+             !qglProgramLocalParameter4fARB || !qglProgramLocalParameter4fvARB || !qglGetProgramEnvParameterdvARB ||
+             !qglGetProgramEnvParameterfvARB || !qglGetProgramLocalParameterdvARB || !qglGetProgramLocalParameterfvARB ||
+             !qglGetProgramivARB || !qglGetProgramStringARB || !qglIsProgramARB )
+		{
+			bARBVertexProgram = false;
+			bARBFragmentProgram = false;
+			qglGenProgramsARB = NULL;	//clear ptrs that get checked
+			qglProgramEnvParameter4fARB = NULL;
+			Com_Printf ("...ignoring GL_ARB_vertex_program\n" );
+			Com_Printf ("...ignoring GL_ARB_fragment_program\n" );
+		}
+	}
+
+	// Figure out which texture rectangle extension to use.
+	bool bTexRectSupported = false;
+	if ( strnicmp( glConfig.vendor_string, "ATI Technologies",16 )==0
+		&& strnicmp( glConfig.version_string, "1.3.3",5 )==0 
+		&& glConfig.version_string[5] < '9' ) //1.3.34 and 1.3.37 and 1.3.38 are broken for sure, 1.3.39 is not
+	{
+		g_bTextureRectangleHack = true;
+	}
+	
+	if ( strstr( glConfig.extensions_string, "GL_NV_texture_rectangle" )
+		   || strstr( glConfig.extensions_string, "GL_EXT_texture_rectangle" ) )
+	{
+		bTexRectSupported = true;
+	}
+	
+	bool bHasPixelFormat = false;
+	bool bHasRenderTexture = false;
+
+	
+	#if 0
+	// OK, so not so good to put this here, but no one else uses it!!! -AReis
+	typedef const char * (WINAPI * PFNWGLGETEXTENSIONSSTRINGARBPROC) (HDC hdc);
+	PFNWGLGETEXTENSIONSSTRINGARBPROC			qwglGetExtensionsStringARB;
+	qwglGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC) dlsym( glw_state.OpenGLLib,"wglGetExtensionsStringARB");
+
+	const char *wglExtensions = NULL;
+
+	// Get the WGL extensions string.
+	if ( qwglGetExtensionsStringARB )
+	{
+		wglExtensions = qwglGetExtensionsStringARB( glw_state.hDC );
+	}
+
+	// This externsion is used to get the wgl extension string.
+	if ( wglExtensions )
+	{
+		// Pixel Format.
+		if ( strstr( wglExtensions, "WGL_ARB_pixel_format" ) )
+		{
+			qwglGetPixelFormatAttribivARB			=	(PFNWGLGETPIXELFORMATATTRIBIVARBPROC) dlsym( glw_state.OpenGLLib,"wglGetPixelFormatAttribivARB");
+			qwglGetPixelFormatAttribfvARB			=	(PFNWGLGETPIXELFORMATATTRIBFVARBPROC) dlsym( glw_state.OpenGLLib,"wglGetPixelFormatAttribfvARB");
+			qwglChoosePixelFormatARB				=	(PFNWGLCHOOSEPIXELFORMATARBPROC) dlsym( glw_state.OpenGLLib,"wglChoosePixelFormatARB");
+	
+			// Validate the functions we need.
+			if ( !qwglGetPixelFormatAttribivARB || !qwglGetPixelFormatAttribfvARB || !qwglChoosePixelFormatARB )
+			{
+				Com_Printf ("...ignoring WGL_ARB_pixel_format\n" );
+			}
+			else
+			{
+				bHasPixelFormat = true;
+			}
+		}
+		else
+		{
+			Com_Printf ("...ignoring WGL_ARB_pixel_format\n" );
+		}
+
+		// Offscreen pixel-buffer.
+		// NOTE: VV guys can use the equivelant SetRenderTarget() with the correct texture surfaces.
+		bool bWGLARBPbuffer = false;
+		if ( strstr( wglExtensions, "WGL_ARB_pbuffer" ) && bHasPixelFormat )
+		{
+			bWGLARBPbuffer = true;
+			qwglCreatePbufferARB		=	(PFNWGLCREATEPBUFFERARBPROC) dlsym( glw_state.OpenGLLib,"wglCreatePbufferARB");
+			qwglGetPbufferDCARB			=	(PFNWGLGETPBUFFERDCARBPROC) dlsym( glw_state.OpenGLLib,"wglGetPbufferDCARB");
+			qwglReleasePbufferDCARB		=	(PFNWGLRELEASEPBUFFERDCARBPROC) dlsym( glw_state.OpenGLLib,"wglReleasePbufferDCARB");
+			qwglDestroyPbufferARB		=	(PFNWGLDESTROYPBUFFERARBPROC) dlsym( glw_state.OpenGLLib,"wglDestroyPbufferARB");
+			qwglQueryPbufferARB			=	(PFNWGLQUERYPBUFFERARBPROC) dlsym( glw_state.OpenGLLib,"wglQueryPbufferARB");
+	
+			// Validate the functions we need.
+			if ( !qwglCreatePbufferARB || !qwglGetPbufferDCARB || !qwglReleasePbufferDCARB || !qwglDestroyPbufferARB || !qwglQueryPbufferARB )
+			{
+				bWGLARBPbuffer = false;
+				Com_Printf ("...WGL_ARB_pbuffer failed\n" );
+			}
+		}
+		else
+		{
+			bWGLARBPbuffer = false;
+			Com_Printf ("...WGL_ARB_pbuffer not found\n" );
+		}
+
+		// Render-Texture (requires pbuffer ext (and it's dependancies of course).
+		if ( strstr( wglExtensions, "WGL_ARB_render_texture" ) && bWGLARBPbuffer )
+		{
+			qwglBindTexImageARB			=	(PFNWGLBINDTEXIMAGEARBPROC) dlsym( glw_state.OpenGLLib,"wglBindTexImageARB");
+			qwglReleaseTexImageARB		=	(PFNWGLRELEASETEXIMAGEARBPROC) dlsym( glw_state.OpenGLLib,"wglReleaseTexImageARB");
+			qwglSetPbufferAttribARB		=	(PFNWGLSETPBUFFERATTRIBARBPROC) dlsym( glw_state.OpenGLLib,"wglSetPbufferAttribARB");
+	
+			// Validate the functions we need.
+			if ( !qwglCreatePbufferARB || !qwglGetPbufferDCARB || !qwglReleasePbufferDCARB || !qwglDestroyPbufferARB || !qwglQueryPbufferARB )
+			{
+				Com_Printf ("...ignoring WGL_ARB_render_texture\n" );
+			}
+			else
+			{
+				bHasRenderTexture = true;
+			}
+		}
+		else
+		{
+			Com_Printf ("...ignoring WGL_ARB_render_texture\n" );
+		}
+	}
+	#endif
+
+	// Find out how many general combiners they have.
+	#define GL_MAX_GENERAL_COMBINERS_NV       0x854D
+	GLint iNumGeneralCombiners = 0;
+	qglGetIntegerv( GL_MAX_GENERAL_COMBINERS_NV, &iNumGeneralCombiners );
+
+	// Only allow dynamic glows/flares if they have the hardware
+	if ( bTexRectSupported && bARBVertexProgram && bHasRenderTexture && qglActiveTextureARB && glConfig.maxActiveTextures >= 4 &&
+		( ( bNVRegisterCombiners && iNumGeneralCombiners >= 2 ) || bARBFragmentProgram ) )
+	{
+		g_bDynamicGlowSupported = true;
+		// this would overwrite any achived setting gwg
+		// Cvar_Set( "r_DynamicGlow", "1" );
+	}
+	else
+	{
+		g_bDynamicGlowSupported = false;
+		Cvar_Set( "r_DynamicGlow","0" );
+	}
 }
-
 
 /*
 ** GLW_LoadOpenGL
@@ -942,7 +1198,7 @@ static qboolean GLW_LoadOpenGL()
 
 	strcpy( buffer, OPENGL_DRIVER_NAME );
 
-	ri.Printf( PRINT_ALL, "...loading %s: ", buffer );
+	VID_Printf( PRINT_ALL, "...loading %s: ", buffer );
 
 	// load the QGL layer
 	if ( QGL_Init( buffer ) ) 
@@ -964,7 +1220,7 @@ static qboolean GLW_LoadOpenGL()
 	}
 	else
 	{
-		ri.Printf( PRINT_ALL, "failed\n" );
+		VID_Printf( PRINT_ALL, "failed\n" );
 	}
 fail:
 
@@ -993,7 +1249,7 @@ void GLimp_EndFrame (void)
 
 
 	// don't flip if drawing to front buffer
-	if ( stricmp( r_drawBuffer->string, "GL_FRONT" ) != 0 )
+	//if ( stricmp( r_drawBuffer->string, "GL_FRONT" ) != 0 )
 	{
 		qglXSwapBuffers(dpy, win);
 	}
@@ -1009,7 +1265,7 @@ static void GLW_StartOpenGL( void )
 	//
 	if ( !GLW_LoadOpenGL() )
 	{
-		ri.Error( ERR_FATAL, "GLW_StartOpenGL() - could not load OpenGL subsystem\n" );
+		Com_Error( ERR_FATAL, "GLW_StartOpenGL() - could not load OpenGL subsystem\n" );
 	}
 	
 
@@ -1028,10 +1284,10 @@ static void GLW_StartOpenGL( void )
 void GLimp_Init( void )
 {
 	char	buf[1024];
-	cvar_t *lastValidRenderer = ri.Cvar_Get( "r_lastValidRenderer", "(uninitialized)", CVAR_ARCHIVE );
+	cvar_t *lastValidRenderer = Cvar_Get( "r_lastValidRenderer", "(uninitialized)", CVAR_ARCHIVE );
 	cvar_t	*cv;
 
-	ri.Printf( PRINT_ALL, "Initializing OpenGL subsystem\n" );
+	VID_Printf( PRINT_ALL, "Initializing OpenGL subsystem\n" );
 
 	glConfig.deviceSupportsGamma = qfalse;
 
@@ -1052,7 +1308,7 @@ void GLimp_Init( void )
 	
 	if (!glConfig.vendor_string || !glConfig.renderer_string || !glConfig.version_string || !glConfig.extensions_string)
 	{
-		ri.Error( ERR_FATAL, "GLimp_Init() - Invalid GL Driver\n" );
+		Com_Error( ERR_FATAL, "GLimp_Init() - Invalid GL Driver\n" );
 	}
 
 	// OpenGL driver constants
@@ -1078,26 +1334,26 @@ void GLimp_Init( void )
 	if ( Q_stricmp( lastValidRenderer->string, glConfig.renderer_string ) )
 	{
 		//reset to defaults
-		ri.Cvar_Set( "r_picmip", "1" );
+		Cvar_Set( "r_picmip", "1" );
 		
 		if ( strstr( buf, "matrox" )) {
-            ri.Cvar_Set( "r_allowExtensions", "0");			
+            Cvar_Set( "r_allowExtensions", "0");			
 		}
 		else
 		// Savage3D and Savage4 should always have trilinear enabled
 		if ( strstr( buf, "savage3d" ) || strstr( buf, "s3 savage4" ) || strstr( buf, "geforce" ))
 		{
-			ri.Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" );
+			Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" );
 		}
 		else
 		{
-			ri.Cvar_Set( "r_textureMode", "GL_LINEAR_MIPMAP_NEAREST" );
+			Cvar_Set( "r_textureMode", "GL_LINEAR_MIPMAP_NEAREST" );
 		}
 
 		if ( strstr( buf, "kyro" ) )	
 		{
-			ri.Cvar_Set( "r_ext_texture_filter_anisotropic", "0");	//KYROs have it avail, but suck at it!
-			ri.Cvar_Set( "r_ext_preferred_tc_method", "1");			//(Use DXT1 instead of DXT5 - same quality but much better performance on KYRO)
+			Cvar_Set( "r_ext_texture_filter_anisotropic", "0");	//KYROs have it avail, but suck at it!
+			Cvar_Set( "r_ext_preferred_tc_method", "1");			//(Use DXT1 instead of DXT5 - same quality but much better performance on KYRO)
 		}
 
 		GLW_InitExtensions();
@@ -1105,15 +1361,15 @@ void GLimp_Init( void )
 		//this must be a really sucky card!
 		if ( (glConfig.textureCompression == TC_NONE) || (glConfig.maxActiveTextures < 2)  || (glConfig.maxTextureSize <= 512) )
 		{
-			ri.Cvar_Set( "r_picmip", "2");
-			ri.Cvar_Set( "r_colorbits", "16");
-			ri.Cvar_Set( "r_texturebits", "16");
-			ri.Cvar_Set( "r_mode", "3");	//force 640
+			Cvar_Set( "r_picmip", "2");
+			Cvar_Set( "r_colorbits", "16");
+			Cvar_Set( "r_texturebits", "16");
+			Cvar_Set( "r_mode", "3");	//force 640
 			Cmd_ExecuteString ("exec low.cfg\n");	//get the rest which can be pulled in after init
 		}
 	}
 	
-	ri.Cvar_Set( "r_lastValidRenderer", glConfig.renderer_string );
+	Cvar_Set( "r_lastValidRenderer", glConfig.renderer_string );
 
 	GLW_InitExtensions();
 	InitSig();
@@ -1143,7 +1399,7 @@ void GLimp_Shutdown( void )
 	int retVal;
 
 
-	ri.Printf( PRINT_ALL, "Shutting down OpenGL subsystem\n" );
+	VID_Printf( PRINT_ALL, "Shutting down OpenGL subsystem\n" );
 
 	// restore gamma.  We do this first because 3Dfx's extension needs a valid OGL subsystem
 	//WG_RestoreGamma();
@@ -1503,8 +1759,8 @@ static void install_grabs(void)
 
 			if (!XF86DGAQueryVersion(dpy, &MajorVersion, &MinorVersion)) { 
 				// unable to query, probalby not supported
-				ri.Printf( PRINT_ALL, "Failed to detect XF86DGA Mouse\n" );
-				ri.Cvar_Set( "in_dgamouse", "0" );
+				VID_Printf( PRINT_ALL, "Failed to detect XF86DGA Mouse\n" );
+				Cvar_Set( "in_dgamouse", "0" );
 			} else {
 				dgamouse = qtrue;
 				XF86DGADirectVideo(dpy, DefaultScreen(dpy), XF86DGADirectMouse);

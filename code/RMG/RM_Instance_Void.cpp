@@ -9,9 +9,9 @@
 
 #include "../server/exe_headers.h"
 
-#include "rm_headers.h"
+#include "RM_Headers.h"
 
-#include "rm_instance_void.h"
+#include "RM_Instance_Void.h"
 
 /************************************************************************************************
  * CRMVoidInstance::CRMVoidInstance

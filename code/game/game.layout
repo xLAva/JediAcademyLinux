@@ -91,6 +91,9 @@
 	<File name="../cgame/cg_predict.cpp" open="0" top="0" tabpos="4">
 		<Cursor position="342" topLine="0" />
 	</File>
+	<File name="../cgame/cg_public.h" open="1" top="0" tabpos="0">
+		<Cursor position="0" topLine="0" />
+	</File>
 	<File name="../cgame/cg_scoreboard.cpp" open="0" top="0" tabpos="5">
 		<Cursor position="178" topLine="0" />
 	</File>
@@ -202,6 +205,9 @@
 	<File name="b_public.h" open="0" top="0" tabpos="0">
 		<Cursor position="67" topLine="0" />
 	</File>
+	<File name="bg_public.h" open="1" top="0" tabpos="1">
+		<Cursor position="0" topLine="0" />
+	</File>
 	<File name="g_breakable.cpp" open="0" top="0" tabpos="0">
 		<Cursor position="14310" topLine="454" />
 	</File>
@@ -242,7 +248,7 @@
 		<Cursor position="735" topLine="0" />
 	</File>
 	<File name="g_navigator.cpp" open="0" top="0" tabpos="4">
-		<Cursor position="39425" topLine="1380" />
+		<Cursor position="39425" topLine="1371" />
 	</File>
 	<File name="g_navigator.h" open="0" top="0" tabpos="13">
 		<Cursor position="6682" topLine="147" />
@@ -271,7 +277,7 @@
 	<File name="q_shared.cpp" open="0" top="0" tabpos="2">
 		<Cursor position="561" topLine="5" />
 	</File>
-	<File name="q_shared.h" open="1" top="0" tabpos="1">
+	<File name="q_shared.h" open="1" top="0" tabpos="2">
 		<Cursor position="4421" topLine="149" />
 	</File>
 	<File name="surfaceflags.h" open="0" top="0" tabpos="0">
@@ -300,6 +306,9 @@
 	</File>
 	<File name="../icarus/TaskManager.cpp" open="0" top="0" tabpos="8">
 		<Cursor position="113" topLine="0" />
+	</File>
+	<File name="../qcommon/sstring.h" open="0" top="0" tabpos="0">
+		<Cursor position="0" topLine="36" />
 	</File>
 	<File name="../qcommon/tri_coll_test.cpp" open="0" top="0" tabpos="9">
 		<Cursor position="539" topLine="0" />

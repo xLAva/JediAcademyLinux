@@ -24,11 +24,13 @@
 					<Add option="-m32" />
 					<Add option="-ffast-math" />
 					<Add option="-fno-operator-names" />
+					<Add option="-fpermissive" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_JK2EXE" />
 					<Add option="-DLINUX" />
 					<Add option="-D_IMMERSION_DISABLED" />
 					<Add option="-D_FF_DISABLED" />
+					<Add option="-DEAX_DISABLED" />
 					<Add directory="ff/ifc" />
 				</Compiler>
 				<ResourceCompiler>
@@ -129,13 +131,13 @@
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-Wall" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_JK2EXE" />
 					<Add option="-DWIN32" />
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_IMMERSION" />
 					<Add option="-D_FF" />
-					<Add option="-Wall" />
 					<Add directory="ff/ifc" />
 				</Compiler>
 				<ResourceCompiler>
@@ -354,6 +356,30 @@
 		<Unit filename="jpeg-6/jpeglib.h" />
 		<Unit filename="jpeg-6/jutils.cpp" />
 		<Unit filename="jpeg-6/jversion.h" />
+		<Unit filename="linux/linux_console.cpp">
+			<Option target="Release Linux" />
+		</Unit>
+		<Unit filename="linux/linux_glimp.cpp">
+			<Option target="Release Linux" />
+		</Unit>
+		<Unit filename="linux/linux_glw.h">
+			<Option target="Release Linux" />
+		</Unit>
+		<Unit filename="linux/linux_local.h">
+			<Option target="Release Linux" />
+		</Unit>
+		<Unit filename="linux/linux_main.cpp">
+			<Option target="Release Linux" />
+		</Unit>
+		<Unit filename="linux/linux_qgl.cpp">
+			<Option target="Release Linux" />
+		</Unit>
+		<Unit filename="linux/linux_snddma.cpp">
+			<Option target="Release Linux" />
+		</Unit>
+		<Unit filename="linux/linuxprefix.h">
+			<Option target="Release Linux" />
+		</Unit>
 		<Unit filename="mp3code/L3.h" />
 		<Unit filename="mp3code/cdct.c">
 			<Option compilerVar="CC" />
@@ -550,63 +576,114 @@
 		<Unit filename="ui/ui_shared.cpp" />
 		<Unit filename="ui/ui_shared.h" />
 		<Unit filename="ui/ui_syscalls.cpp" />
-		<Unit filename="win32/AutoVersion.h" />
-		<Unit filename="win32/FeelIt/FEELitIFR.h" />
-		<Unit filename="win32/FeelIt/FFC.h" />
-		<Unit filename="win32/FeelIt/FFC10.dll" />
-		<Unit filename="win32/FeelIt/FFC10.lib">
-			<Option target="&lt;{~None~}&gt;" />
+		<Unit filename="win32/AutoVersion.h">
+			<Option target="Debug Win32" />
+			<Option target="SHDebug Win32" />
+			<Option target="FinalBuild Win32" />
+			<Option target="Release Win32" />
 		</Unit>
-		<Unit filename="win32/FeelIt/FFC10d.dll" />
-		<Unit filename="win32/FeelIt/FFC10d.lib">
-			<Option target="&lt;{~None~}&gt;" />
+		<Unit filename="win32/background.bmp">
+			<Option target="Debug Win32" />
+			<Option target="SHDebug Win32" />
+			<Option target="FinalBuild Win32" />
+			<Option target="Release Win32" />
 		</Unit>
-		<Unit filename="win32/FeelIt/FFCErrors.h" />
-		<Unit filename="win32/FeelIt/FeelBaseTypes.h" />
-		<Unit filename="win32/FeelIt/FeelBox.h" />
-		<Unit filename="win32/FeelIt/FeelCompoundEffect.h" />
-		<Unit filename="win32/FeelIt/FeelCondition.h" />
-		<Unit filename="win32/FeelIt/FeelConstant.h" />
-		<Unit filename="win32/FeelIt/FeelDXDevice.h" />
-		<Unit filename="win32/FeelIt/FeelDamper.h" />
-		<Unit filename="win32/FeelIt/FeelDevice.h" />
-		<Unit filename="win32/FeelIt/FeelEffect.h" />
-		<Unit filename="win32/FeelIt/FeelEllipse.h" />
-		<Unit filename="win32/FeelIt/FeelEnclosure.h" />
-		<Unit filename="win32/FeelIt/FeelFriction.h" />
-		<Unit filename="win32/FeelIt/FeelGrid.h" />
-		<Unit filename="win32/FeelIt/FeelInertia.h" />
-		<Unit filename="win32/FeelIt/FeelMouse.h" />
-		<Unit filename="win32/FeelIt/FeelPeriodic.h" />
-		<Unit filename="win32/FeelIt/FeelProjects.h" />
-		<Unit filename="win32/FeelIt/FeelRamp.h" />
-		<Unit filename="win32/FeelIt/FeelSpring.h" />
-		<Unit filename="win32/FeelIt/FeelTexture.h" />
-		<Unit filename="win32/FeelIt/FeelitAPI.h" />
-		<Unit filename="win32/FeelIt/fffx.cpp">
-			<Option target="&lt;{~None~}&gt;" />
+		<Unit filename="win32/clear.bmp">
+			<Option target="Debug Win32" />
+			<Option target="SHDebug Win32" />
+			<Option target="FinalBuild Win32" />
+			<Option target="Release Win32" />
 		</Unit>
-		<Unit filename="win32/FeelIt/fffx_feel.cpp">
-			<Option target="&lt;{~None~}&gt;" />
+		<Unit filename="win32/glw_win.h">
+			<Option target="Debug Win32" />
+			<Option target="SHDebug Win32" />
+			<Option target="FinalBuild Win32" />
+			<Option target="Release Win32" />
 		</Unit>
-		<Unit filename="win32/FeelIt/fffx_feel.h" />
-		<Unit filename="win32/background.bmp" />
-		<Unit filename="win32/clear.bmp" />
-		<Unit filename="win32/glw_win.h" />
-		<Unit filename="win32/resource.h" />
-		<Unit filename="win32/starwars.ico" />
-		<Unit filename="win32/win_gamma.cpp" />
-		<Unit filename="win32/win_glimp.cpp" />
-		<Unit filename="win32/win_input.cpp" />
-		<Unit filename="win32/win_local.h" />
-		<Unit filename="win32/win_main.cpp" />
-		<Unit filename="win32/win_qgl.cpp" />
-		<Unit filename="win32/win_shared.cpp" />
-		<Unit filename="win32/win_snd.cpp" />
-		<Unit filename="win32/win_syscon.cpp" />
-		<Unit filename="win32/win_video.cpp" />
-		<Unit filename="win32/win_wndproc.cpp" />
-		<Unit filename="win32/winquake.rc" />
+		<Unit filename="win32/resource.h">
+			<Option target="Debug Win32" />
+			<Option target="SHDebug Win32" />
+			<Option target="FinalBuild Win32" />
+			<Option target="Release Win32" />
+		</Unit>
+		<Unit filename="win32/starwars.ico">
+			<Option target="Debug Win32" />
+			<Option target="SHDebug Win32" />
+			<Option target="FinalBuild Win32" />
+			<Option target="Release Win32" />
+		</Unit>
+		<Unit filename="win32/win_gamma.cpp">
+			<Option target="Debug Win32" />
+			<Option target="SHDebug Win32" />
+			<Option target="FinalBuild Win32" />
+			<Option target="Release Win32" />
+		</Unit>
+		<Unit filename="win32/win_glimp.cpp">
+			<Option target="Debug Win32" />
+			<Option target="SHDebug Win32" />
+			<Option target="FinalBuild Win32" />
+			<Option target="Release Win32" />
+		</Unit>
+		<Unit filename="win32/win_input.cpp">
+			<Option target="Debug Win32" />
+			<Option target="SHDebug Win32" />
+			<Option target="FinalBuild Win32" />
+			<Option target="Release Win32" />
+		</Unit>
+		<Unit filename="win32/win_local.h">
+			<Option target="Debug Win32" />
+			<Option target="SHDebug Win32" />
+			<Option target="FinalBuild Win32" />
+			<Option target="Release Win32" />
+		</Unit>
+		<Unit filename="win32/win_main.cpp">
+			<Option target="Debug Win32" />
+			<Option target="SHDebug Win32" />
+			<Option target="FinalBuild Win32" />
+			<Option target="Release Win32" />
+		</Unit>
+		<Unit filename="win32/win_qgl.cpp">
+			<Option target="Debug Win32" />
+			<Option target="SHDebug Win32" />
+			<Option target="FinalBuild Win32" />
+			<Option target="Release Win32" />
+		</Unit>
+		<Unit filename="win32/win_shared.cpp">
+			<Option target="Debug Win32" />
+			<Option target="SHDebug Win32" />
+			<Option target="FinalBuild Win32" />
+			<Option target="Release Win32" />
+		</Unit>
+		<Unit filename="win32/win_snd.cpp">
+			<Option target="Debug Win32" />
+			<Option target="SHDebug Win32" />
+			<Option target="FinalBuild Win32" />
+			<Option target="Release Win32" />
+		</Unit>
+		<Unit filename="win32/win_syscon.cpp">
+			<Option target="Debug Win32" />
+			<Option target="SHDebug Win32" />
+			<Option target="FinalBuild Win32" />
+			<Option target="Release Win32" />
+		</Unit>
+		<Unit filename="win32/win_video.cpp">
+			<Option target="Debug Win32" />
+			<Option target="SHDebug Win32" />
+			<Option target="FinalBuild Win32" />
+			<Option target="Release Win32" />
+		</Unit>
+		<Unit filename="win32/win_wndproc.cpp">
+			<Option target="Debug Win32" />
+			<Option target="SHDebug Win32" />
+			<Option target="FinalBuild Win32" />
+			<Option target="Release Win32" />
+		</Unit>
+		<Unit filename="win32/winquake.rc">
+			<Option target="Debug Win32" />
+			<Option target="SHDebug Win32" />
+			<Option target="FinalBuild Win32" />
+			<Option target="Release Win32" />
+		</Unit>
 		<Unit filename="zlib32/deflate.cpp" />
 		<Unit filename="zlib32/deflate.h" />
 		<Unit filename="zlib32/inflate.cpp" />
