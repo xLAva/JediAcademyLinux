@@ -5800,7 +5800,7 @@ static void CG_DoSaberLight( saberInfo_t *saber )
 			}
 		}
 
-		cgi_R_AddLightToScene( mid, diameter + (random()*8.0f), rgb[0], rgb[1], rgb[2] );
+		cgi_R_AddLightToScene( mid, diameter + (randomLava()*8.0f), rgb[0], rgb[1], rgb[2] );
 	}
 }
 
@@ -5853,7 +5853,7 @@ static void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax
 	{//FIXME: RGB combine all the colors of the sabers you're using into one averaged color!
 		vec3_t rgb={1,1,1};
 		CG_RGBForSaberColor( color, rgb );
-		cgi_R_AddLightToScene( mid, (length*1.4f) + (random()*3.0f), rgb[0], rgb[1], rgb[2] );
+		cgi_R_AddLightToScene( mid, (length*1.4f) + (randomLava()*3.0f), rgb[0], rgb[1], rgb[2] );
 	}
 
 	memset( &saber, 0, sizeof( refEntity_t ));
