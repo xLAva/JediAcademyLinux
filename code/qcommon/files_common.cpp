@@ -299,8 +299,10 @@ void	FS_CreatePath (char *OSPath) {
 		Com_Printf( "WARNING: refusing to create relative path \"%s\"\n", OSPath );
 		return;
 	}
-
+	
+	#ifndef LINUX
 	strlwr(OSPath);
+	#endif
 
 	for (ofs = OSPath+1 ; *ofs ; ofs++) {
 		if (*ofs == PATH_SEP) {	
