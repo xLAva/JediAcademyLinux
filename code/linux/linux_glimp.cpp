@@ -1073,105 +1073,14 @@ static void GLW_InitExtensions( void )
 		bTexRectSupported = true;
 	}
 	
-	bool bHasPixelFormat = false;
-	bool bHasRenderTexture = false;
-
 	
-	#if 0
-	// OK, so not so good to put this here, but no one else uses it!!! -AReis
-	typedef const char * (WINAPI * PFNWGLGETEXTENSIONSSTRINGARBPROC) (HDC hdc);
-	PFNWGLGETEXTENSIONSSTRINGARBPROC			qwglGetExtensionsStringARB;
-	qwglGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC) dlsym( glw_state.OpenGLLib,"wglGetExtensionsStringARB");
-
-	const char *wglExtensions = NULL;
-
-	// Get the WGL extensions string.
-	if ( qwglGetExtensionsStringARB )
-	{
-		wglExtensions = qwglGetExtensionsStringARB( glw_state.hDC );
-	}
-
-	// This externsion is used to get the wgl extension string.
-	if ( wglExtensions )
-	{
-		// Pixel Format.
-		if ( strstr( wglExtensions, "WGL_ARB_pixel_format" ) )
-		{
-			qwglGetPixelFormatAttribivARB			=	(PFNWGLGETPIXELFORMATATTRIBIVARBPROC) dlsym( glw_state.OpenGLLib,"wglGetPixelFormatAttribivARB");
-			qwglGetPixelFormatAttribfvARB			=	(PFNWGLGETPIXELFORMATATTRIBFVARBPROC) dlsym( glw_state.OpenGLLib,"wglGetPixelFormatAttribfvARB");
-			qwglChoosePixelFormatARB				=	(PFNWGLCHOOSEPIXELFORMATARBPROC) dlsym( glw_state.OpenGLLib,"wglChoosePixelFormatARB");
-	
-			// Validate the functions we need.
-			if ( !qwglGetPixelFormatAttribivARB || !qwglGetPixelFormatAttribfvARB || !qwglChoosePixelFormatARB )
-			{
-				Com_Printf ("...ignoring WGL_ARB_pixel_format\n" );
-			}
-			else
-			{
-				bHasPixelFormat = true;
-			}
-		}
-		else
-		{
-			Com_Printf ("...ignoring WGL_ARB_pixel_format\n" );
-		}
-
-		// Offscreen pixel-buffer.
-		// NOTE: VV guys can use the equivelant SetRenderTarget() with the correct texture surfaces.
-		bool bWGLARBPbuffer = false;
-		if ( strstr( wglExtensions, "WGL_ARB_pbuffer" ) && bHasPixelFormat )
-		{
-			bWGLARBPbuffer = true;
-			qwglCreatePbufferARB		=	(PFNWGLCREATEPBUFFERARBPROC) dlsym( glw_state.OpenGLLib,"wglCreatePbufferARB");
-			qwglGetPbufferDCARB			=	(PFNWGLGETPBUFFERDCARBPROC) dlsym( glw_state.OpenGLLib,"wglGetPbufferDCARB");
-			qwglReleasePbufferDCARB		=	(PFNWGLRELEASEPBUFFERDCARBPROC) dlsym( glw_state.OpenGLLib,"wglReleasePbufferDCARB");
-			qwglDestroyPbufferARB		=	(PFNWGLDESTROYPBUFFERARBPROC) dlsym( glw_state.OpenGLLib,"wglDestroyPbufferARB");
-			qwglQueryPbufferARB			=	(PFNWGLQUERYPBUFFERARBPROC) dlsym( glw_state.OpenGLLib,"wglQueryPbufferARB");
-	
-			// Validate the functions we need.
-			if ( !qwglCreatePbufferARB || !qwglGetPbufferDCARB || !qwglReleasePbufferDCARB || !qwglDestroyPbufferARB || !qwglQueryPbufferARB )
-			{
-				bWGLARBPbuffer = false;
-				Com_Printf ("...WGL_ARB_pbuffer failed\n" );
-			}
-		}
-		else
-		{
-			bWGLARBPbuffer = false;
-			Com_Printf ("...WGL_ARB_pbuffer not found\n" );
-		}
-
-		// Render-Texture (requires pbuffer ext (and it's dependancies of course).
-		if ( strstr( wglExtensions, "WGL_ARB_render_texture" ) && bWGLARBPbuffer )
-		{
-			qwglBindTexImageARB			=	(PFNWGLBINDTEXIMAGEARBPROC) dlsym( glw_state.OpenGLLib,"wglBindTexImageARB");
-			qwglReleaseTexImageARB		=	(PFNWGLRELEASETEXIMAGEARBPROC) dlsym( glw_state.OpenGLLib,"wglReleaseTexImageARB");
-			qwglSetPbufferAttribARB		=	(PFNWGLSETPBUFFERATTRIBARBPROC) dlsym( glw_state.OpenGLLib,"wglSetPbufferAttribARB");
-	
-			// Validate the functions we need.
-			if ( !qwglCreatePbufferARB || !qwglGetPbufferDCARB || !qwglReleasePbufferDCARB || !qwglDestroyPbufferARB || !qwglQueryPbufferARB )
-			{
-				Com_Printf ("...ignoring WGL_ARB_render_texture\n" );
-			}
-			else
-			{
-				bHasRenderTexture = true;
-			}
-		}
-		else
-		{
-			Com_Printf ("...ignoring WGL_ARB_render_texture\n" );
-		}
-	}
-	#endif
-
 	// Find out how many general combiners they have.
 	#define GL_MAX_GENERAL_COMBINERS_NV       0x854D
 	GLint iNumGeneralCombiners = 0;
 	qglGetIntegerv( GL_MAX_GENERAL_COMBINERS_NV, &iNumGeneralCombiners );
 
 	// Only allow dynamic glows/flares if they have the hardware
-	if ( bTexRectSupported && bARBVertexProgram && bHasRenderTexture && qglActiveTextureARB && glConfig.maxActiveTextures >= 4 &&
+	if ( bTexRectSupported && bARBVertexProgram  && qglActiveTextureARB && glConfig.maxActiveTextures >= 4 &&
 		( ( bNVRegisterCombiners && iNumGeneralCombiners >= 2 ) || bARBFragmentProgram ) )
 	{
 		g_bDynamicGlowSupported = true;
