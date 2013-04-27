@@ -2024,7 +2024,8 @@ extern cvar_t	*g_saberRealisticCombat;
 					if ( newBolt != -1 )
 					{
 						cent->gent->delay = cg.time + 50;
-						CG_PlayEffectBolted( "saber/limb_bolton", owner->playerModel, newBolt, owner->s.number, owner->s.origin );	//ent origin used to make FX culling work
+						 //LAvaPort - file is missing in Steam files
+						//CG_PlayEffectBolted( "saber/limb_bolton", owner->playerModel, newBolt, owner->s.number, owner->s.origin );	//ent origin used to make FX culling work
 					}
 				}
 			}
