@@ -2258,6 +2258,7 @@ static bool RB_TestZFlare( vec3_t point) {
 	// doing a readpixels is as good as doing a glFinish(), so
 	// don't bother with another sync
 	glState.finishCalled = qfalse;
+	glPixelStorei(GL_PACK_ALIGNMENT,1);
 	qglReadPixels( backEnd.viewParms.viewportX + window[0],backEnd.viewParms.viewportY + window[1], 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth );
 #endif
 
