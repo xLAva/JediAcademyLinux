@@ -50,7 +50,7 @@
 		<Cursor position="1286" topLine="31" />
 	</File>
 	<File name="client/cl_cgame.cpp" open="0" top="0" tabpos="40">
-		<Cursor position="17786" topLine="610" />
+		<Cursor position="10665" topLine="418" />
 	</File>
 	<File name="client/cl_cin.cpp" open="0" top="0" tabpos="3">
 		<Cursor position="50600" topLine="1838" />
@@ -59,10 +59,13 @@
 		<Cursor position="10717" topLine="507" />
 	</File>
 	<File name="client/cl_main.cpp" open="0" top="0" tabpos="7">
-		<Cursor position="316" topLine="0" />
+		<Cursor position="23074" topLine="1000" />
 	</File>
 	<File name="client/cl_mp3.cpp" open="0" top="0" tabpos="8">
 		<Cursor position="394" topLine="0" />
+	</File>
+	<File name="client/cl_scrn.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="6790" topLine="332" />
 	</File>
 	<File name="client/snd_ambient.cpp" open="0" top="0" tabpos="0">
 		<Cursor position="7759" topLine="358" />
@@ -80,7 +83,7 @@
 		<Cursor position="2658" topLine="117" />
 	</File>
 	<File name="client/snd_music.cpp" open="0" top="0" tabpos="13">
-		<Cursor position="419" topLine="0" />
+		<Cursor position="33538" topLine="1099" />
 	</File>
 	<File name="game/bg_public.h" open="0" top="0" tabpos="0">
 		<Cursor position="5652" topLine="138" />
@@ -89,7 +92,7 @@
 		<Cursor position="28650" topLine="1219" />
 	</File>
 	<File name="ghoul2/G2_API.cpp" open="0" top="0" tabpos="17">
-		<Cursor position="539" topLine="5" />
+		<Cursor position="7829" topLine="282" />
 	</File>
 	<File name="ghoul2/G2_bones.cpp" open="0" top="0" tabpos="19">
 		<Cursor position="44967" topLine="1561" />
@@ -104,16 +107,16 @@
 		<Cursor position="4521" topLine="78" />
 	</File>
 	<File name="linux/linux_glimp.cpp" open="0" top="0" tabpos="0">
-		<Cursor position="51686" topLine="0" />
+		<Cursor position="3300" topLine="120" />
 	</File>
 	<File name="linux/linux_glw.h" open="0" top="0" tabpos="3">
 		<Cursor position="183" topLine="0" />
 	</File>
 	<File name="linux/linux_main.cpp" open="0" top="0" tabpos="0">
-		<Cursor position="10159" topLine="508" />
+		<Cursor position="9183" topLine="449" />
 	</File>
 	<File name="linux/linux_qgl.cpp" open="0" top="0" tabpos="1">
-		<Cursor position="153368" topLine="3522" />
+		<Cursor position="17103" topLine="252" />
 	</File>
 	<File name="linux/linux_snddma.cpp" open="0" top="0" tabpos="12">
 		<Cursor position="0" topLine="0" />
@@ -160,17 +163,29 @@
 	<File name="qcommon/cm_draw.h" open="0" top="0" tabpos="14">
 		<Cursor position="357" topLine="0" />
 	</File>
+	<File name="qcommon/cm_local.h" open="1" top="0" tabpos="6">
+		<Cursor position="6015" topLine="259" />
+	</File>
 	<File name="qcommon/cm_terrainmap.cpp" open="0" top="0" tabpos="16">
 		<Cursor position="270" topLine="0" />
 	</File>
+	<File name="qcommon/cm_test.cpp" open="1" top="0" tabpos="7">
+		<Cursor position="4204" topLine="182" />
+	</File>
+	<File name="qcommon/cm_trace.cpp" open="1" top="1" tabpos="4">
+		<Cursor position="16245" topLine="688" />
+	</File>
 	<File name="qcommon/common.cpp" open="0" top="0" tabpos="17">
-		<Cursor position="3035" topLine="123" />
+		<Cursor position="6869" topLine="287" />
 	</File>
 	<File name="qcommon/files.h" open="0" top="0" tabpos="0">
-		<Cursor position="240" topLine="0" />
+		<Cursor position="1167" topLine="43" />
 	</File>
-	<File name="qcommon/files_pc.cpp" open="0" top="0" tabpos="18">
-		<Cursor position="10815" topLine="407" />
+	<File name="qcommon/files_common.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="9833" topLine="279" />
+	</File>
+	<File name="qcommon/files_pc.cpp" open="1" top="0" tabpos="1">
+		<Cursor position="14271" topLine="506" />
 	</File>
 	<File name="qcommon/qcommon.h" open="0" top="0" tabpos="15">
 		<Cursor position="153" topLine="0" />
@@ -194,16 +209,22 @@
 		<Cursor position="557" topLine="0" />
 	</File>
 	<File name="renderer/qgl.h" open="0" top="0" tabpos="0">
-		<Cursor position="13362" topLine="234" />
+		<Cursor position="17986" topLine="291" />
+	</File>
+	<File name="renderer/tr_WorldEffects.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="2989" topLine="78" />
 	</File>
 	<File name="renderer/tr_arioche.cpp" open="0" top="0" tabpos="19">
 		<Cursor position="77" topLine="0" />
+	</File>
+	<File name="renderer/tr_backend.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="37360" topLine="1539" />
 	</File>
 	<File name="renderer/tr_cmds.cpp" open="0" top="0" tabpos="0">
 		<Cursor position="7620" topLine="274" />
 	</File>
 	<File name="renderer/tr_draw.cpp" open="0" top="0" tabpos="41">
-		<Cursor position="33065" topLine="1082" />
+		<Cursor position="25099" topLine="854" />
 	</File>
 	<File name="renderer/tr_font.cpp" open="0" top="0" tabpos="20">
 		<Cursor position="325" topLine="0" />
@@ -215,7 +236,7 @@
 		<Cursor position="376" topLine="0" />
 	</File>
 	<File name="renderer/tr_init.cpp" open="0" top="0" tabpos="23">
-		<Cursor position="6061" topLine="214" />
+		<Cursor position="16223" topLine="606" />
 	</File>
 	<File name="renderer/tr_local.h" open="0" top="0" tabpos="0">
 		<Cursor position="47866" topLine="1820" />
@@ -223,8 +244,11 @@
 	<File name="renderer/tr_mesh.cpp" open="0" top="0" tabpos="24">
 		<Cursor position="165" topLine="0" />
 	</File>
-	<File name="renderer/tr_model.cpp" open="0" top="0" tabpos="25">
-		<Cursor position="11111" topLine="313" />
+	<File name="renderer/tr_model.cpp" open="1" top="0" tabpos="3">
+		<Cursor position="20090" topLine="733" />
+	</File>
+	<File name="renderer/tr_noise.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="740" topLine="23" />
 	</File>
 	<File name="renderer/tr_public.h" open="0" top="0" tabpos="0">
 		<Cursor position="5468" topLine="105" />
@@ -232,8 +256,11 @@
 	<File name="renderer/tr_quicksprite.cpp" open="0" top="0" tabpos="26">
 		<Cursor position="200" topLine="0" />
 	</File>
+	<File name="renderer/tr_shadows.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="14600" topLine="594" />
+	</File>
 	<File name="renderer/tr_surface.cpp" open="0" top="0" tabpos="27">
-		<Cursor position="21576" topLine="620" />
+		<Cursor position="66462" topLine="2239" />
 	</File>
 	<File name="renderer/tr_surfacesprites.cpp" open="0" top="0" tabpos="28">
 		<Cursor position="158" topLine="0" />
@@ -253,8 +280,8 @@
 	<File name="server/sv_main.cpp" open="0" top="0" tabpos="32">
 		<Cursor position="191" topLine="0" />
 	</File>
-	<File name="server/sv_savegame.cpp" open="0" top="0" tabpos="33">
-		<Cursor position="835" topLine="0" />
+	<File name="server/sv_savegame.cpp" open="1" top="0" tabpos="5">
+		<Cursor position="34768" topLine="1385" />
 	</File>
 	<File name="server/sv_snapshot.cpp" open="0" top="0" tabpos="34">
 		<Cursor position="108" topLine="0" />
@@ -263,7 +290,7 @@
 		<Cursor position="512" topLine="0" />
 	</File>
 	<File name="ui/ui_main.cpp" open="0" top="0" tabpos="36">
-		<Cursor position="20627" topLine="565" />
+		<Cursor position="15964" topLine="401" />
 	</File>
 	<File name="ui/ui_saber.cpp" open="0" top="0" tabpos="0">
 		<Cursor position="9273" topLine="361" />
@@ -277,14 +304,17 @@
 	<File name="win32/AutoVersion.h" open="0" top="0" tabpos="6">
 		<Cursor position="0" topLine="0" />
 	</File>
+	<File name="win32/glw_win.h" open="0" top="0" tabpos="0">
+		<Cursor position="451" topLine="0" />
+	</File>
 	<File name="win32/win_glimp.cpp" open="0" top="0" tabpos="0">
-		<Cursor position="46018" topLine="1568" />
+		<Cursor position="44937" topLine="1530" />
 	</File>
 	<File name="win32/win_main.cpp" open="0" top="0" tabpos="0">
 		<Cursor position="11386" topLine="507" />
 	</File>
 	<File name="win32/win_qgl.cpp" open="0" top="0" tabpos="2">
-		<Cursor position="580" topLine="0" />
+		<Cursor position="474" topLine="0" />
 	</File>
 	<File name="win32/win_video.cpp" open="0" top="0" tabpos="0">
 		<Cursor position="0" topLine="283" />
