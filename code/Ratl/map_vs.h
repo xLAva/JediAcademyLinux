@@ -1226,7 +1226,7 @@ public:
 	{
 		assert(!IS_MULTI || find_index(key)==tree_node::NULL_NODE); //fixme handle duplicates more sensibly?
 
-		alloc_key(key);
+		this->alloc_key(key);
 		insert_alloced_key();		
 		assert(check_validity());
 		mValues.construct(index_of_alloced_key(),value);
@@ -1291,10 +1291,10 @@ public:
 	void		erase(const TKTValue &key)
 	{
 		//fixme this is a double search currently
-		int i=find_index(key);
+		int i=this->find_index(key);
 		if (i!=tree_node::NULL_NODE)
 		{
-			erase_index(i);
+			this->erase_index(i);
 			mValues.destruct(i);
 		}
 	}
@@ -1490,7 +1490,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////
 	iterator	find(const TKTValue &key)
 	{
-		return iterator(this,find_index(key));		
+		return iterator(this,this->find_index(key));		
 	}
 
     ////////////////////////////////////////////////////////////////////////////////////
