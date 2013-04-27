@@ -122,7 +122,10 @@ int G_FindLookItem( gentity_t *self )
 	float		rating, bestRating = 0.0f;
 
 	//FIXME: no need to do this in 1st person?
+	fwdangles[0] = 0;
 	fwdangles[1] = self->client->ps.viewangles[1];
+	fwdangles[2] = 0;
+ 	
 	AngleVectors( fwdangles, forward, NULL, NULL );
 
 	VectorCopy( self->currentOrigin, center );
