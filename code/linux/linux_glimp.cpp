@@ -124,7 +124,7 @@ void     QGL_Shutdown( void );
 /*****************************************************************************/
 
 static qboolean signalcaught = qfalse;
-
+#include <execinfo.h>
 static void signal_handler(int sig)
 {
 	if (signalcaught) {
@@ -134,6 +134,17 @@ static void signal_handler(int sig)
 
 	signalcaught = qtrue;
 	printf("Received signal %d, exiting...\n", sig);
+	
+  void *array[10];
+  size_t size;
+
+  // get void*'s for all entries on the stack
+  size = backtrace(array, 10);
+
+  // print out all the frames to stderr
+  fprintf(stderr, "Error: signal %d:\n", sig);
+  backtrace_symbols_fd(array, size, 2);	
+	
 	GLimp_Shutdown();
 	exit(1);
 }
@@ -316,12 +327,16 @@ void GLW_SetModeXRandr(int* actualWidth, int* actualHeight, qboolean* fullscreen
 			printf("change res to %dx%d\n", xrrs[best_fit].width, xrrs[best_fit].height);
 
 			// change to the mode
-			XRRSetScreenConfig(dpy, conf, root, best_fit, original_rotation, CurrentTime);
-			vidmode_active = qtrue;
-			vidmode_xrandr = qtrue;
+			//XRRSetScreenConfig(dpy, conf, root, best_fit, original_rotation, CurrentTime);
+			//vidmode_active = qtrue;
+			//vidmode_xrandr = qtrue;
+
+			(*fullscreen) = 0;
 
 			// Move the viewport to top left
 			//XF86VidModeSetViewPort(dpy, scrnum, 0, 0);
+			
+			
 		} else{
 			(*fullscreen) = 0;
 			VID_Printf( PRINT_ALL, "...WARNING: fullscreen unavailable in this mode\n" );
