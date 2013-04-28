@@ -406,7 +406,7 @@ void SV_SpawnServer( char *server, ForceReload_e eForceReload, qboolean bAllowSc
 	SV_InitGameProgs();
 
 	// run a few frames to allow everything to settle
-	for ( i = 0 ;i < 3 ; i++ ) {
+	for ( i = 0 ;i < 10 ; i++ ) {
 		ge->RunFrame( sv.time );
 		sv.time += 100;
 		G2API_SetTime(sv.time,G2T_SV_TIME);
