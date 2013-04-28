@@ -1261,16 +1261,15 @@ void GLimp_Init( void )
 		if ( strstr( buf, "matrox" )) {
             Cvar_Set( "r_allowExtensions", "0");			
 		}
-		else
-		// Savage3D and Savage4 should always have trilinear enabled
-		if ( strstr( buf, "savage3d" ) || strstr( buf, "s3 savage4" ) || strstr( buf, "geforce" ))
+
+
+		Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" );
+		
+		if ( strstr( buf, "intel" ) )
 		{
-			Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" );
-		}
-		else
-		{
-			Cvar_Set( "r_textureMode", "GL_LINEAR_MIPMAP_NEAREST" );
-		}
+			// disable dynamic glow as default
+			Cvar_Set( "r_DynamicGlow","0" );
+		}		
 
 		if ( strstr( buf, "kyro" ) )	
 		{
