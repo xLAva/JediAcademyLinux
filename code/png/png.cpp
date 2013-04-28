@@ -421,7 +421,11 @@ bool PNG_Unpack(const byte *data, const ulong datasize, png_image_t *image)
 //	MD_PushTag(TAG_ZIP_TEMP);
 
 	memset(&zdata, 0, sizeof(z_stream));
+	#ifdef LINUX
 	if(inflateInit(&zdata) != Z_OK)
+	#else
+	if(inflateInit(&zdata, Z_SYNC_FLUSH) != Z_OK)
+	#endif
 	{
 		png_error = PNG_ERROR_DECOMP;
 //		MD_PopTag();
@@ -439,7 +443,11 @@ bool PNG_Unpack(const byte *data, const ulong datasize, png_image_t *image)
 		// Inflate a row of data
 		zdata.next_out = &filter;
 		zdata.avail_out = 1;
+		#ifdef LINUX		
 		if(inflate(&zdata, Z_SYNC_FLUSH) != Z_OK)
+		#else
+		if(inflate(&zdata) != Z_OK)		
+		#endif
 		{
 			inflateEnd(&zdata);
 			png_error = PNG_ERROR_DECOMP;
@@ -448,7 +456,11 @@ bool PNG_Unpack(const byte *data, const ulong datasize, png_image_t *image)
 		}
 		zdata.next_out = out;
 		zdata.avail_out = rowbytes;
+		#ifdef LINUX
 		zerror = inflate(&zdata, Z_SYNC_FLUSH);
+		#else
+		zerror = inflate(&zdata);		
+		#endif
 		if((zerror != Z_OK) && (zerror != Z_STREAM_END))
 		{
 			inflateEnd(&zdata);

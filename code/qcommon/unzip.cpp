@@ -1026,15 +1026,22 @@ extern int unzOpenCurrentFile (unzFile file)
 	pfile_in_zip_read_info->byte_before_the_zipfile=s->byte_before_the_zipfile;
 
 	pfile_in_zip_read_info->stream.total_out = 0;
+	
+	#ifdef LINUX
 	pfile_in_zip_read_info->stream.zalloc = Z_NULL;
 	pfile_in_zip_read_info->stream.zfree = Z_NULL;
 	pfile_in_zip_read_info->stream.opaque = Z_NULL;
 	pfile_in_zip_read_info->stream.avail_in = 0;
 	pfile_in_zip_read_info->stream.next_in = Z_NULL;    
+	#endif
 
 	if (!Store)
 	{
+		#ifdef LINUX
 	  err=inflateInit2(&(pfile_in_zip_read_info->stream), -MAX_WBITS);
+	  #else
+		err=inflateInit(&pfile_in_zip_read_info->stream, Z_SYNC_FLUSH, 1);
+	  #endif
 	  if (err == Z_OK)
 	    pfile_in_zip_read_info->stream_initialised=1;
         /* windowBits is passed < 0 to tell that there is no zlib header.
@@ -1167,7 +1174,11 @@ extern int unzReadCurrentFile  (unzFile file, void *buf, unsigned len)
 				(pfile_in_zip_read_info->rest_read_compressed == 0))
 				flush = Z_FINISH;
 			*/
+			#ifdef LINUX
 			err=inflate(&pfile_in_zip_read_info->stream, Z_SYNC_FLUSH);
+			#else
+			err=inflate(&pfile_in_zip_read_info->stream);			
+			#endif
 
 			uTotalOutAfter = pfile_in_zip_read_info->stream.total_out;
 			uOutThis = uTotalOutAfter-uTotalOutBefore;

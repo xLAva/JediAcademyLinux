@@ -13,6 +13,10 @@
 #include "cl_mp3.h"
 #include "snd_music.h"
 
+#ifdef LINUX
+#define EAX_DISABLED 1
+#endif
+
 static void S_Play_f(void);
 static void S_SoundList_f(void);
 static void S_Music_f(void);
@@ -224,7 +228,7 @@ void S_SetLipSyncs();
 
 // EAX Related
 
-#ifdef LINUX
+#ifdef EAX_DISABLED
 typedef int GUID;
 #define LPEAXMANAGER int
 #define HINSTANCE int
@@ -285,7 +289,7 @@ static void UpdateEAXBuffer(channel_t *ch);
 static void EALFileInit(char *level);
 float CalcDistance(EMPOINT A, EMPOINT B);
 
-#ifndef LINUX
+#ifndef EAX_DISABLED
 void Normalize(EAXVECTOR *v)
 {
 	float flMagnitude;
