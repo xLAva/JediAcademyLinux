@@ -743,7 +743,7 @@ int CSequencer::ParseAffect( CBlock *block, bstream_t *bstream, CIcarus* icarus 
 		}
 		if(ent < 0)
 		{	// a valid entity name was not returned from the get command
-			game->DebugPrint(IGameInterface::WL_WARNING, "'%s' : invalid affect() target\n");
+			game->DebugPrint(IGameInterface::WL_WARNING, "'%s' : invalid affect() target (error1)\n", p1 != NULL ? p1 : "null");
 		}
 	
 	} // end if(!ent)
@@ -1885,7 +1885,7 @@ void CSequencer::CheckAffect( CBlock **command , CIcarus* icarus)
 			}
 			if(ent < 0)
 			{	// a valid entity name was not returned from the get command
-				game->DebugPrint(IGameInterface::WL_WARNING, "'%s' : invalid affect() target\n");
+				game->DebugPrint(IGameInterface::WL_WARNING, "'%s' : invalid affect() target (error2)\n", p1 != NULL ? p1 : "null");
 			}
 		
 		} // end if(!ent)
@@ -2578,7 +2578,7 @@ int	CSequencer::Load( CIcarus* icarus, IGameInterface* game )
 	pIcarus->BufferRead( &numTasks, sizeof( numTasks ) );
 
 	//Read in, and reassociate the tasks to the sequences
-	for ( i = 0; i < numTasks; i++ )
+	for (int i = 0; i < numTasks; i++ )
 	{
 		//Read in the task's ID
 		pIcarus->BufferRead( &taskID, sizeof( taskID ) );

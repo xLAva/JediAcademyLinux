@@ -1915,7 +1915,7 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 	float	f;
 	char	*patch;
 	char	sound[MAX_QPATH];
-	char	playerModel[MAX_QPATH];
+	char	playerModel[MAX_QPATH] = { 0 };
 	char	customSkin[MAX_QPATH];
 	clientInfo_t	*ci = &NPC->client->clientInfo;
 	renderInfo_t	*ri = &NPC->client->renderInfo;
@@ -2527,8 +2527,10 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				}
 				if ( surfOff[0] )
 				{
-					strncat( (char *)surfOff, ",", sizeof(surfOff) );
-					strncat( (char *)surfOff, value, sizeof(surfOff) );
+					int spaceLeft = sizeof(surfOff)-strlen(surfOff)-1; //maxsize - currentlen - null terminator
+					strncat( (char *)surfOff, ",", spaceLeft );
+					spaceLeft--;
+					strncat( (char *)surfOff, value, spaceLeft);
 				}
 				else
 				{
@@ -2546,8 +2548,10 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				}
 				if ( surfOn[0] )
 				{
-					strncat( (char *)surfOn, ",", sizeof(surfOn) );
-					strncat( (char *)surfOn, value, sizeof(surfOn) );
+					int spaceLeft = sizeof(surfOn)-strlen(surfOn)-1; //maxsize - currentlen - null terminator
+					strncat( (char *)surfOn, ",",spaceLeft);
+					spaceLeft--;
+					strncat( (char *)surfOn, value, spaceLeft);
 				}
 				else
 				{
