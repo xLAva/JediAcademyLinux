@@ -327,11 +327,9 @@ void GLW_SetModeXRandr(int* actualWidth, int* actualHeight, qboolean* fullscreen
 			printf("change res to %dx%d\n", xrrs[best_fit].width, xrrs[best_fit].height);
 
 			// change to the mode
-			//XRRSetScreenConfig(dpy, conf, root, best_fit, original_rotation, CurrentTime);
-			//vidmode_active = qtrue;
-			//vidmode_xrandr = qtrue;
-
-			(*fullscreen) = 0;
+			XRRSetScreenConfig(dpy, conf, root, best_fit, original_rotation, CurrentTime);
+			vidmode_active = qtrue;
+			vidmode_xrandr = qtrue;
 
 			// Move the viewport to top left
 			//XF86VidModeSetViewPort(dpy, scrnum, 0, 0);
