@@ -1753,7 +1753,8 @@ void WP_SaberDamageAdd( float trDmg, int trVictimEntityNum, vec3_t trDmgDir, vec
 	}
 	if ( trDmg )
 	{//did some damage to something
-		for ( int i = 0; i < numVictims; i++ )
+		int i;
+		for ( i = 0; i < numVictims; i++ )
 		{
 			if ( victimEntityNum[i] == trVictimEntityNum )
 			{//already hit this guy before
@@ -8355,7 +8356,7 @@ qboolean G_CheckEnemyPresence( gentity_t *ent, int dir, float radius, float tole
 	//Get a number of entities in a given space
 	numEnts = gi.EntitiesInBox( mins, maxs, radiusEnts, MAX_RADIUS_ENTS );
 
-	for ( i = 0; i < numEnts; i++ )
+	for ( int i = 0; i < numEnts; i++ )
 	{
 		//Don't consider self
 		if ( radiusEnts[i] == ent )

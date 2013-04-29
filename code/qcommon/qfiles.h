@@ -568,7 +568,7 @@ typedef struct {
 	int			patchHeight;
 } dsurface_t;
 
-#endif _XBOX
+#endif // _XBOX
 
 typedef enum //# hunkAllocType_e
 {

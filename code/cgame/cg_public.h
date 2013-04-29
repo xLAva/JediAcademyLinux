@@ -211,4 +211,4 @@ Ghoul2 Insert End
 
 //----------------------------------------------
 
-#endif _CG_PUBLIC_H
+#endif // _CG_PUBLIC_H

@@ -595,7 +595,8 @@ static int Thai_ValidTISCode( const byte *psString, int &iThaiBytes )
 
 		// thai codes can be up to 3 bytes long, so see how high we can get...
 		//
-		for (int i=0; i<3; i++)
+		int i;
+		for (i=0; i<3; i++)
 		{			
 			CodeToTry.sChars[i] = psString[i];
 
@@ -1674,9 +1675,11 @@ void R_ReloadFonts_f(void)
 	//
 	vector <sstring_t> vstrFonts;
 
-	for (int iFontToFind = 1; iFontToFind < g_iCurrentFontIndex; iFontToFind++)
+	int iFontToFind;
+	for (iFontToFind = 1; iFontToFind < g_iCurrentFontIndex; iFontToFind++)
 	{		
-		for (FontIndexMap_t::iterator it = g_mapFontIndexes.begin(); it != g_mapFontIndexes.end(); ++it)
+		FontIndexMap_t::iterator it;
+		for (it = g_mapFontIndexes.begin(); it != g_mapFontIndexes.end(); ++it)
 		{
 			if (iFontToFind == (*it).second)
 			{
