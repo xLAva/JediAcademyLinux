@@ -1412,7 +1412,7 @@ bool NPC_SafeSpawn( gentity_t *ent, float safeRadius )
 	//Get a number of entities in a given space
 	numEnts = gi.EntitiesInBox( safeMins, safeMaxs, radiusEnts, MAX_SAFESPAWN_ENTS );
 
-	for ( i = 0; i < numEnts; i++ )
+	for ( int i = 0; i < numEnts; i++ )
 	{
 		//Don't consider self
 		if ( radiusEnts[i] == ent )

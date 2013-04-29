@@ -1028,7 +1028,7 @@ void G_Victory( gentity_t *ent )
 	}
 }
 
-typedef enum
+enum
 {
 	TAUNT_TAUNT = 0,
 	TAUNT_BOW,

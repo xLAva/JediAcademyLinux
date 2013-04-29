@@ -76,7 +76,7 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////
 	bits_vs(const char* Str)
 	{
-		clear();
+		this->clear();
 
 		for (int b=0; b<SIZE; b++)
 		{
@@ -86,7 +86,7 @@ public:
 			}
 			if (Str[b]=='1')
 			{
-				set_bit(b);		// Found A True Bit
+				this->set_bit(b);		// Found A True Bit
 			}
 		}
 	}
