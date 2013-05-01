@@ -58,7 +58,7 @@ typedef enum
 	LOCK_FORCE_DRAIN
 } sabersLockMode_t;
 
-typedef enum
+enum
 {
 	SABERLOCK_TOP,
 	SABERLOCK_SIDE,
@@ -69,7 +69,7 @@ typedef enum
 	SABERLOCK_LOSE
 };
 
-typedef enum
+enum
 {
 	DIR_RIGHT,
 	DIR_LEFT,
@@ -148,7 +148,7 @@ extern char *saberColorStringForColor[];
 
 #define MASK_FORCE_PUSH (MASK_OPAQUE|CONTENTS_SOLID)
 
-typedef enum
+enum
 {
 	FORCE_LEVEL_0,
 	FORCE_LEVEL_1,
@@ -159,7 +159,7 @@ typedef enum
 #define	FORCE_LEVEL_4 (FORCE_LEVEL_3+1)
 #define	FORCE_LEVEL_5 (FORCE_LEVEL_4+1)
 
-typedef enum
+enum
 {
 	FJ_FORWARD,
 	FJ_BACKWARD,

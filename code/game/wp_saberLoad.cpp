@@ -23,11 +23,11 @@ void Saber_SithSwordPrecache( void )
 	{
 		G_SoundIndex( va( "sound/weapons/sword/stab%d.wav", i ) );
 	}
-	for ( i = 1; i < 5; i++ )
+	for ( int i = 1; i < 5; i++ )
 	{
 		G_SoundIndex( va( "sound/weapons/sword/swing%d.wav", i ) );
 	}
-	for ( i = 1; i < 7; i++ )
+	for ( int i = 1; i < 7; i++ )
 	{
 		G_SoundIndex( va( "sound/weapons/sword/fall%d.wav", i ) );
 	}

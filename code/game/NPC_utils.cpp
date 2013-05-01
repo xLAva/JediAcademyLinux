@@ -1111,7 +1111,7 @@ int NPC_FindNearestEnemy( gentity_t *ent )
 	//Get a number of entities in a given space
 	numEnts = gi.EntitiesInBox( mins, maxs, radiusEnts, MAX_RADIUS_ENTS );
 
-	for ( i = 0; i < numEnts; i++ )
+	for ( int i = 0; i < numEnts; i++ )
 	{
 		nearest = G_CheckControlledTurretEnemy(ent, radiusEnts[i], qtrue);
 

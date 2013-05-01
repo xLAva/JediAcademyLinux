@@ -146,7 +146,7 @@ void			UI_AdjustSaveGameListBox( int currentLine );
 void			Menus_CloseByName(const char *p);
 
 // Movedata Sounds
-typedef enum
+enum
 {
 	MDS_NONE = 0,
 	MDS_FORCE_JUMP,
@@ -155,7 +155,7 @@ typedef enum
 	MDS_MOVE_SOUNDS_MAX
 };
 
-typedef enum
+enum
 {
 	MD_ACROBATICS = 0,
 	MD_SINGLE_FAST,
@@ -1509,7 +1509,7 @@ static float UI_GetValue(int ownerDraw)
 }
 
 //Force Warnings
-typedef enum
+enum
 {
 	FW_VERY_LIGHT = 0,
 	FW_SEMI_LIGHT,
