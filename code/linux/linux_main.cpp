@@ -33,6 +33,8 @@
 #include "../renderer/tr_public.h"
 #include "linux_local.h"
 
+// Used to determine CD Path
+static char programpath[MAX_OSPATH];
 
 
 /*
@@ -264,8 +266,12 @@ int Sys_Milliseconds (void)
 Sys_DefaultCDPath
 ==============
 */
-char *Sys_DefaultCDPath( void ) {
-	return "";
+char *Sys_DefaultCDPath(void)
+{
+	if (*programpath)
+		return programpath;
+	else
+		return Sys_Cwd();
 }
 
 /*
@@ -273,11 +279,25 @@ char *Sys_DefaultCDPath( void ) {
 Sys_DefaultBasePath
 ==============
 */
-char *Sys_DefaultBasePath( void ) {
-	return Sys_Cwd();
+
+char *Sys_DefaultBasePath(void)
+{
+	char *p;
+	static char basepath[MAX_OSPATH];
+	int e;
+
+	if ((p = getenv("HOME")) != NULL) {
+		Q_strncpyz(basepath, p, sizeof(basepath));
+		Q_strcat(basepath, sizeof(basepath), "/.jk3-ja");
+		if (mkdir(basepath, 0777)) {
+			if (errno != EEXIST) 
+				Sys_Error("Unable to create directory \"%s\", error is %s(%d)\n", basepath, strerror(errno), errno);
+		}
+		return basepath;
+	}
+	return ""; // assume current dir
 }
 
-static char programpath[MAX_OSPATH];
 
 void SetProgramPath(char *path)
 {
@@ -491,7 +511,11 @@ void *Sys_GetGameAPI (void *parms)
 	else
 	{
 		// check the current directory for other development purposes
-		Com_sprintf (name, sizeof(name), "%s/%s", cwd, gamename);
+	  	if (*programpath)
+		  Com_sprintf (name, sizeof(name), "%s/%s", programpath, gamename);
+		else
+		  Com_sprintf (name, sizeof(name), "%s/%s", cwd, gamename);
+
 		game_library = dlopen (name, RTLD_LAZY );
 		if (game_library)
 		{
