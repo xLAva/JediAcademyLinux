@@ -7,7 +7,7 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Release Linux">
-				<Option output="../Release/jagamex86" prefix_auto="1" extension_auto="1" />
+				<Option output="../Release/jagamex86" prefix_auto="0" extension_auto="1" />
 				<Option object_output="../Release/game" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -230,6 +230,41 @@
 		<Unit filename="../client/vmachine.h" />
 		<Unit filename="../ff/ff.h" />
 		<Unit filename="../ff/ff_public.h" />
+		<Unit filename="../ghoul2/G2.h" />
+		<Unit filename="../ghoul2/ghoul2_gore.h" />
+		<Unit filename="../icarus/BlockStream.cpp" />
+		<Unit filename="../icarus/BlockStream.h" />
+		<Unit filename="../icarus/IcarusImplementation.cpp" />
+		<Unit filename="../icarus/IcarusImplementation.h" />
+		<Unit filename="../icarus/IcarusInterface.h" />
+		<Unit filename="../icarus/Sequence.cpp" />
+		<Unit filename="../icarus/Sequence.h" />
+		<Unit filename="../icarus/Sequencer.cpp" />
+		<Unit filename="../icarus/Sequencer.h" />
+		<Unit filename="../icarus/StdAfx.h" />
+		<Unit filename="../icarus/TaskManager.cpp" />
+		<Unit filename="../icarus/TaskManager.h" />
+		<Unit filename="../qcommon/sstring.h" />
+		<Unit filename="../qcommon/tags.h" />
+		<Unit filename="../qcommon/timing.h" />
+		<Unit filename="../qcommon/tri_coll_test.cpp" />
+		<Unit filename="../renderer/mdx_format.h" />
+		<Unit filename="../renderer/tr_types.h" />
+		<Unit filename="../smartheap/HAW32M.LIB">
+			<Option target="SHDebug Win32" />
+		</Unit>
+		<Unit filename="../smartheap/SMRTHEAP.C">
+			<Option compilerVar="CC" />
+			<Option target="SHDebug Win32" />
+		</Unit>
+		<Unit filename="../ui/gameinfo.cpp" />
+		<Unit filename="../ui/gameinfo.h" />
+		<Unit filename="../win32/game.rc">
+			<Option target="SHDebug Win32" />
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="FinalBuild Win32" />
+		</Unit>
 		<Unit filename="AI.h" />
 		<Unit filename="AI_Animal.cpp" />
 		<Unit filename="AI_AssassinDroid.cpp" />
@@ -380,41 +415,6 @@
 		<Unit filename="wp_saber.cpp" />
 		<Unit filename="wp_saber.h" />
 		<Unit filename="wp_saberLoad.cpp" />
-		<Unit filename="../ghoul2/G2.h" />
-		<Unit filename="../ghoul2/ghoul2_gore.h" />
-		<Unit filename="../icarus/BlockStream.cpp" />
-		<Unit filename="../icarus/BlockStream.h" />
-		<Unit filename="../icarus/IcarusImplementation.cpp" />
-		<Unit filename="../icarus/IcarusImplementation.h" />
-		<Unit filename="../icarus/IcarusInterface.h" />
-		<Unit filename="../icarus/Sequence.cpp" />
-		<Unit filename="../icarus/Sequence.h" />
-		<Unit filename="../icarus/Sequencer.cpp" />
-		<Unit filename="../icarus/Sequencer.h" />
-		<Unit filename="../icarus/StdAfx.h" />
-		<Unit filename="../icarus/TaskManager.cpp" />
-		<Unit filename="../icarus/TaskManager.h" />
-		<Unit filename="../qcommon/sstring.h" />
-		<Unit filename="../qcommon/tags.h" />
-		<Unit filename="../qcommon/timing.h" />
-		<Unit filename="../qcommon/tri_coll_test.cpp" />
-		<Unit filename="../renderer/mdx_format.h" />
-		<Unit filename="../renderer/tr_types.h" />
-		<Unit filename="../smartheap/HAW32M.LIB">
-			<Option target="SHDebug Win32" />
-		</Unit>
-		<Unit filename="../smartheap/SMRTHEAP.C">
-			<Option compilerVar="CC" />
-			<Option target="SHDebug Win32" />
-		</Unit>
-		<Unit filename="../ui/gameinfo.cpp" />
-		<Unit filename="../ui/gameinfo.h" />
-		<Unit filename="../win32/game.rc">
-			<Option target="SHDebug Win32" />
-			<Option target="Debug Win32" />
-			<Option target="Release Win32" />
-			<Option target="FinalBuild Win32" />
-		</Unit>
 		<Extensions>
 			<code_completion />
 			<debugger />
