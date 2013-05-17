@@ -24,6 +24,7 @@
 #include <stdarg.h>
 #include <pthread.h>
 #include <semaphore.h>
+#include <algorithm>
 
 #include <dlfcn.h>
 #include <sys/sendfile.h>
@@ -324,9 +325,24 @@ DIRECTORY SCANNING
 
 ==============================================================
 */
-#define	MAX_FOUND_FILES	0x1000
+
+
+int alphasortIgnoreCase(const struct dirent ** a, const struct dirent **b)
+{
+	std::string aName = (*a)->d_name;
+	std::string bName = (*b)->d_name;
+	
+	std::transform(aName.begin(), aName.end(), aName.begin(), ::tolower);
+	std::transform(bName.begin(), bName.end(), bName.begin(), ::tolower);
+	
+	return aName.compare(bName);
+	
+}
+
+
 
 #define	MAX_FOUND_FILES	0x1000
+
 
 char **Sys_ListFiles( const char *directory, const char *extension, int *numfiles, qboolean wantsubs )
 {
@@ -359,7 +375,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, int *numfile
 	// search
 	nfiles = 0;
 
-    scancount = scandir(directory, &scanlist, NULL, alphasort);
+    scancount = scandir(directory, &scanlist, NULL, alphasortIgnoreCase);
     if (scancount < 0) {
 		*numfiles = 0;
 		return NULL;
