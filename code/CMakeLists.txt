@@ -16,10 +16,10 @@ set(CMAKE_BUILD_TYPE "RELEASE")
 # set(CMAKE_BUILD_TYPE "DEBUG")
 
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wno-write-strings -Wno-pointer-arith -Wno-multichar -Wno-int-to-pointer-cast -Wno-cpp -Wno-overflow -fexceptions -m32 -ffast-math -DLINUX -DNDEBUG -DFINAL_BUILD")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-write-strings -Wno-conversion-null -Wno-pointer-arith -Wno-multichar -Wno-enum-compare -Wno-cpp -Wno-overflow -fexceptions -m32 -ffast-math -fno-operator-names -DLINUX -DNDEBUG -DFINAL_BUILD")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-write-strings -Wno-conversion-null -Wno-pointer-arith -Wno-multichar -Wno-enum-compare -Wno-cpp -Wno-overflow -Wno-invalid-offsetof -fexceptions -m32 -ffast-math -fno-operator-names -DLINUX -DNDEBUG -DFINAL_BUILD")
 
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g -Wno-write-strings -Wno-pointer-arith -Wno-multichar -Wno-int-to-pointer-cast -Wno-cpp -Wno-overflow -g -fexceptions -m32 -ffast-math -DLINUX -DNDEBUG")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-write-strings -Wno-conversion-null -Wno-pointer-arith -Wno-multichar -Wno-enum-compare -Wno-cpp -Wno-overflow -fexceptions -m32 -ffast-math -fno-operator-names -DLINUX -DNDEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-write-strings -Wno-conversion-null -Wno-pointer-arith -Wno-multichar -Wno-enum-compare -Wno-cpp -Wno-overflow -Wno-invalid-offsetof -fexceptions -m32 -ffast-math -fno-operator-names -DLINUX -DNDEBUG")
 
 set(GAME_SOURCE_FILES
                 Ratl/ratl.cpp
