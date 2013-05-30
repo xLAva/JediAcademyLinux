@@ -445,6 +445,12 @@ private:
 		float			targetNoiseLevel;
 
 		gentity_t*		scanner					= mActors[scannerIndex];
+		if (scanner == NULL || scanner->NPC == NULL)
+		{
+			// this is bad, but it can happen if some AI entities are created on map load but overwritten by load savegame
+			return;
+		}
+		
 		gNPCstats_t*	scannerStats			= &(scanner->NPC->stats);
 		float			scannerMaxViewDist		= scannerStats->visrange;
 		float			scannerMinVisability	= 0.1f;//1.0f - scannerStats->vigilance;

@@ -406,11 +406,21 @@ void SV_SpawnServer( char *server, ForceReload_e eForceReload, qboolean bAllowSc
 	SV_InitGameProgs();
 
 	// run a few frames to allow everything to settle
-	for ( i = 0 ;i < 10 ; i++ ) {
+
+	// LAva:
+	// if a new map (level) is loaded the AI needs a few frames to spawn all entities (frames = 10)
+	// this is very important for cinematics, because some script access this entities created by the AI
+	
+	// if a savegame is loaded the AI entities are not needed and in fact can even crash the game
+	// so we just update once (frames = 1), because zero is not working. 
+	
+	int frames =  eSavedGameJustLoaded == eNO ? 10 : 1;
+	for ( i = 0 ;i < frames; i++ ) {
 		ge->RunFrame( sv.time );
 		sv.time += 100;
 		G2API_SetTime(sv.time,G2T_SV_TIME);
 	}
+	
 	ge->ConnectNavs(sv_mapname->string, sv_mapChecksum->integer);
 
 	// create a baseline for more efficient communications
