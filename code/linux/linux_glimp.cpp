@@ -394,6 +394,9 @@ int GLW_SetMode( const char *drivername, int mode, qboolean fullscreen )
 		return RSERR_INVALID_MODE;
 	}
 
+	X11DRV_XF86VM_Init(dpy);
+	WG_CheckHardwareGamma();
+
 	scrnum = DefaultScreen(dpy);
 	root = RootWindow(dpy, scrnum);
 	
@@ -1203,7 +1206,7 @@ void GLimp_Init( void )
 
 	VID_Printf( PRINT_ALL, "Initializing OpenGL subsystem\n" );
 
-	glConfig.deviceSupportsGamma = qfalse;
+	//glConfig.deviceSupportsGamma = qfalse;
 
 	InitSig();
 
@@ -1294,9 +1297,9 @@ void GLimp_Init( void )
 **
 ** This routine should only be called if glConfig.deviceSupportsGamma is TRUE
 */
-void GLimp_SetGamma( unsigned char red[256], unsigned char green[256], unsigned char blue[256] )
-{
-}
+//void GLimp_SetGamma( unsigned char red[256], unsigned char green[256], unsigned char blue[256] )
+//{
+//}
 
 
 /*
@@ -1315,7 +1318,7 @@ void GLimp_Shutdown( void )
 	VID_Printf( PRINT_ALL, "Shutting down OpenGL subsystem\n" );
 
 	// restore gamma.  We do this first because 3Dfx's extension needs a valid OGL subsystem
-	//WG_RestoreGamma();
+	WG_RestoreGamma();
 
 
 	if (!ctx || !dpy)

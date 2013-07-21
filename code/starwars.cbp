@@ -419,6 +419,10 @@
 			<Option target="Release Linux" />
 			<Option target="Debug Linux" />
 		</Unit>
+		<Unit filename="linux/linux_gamma.cpp">
+			<Option target="Debug Linux" />
+			<Option target="Release Linux" />
+		</Unit>
 		<Unit filename="linux/linux_glimp.cpp">
 			<Option target="Release Linux" />
 			<Option target="Debug Linux" />
@@ -446,6 +450,10 @@
 		<Unit filename="linux/linuxprefix.h">
 			<Option target="Release Linux" />
 			<Option target="Debug Linux" />
+		</Unit>
+		<Unit filename="linux/xvidmode.cpp">
+			<Option target="Debug Linux" />
+			<Option target="Release Linux" />
 		</Unit>
 		<Unit filename="mp3code/cdct.c">
 			<Option compilerVar="CC" />
