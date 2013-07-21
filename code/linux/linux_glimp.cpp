@@ -34,9 +34,6 @@
 #include <X11/keysym.h>
 #include <X11/cursorfont.h>
 
-#ifdef USE_XF86DGA
-#include <X11/extensions/xf86dga.h>
-#endif
 #include <X11/extensions/xf86vmode.h>
 #include <X11/extensions/Xrandr.h>
 
@@ -102,6 +99,9 @@ static qboolean vidmode_fullscreen = qfalse;
 static int mouse_accel_numerator;
 static int mouse_accel_denominator;
 static int mouse_threshold;   
+
+static void* sXf86dgaLib = NULL;
+static Status	(*spDGADirectVideo) (Display *, int, int) = NULL;
 
 // Whether the current hardware supports dynamic glows/flares.
 extern bool g_bDynamicGlowSupported;
@@ -625,18 +625,6 @@ int GLW_SetMode( const char *drivername, int mode, qboolean fullscreen )
 	if (vidmode_active)
 		XMoveWindow(dpy, win, 0, 0);
 
-	#ifdef USE_XF86DGA
-	// Check for DGA
-	//if (in_dgamouse->value) {
-		if (!XF86DGAQueryVersion(dpy, &MajorVersion, &MinorVersion)) { 
-			// unable to query, probalby not supported
-			VID_Printf( PRINT_ALL, "Failed to detect XF86DGA Mouse\n" );
-			Cvar_Set( "in_dgamouse", "0" );
-		} else
-			VID_Printf( PRINT_ALL, "XF86DGA Mouse (Version %d.%d) initialized\n",
-				MajorVersion, MinorVersion);
-	//}
-	#endif
 
 	XFlush(dpy);
 
@@ -1679,29 +1667,67 @@ static void install_grabs(void)
 
 		XChangePointerControl(dpy, qtrue, qtrue, 2, 1, 0);
 
-		#ifdef USE_XF86DGA
 		if (in_dgamouse->value) {
-			int MajorVersion, MinorVersion;
+		
+			
+			sXf86dgaLib = dlopen ("libXxf86dga.so", RTLD_LAZY );
+			if (sXf86dgaLib)
+			{
+				Com_DPrintf ("LoadLibrary (%s)\n", "libXxf86dga.so");
 
-			if (!XF86DGAQueryVersion(dpy, &MajorVersion, &MinorVersion)) { 
-				// unable to query, probalby not supported
-				VID_Printf( PRINT_ALL, "Failed to detect XF86DGA Mouse\n" );
-				Cvar_Set( "in_dgamouse", "0" );
-			} else {
-				dgamouse = qtrue;
-				XF86DGADirectVideo(dpy, DefaultScreen(dpy), XF86DGADirectMouse);
-				XWarpPointer(dpy, None, win, 0, 0, 0, 0, 0, 0);
+				Bool (*pDGAQueryVersion)(Display*, int*, int*);
+				*(void **)(&pDGAQueryVersion) = dlsym (sXf86dgaLib, "XF86DGAQueryVersion");			
+					
+				if (!pDGAQueryVersion)
+				{
+					const char* error = dlerror();
+					printf("libXxf86dga error: %s\n", error);
+					Com_Printf("dlsym() failed on XF86DGAQueryVersion\n" );
+				}					
+				else
+				{
+					Status	(*pDGADirectVideo) (Display *, int, int);
+					*(void **)(&spDGADirectVideo) = dlsym (sXf86dgaLib, "XF86DGADirectVideo");
+					
+					if (!spDGADirectVideo)
+					{
+						const char* error = dlerror();
+						printf("libXxf86dga error: %s\n", error);
+						Com_Printf("dlsym() failed on XF86DGADirectVideo\n" );
+					}
+					else
+					{
+					
+						int majorVersion, minorVersion;
+
+						if (!(*pDGAQueryVersion)(dpy, &majorVersion, &minorVersion)) { 
+							// unable to query, probalby not supported
+							VID_Printf( PRINT_ALL, "Failed to detect XF86DGA Mouse\n" );
+							Cvar_Set( "in_dgamouse", "0" );
+						} else {
+							dgamouse = qtrue;
+							
+							(*spDGADirectVideo)(dpy, DefaultScreen(dpy), 0x0004);
+							XWarpPointer(dpy, None, win, 0, 0, 0, 0, 0, 0);
+							
+							VID_Printf( PRINT_ALL, "XF86DGA Mouse (Version %d.%d) initialized\n", majorVersion, minorVersion);
+						}					
+					}
+				}
 			}
-		} else {
+			else
+			{
+				Com_Printf("dlopen() failed on libXxf86dga.so\n" );
+			}
+		}
+		
+		if (!in_dgamouse->value || !dgamouse)
+		{
 			XWarpPointer(dpy, None, win,
 						 0, 0, 0, 0,
 						 glConfig.vidWidth / 2, glConfig.vidHeight / 2);
 		}
-		#else
-		XWarpPointer(dpy, None, win,
-			 0, 0, 0, 0,
-			 glConfig.vidWidth / 2, glConfig.vidHeight / 2);
-		#endif
+
 
 		XGrabKeyboard(dpy, win,
 				  False,
@@ -1711,13 +1737,12 @@ static void install_grabs(void)
 //	XSync(dpy, True);
 }
 
+
 static void uninstall_grabs(void)
 {
-	if (dgamouse) {
+	if (dgamouse && spDGADirectVideo) {
 		dgamouse = qfalse;
-		#ifdef USE_XF86DGA
-		XF86DGADirectVideo(dpy, DefaultScreen(dpy), 0);
-		#endif
+		(*spDGADirectVideo)(dpy, DefaultScreen(dpy), 0);
 	}
 
 	XChangePointerControl(dpy, qtrue, qtrue, mouse_accel_numerator, 
