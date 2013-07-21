@@ -6,6 +6,42 @@
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
+			<Target title="Debug Linux">
+				<Option output="../Debug/jagamex86" prefix_auto="0" extension_auto="1" />
+				<Option object_output="../Debug/game" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-g" />
+					<Add option="-Wno-write-strings" />
+					<Add option="-Wno-conversion-null" />
+					<Add option="-Wno-pointer-arith" />
+					<Add option="-Wno-multichar" />
+					<Add option="-Wno-int-to-pointer-cast" />
+					<Add option="-Wno-enum-compare" />
+					<Add option="-Wno-cpp" />
+					<Add option="-fexceptions" />
+					<Add option="-m32" />
+					<Add option="-fPIC" />
+					<Add option="-ffast-math" />
+					<Add option="-fno-operator-names" />
+					<Add option="-fpermissive" />
+					<Add option="-DNDEBUG" />
+					<Add option="-DLINUX" />
+					<Add option="-D_IMMERSION_DISABLED" />
+					<Add directory="../ICARUS" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../ICARUS" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="-m32" />
+					<Add option="-shared" />
+				</Linker>
+			</Target>
 			<Target title="Release Linux">
 				<Option output="../Release/jagamex86" prefix_auto="0" extension_auto="1" />
 				<Option object_output="../Release/game" />

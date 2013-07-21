@@ -6,6 +6,53 @@
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
+			<Target title="Debug Linux">
+				<Option output="./Debug/jasp" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="./Debug/" />
+				<Option object_output="Debug/exe" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-g" />
+					<Add option="-Wno-write-strings" />
+					<Add option="-Wno-conversion-null" />
+					<Add option="-Wno-pointer-arith" />
+					<Add option="-Wno-multichar" />
+					<Add option="-Wno-int-to-pointer-cast" />
+					<Add option="-Wno-enum-compare" />
+					<Add option="-Wno-cpp" />
+					<Add option="-fexceptions" />
+					<Add option="-m32" />
+					<Add option="-ffast-math" />
+					<Add option="-fno-operator-names" />
+					<Add option="-fpermissive" />
+					<Add option="-DNDEBUG" />
+					<Add option="-D_JK2EXE" />
+					<Add option="-DLINUX" />
+					<Add option="-D_IMMERSION_DISABLED" />
+					<Add option="-D_FF_DISABLED" />
+					<Add option="-DEAX_DISABLED" />
+					<Add option="-D_M_IX86" />
+					<Add directory="ff/ifc" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="ff/ifc" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="-m32" />
+					<Add library="dl" />
+					<Add library="libopenal" />
+					<Add library="GL" />
+					<Add library="X11" />
+					<Add library="libXxf86vm" />
+					<Add library="Xrandr" />
+					<Add library="rt" />
+					<Add library="pthread" />
+					<Add library="z" />
+				</Linker>
+			</Target>
 			<Target title="Release Linux">
 				<Option output="./Release/jasp" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="./Release/" />
@@ -370,27 +417,35 @@
 		<Unit filename="jpeg-6/jversion.h" />
 		<Unit filename="linux/linux_console.cpp">
 			<Option target="Release Linux" />
+			<Option target="Debug Linux" />
 		</Unit>
 		<Unit filename="linux/linux_glimp.cpp">
 			<Option target="Release Linux" />
+			<Option target="Debug Linux" />
 		</Unit>
 		<Unit filename="linux/linux_glw.h">
 			<Option target="Release Linux" />
+			<Option target="Debug Linux" />
 		</Unit>
 		<Unit filename="linux/linux_local.h">
 			<Option target="Release Linux" />
+			<Option target="Debug Linux" />
 		</Unit>
 		<Unit filename="linux/linux_main.cpp">
 			<Option target="Release Linux" />
+			<Option target="Debug Linux" />
 		</Unit>
 		<Unit filename="linux/linux_qgl.cpp">
 			<Option target="Release Linux" />
+			<Option target="Debug Linux" />
 		</Unit>
 		<Unit filename="linux/linux_snddma.cpp">
 			<Option target="Release Linux" />
+			<Option target="Debug Linux" />
 		</Unit>
 		<Unit filename="linux/linuxprefix.h">
 			<Option target="Release Linux" />
+			<Option target="Debug Linux" />
 		</Unit>
 		<Unit filename="mp3code/cdct.c">
 			<Option compilerVar="CC" />
