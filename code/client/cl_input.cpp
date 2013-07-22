@@ -528,7 +528,7 @@ void CL_JoystickMove( usercmd_t *cmd ) {
 CL_MouseMove
 =================
 */
-#ifdef _XBOX
+#ifdef AUTOAIM
 void CL_MouseClamp(int *x, int *y)
 {
 	float ax = Q_fabs(*x);
@@ -554,10 +554,20 @@ void CL_MouseMove( usercmd_t *cmd ) {
 	const float	speed = static_cast<float>(frame_msec);
 	const float pitch = m_pitch->value;
 
-#ifdef _XBOX
+#ifdef AUTOAIM
 	const float mouseSpeedX = 0.06f;
 	const float mouseSpeedY = 0.05f;
 
+	#ifdef PANDORA
+	// allow mouse smoothing
+	if ( m_filter->integer ) {
+		mx = ( cl.mouseDx[0] + cl.mouseDx[1] ) * 0.5;
+		my = ( cl.mouseDy[0] + cl.mouseDy[1] ) * 0.5;
+	} else {
+		mx = cl.mouseDx[cl.mouseIndex];
+		my = cl.mouseDy[cl.mouseIndex];
+	}
+	#else
 	// allow mouse smoothing
 	if ( m_filter->integer ) {
 		mx = ( cl.mouseDx[0] + cl.mouseDx[1] ) * 0.5f * frame_msec * mouseSpeedX;
@@ -570,8 +580,17 @@ void CL_MouseMove( usercmd_t *cmd ) {
 		mx = ax * speed * mouseSpeedX;	
 		my = ay * speed * mouseSpeedY;		
 	}
+	#endif
 
-	extern short cg_crossHairStatus;
+	//extern short cg_crossHairStatus;
+#ifdef AUTOAIM
+	int g_lastFireTime = 0;
+	short cg_crossHairStatus = 0;
+	if (ge) {
+		g_lastFireTime = ge->GetLastFireTime();
+		cg_crossHairStatus = ge->GetCrossHairStatus();
+	}
+#endif
 	const float m_hoverSensitivity = 0.4f;
 	if (cg_crossHairStatus == 1)
 	{
@@ -604,12 +623,16 @@ void CL_MouseMove( usercmd_t *cmd ) {
 	}
 
 	mx *= accelSensitivity;
+	#ifdef PANDORA
+	my *= accelSensitivity*1.5f;	// higher acceleration on Y axis
+	#else
 	my *= accelSensitivity;
+	#endif
 
 	if (!mx && !my) {
-#ifdef _XBOX
+#ifdef AUTOAIM
 		// If there was a movement but no change in angles then start auto-leveling the camera
-		extern int g_lastFireTime;
+		//extern int g_lastFireTime;
 		float autolevelSpeed = 0.03f;
 
 		if (cg_crossHairStatus != 1 &&							// Not looking at an enemy
@@ -664,7 +687,7 @@ void CL_MouseMove( usercmd_t *cmd ) {
 
 	if ( (in_mlooking || cl_freelook->integer) && !in_strafe.active ) {
 		// VVFIXME - This is supposed to be a CVAR
-#ifdef _XBOX
+#ifdef AUTOAIM
 		const float cl_pitchSensitivity = 0.5f;
 #else
 		const float cl_pitchSensitivity = 1.0f;

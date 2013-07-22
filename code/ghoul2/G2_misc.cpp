@@ -31,6 +31,10 @@
 #ifdef _G2_GORE
 #include "ghoul2_gore.h"
 
+#ifdef NEON
+#include "../game/neon_math.h"
+#endif
+
 #define GORE_TAG_UPPER (256)
 #define GORE_TAG_MASK (~255)
 
@@ -441,6 +445,9 @@ void R_TransformEachSurface( const mdxmSurface_t *surface, vec3_t scale, CMiniHe
 
 				const mdxaBone_t &bone=EvalBoneCache(piBoneReferences[iBoneIndex],boneCache);
 
+				#ifdef NEON
+				R_TransformBoneWeight(tempVert, tempNormal, fBoneWeight, v->vertCoords, v->normal, bone.matrix);
+				#else
 				tempVert[0] += fBoneWeight * ( DotProduct( bone.matrix[0], v->vertCoords ) + bone.matrix[0][3] );
 				tempVert[1] += fBoneWeight * ( DotProduct( bone.matrix[1], v->vertCoords ) + bone.matrix[1][3] );
 				tempVert[2] += fBoneWeight * ( DotProduct( bone.matrix[2], v->vertCoords ) + bone.matrix[2][3] );
@@ -448,6 +455,7 @@ void R_TransformEachSurface( const mdxmSurface_t *surface, vec3_t scale, CMiniHe
 				tempNormal[0] += fBoneWeight * DotProduct( bone.matrix[0], v->normal );
 				tempNormal[1] += fBoneWeight * DotProduct( bone.matrix[1], v->normal );
 				tempNormal[2] += fBoneWeight * DotProduct( bone.matrix[2], v->normal );
+				#endif
 			}
 			int pos = j * 5;
 
@@ -484,6 +492,9 @@ void R_TransformEachSurface( const mdxmSurface_t *surface, vec3_t scale, CMiniHe
 
 				const mdxaBone_t &bone=EvalBoneCache(piBoneReferences[iBoneIndex],boneCache);
 
+				#ifdef NEON
+				R_TransformBoneWeight(tempVert, tempNormal, fBoneWeight, v->vertCoords, v->normal, bone.matrix);
+				#else
 				tempVert[0] += fBoneWeight * ( DotProduct( bone.matrix[0], v->vertCoords ) + bone.matrix[0][3] );
 				tempVert[1] += fBoneWeight * ( DotProduct( bone.matrix[1], v->vertCoords ) + bone.matrix[1][3] );
 				tempVert[2] += fBoneWeight * ( DotProduct( bone.matrix[2], v->vertCoords ) + bone.matrix[2][3] );
@@ -491,6 +502,7 @@ void R_TransformEachSurface( const mdxmSurface_t *surface, vec3_t scale, CMiniHe
 				tempNormal[0] += fBoneWeight * DotProduct( bone.matrix[0], v->normal );
 				tempNormal[1] += fBoneWeight * DotProduct( bone.matrix[1], v->normal );
 				tempNormal[2] += fBoneWeight * DotProduct( bone.matrix[2], v->normal );
+				#endif
 			}
 
 			// copy tranformed verts into temp space

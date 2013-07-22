@@ -26,8 +26,13 @@
 
 #elif defined( __linux__ )
 
+#ifdef HAVE_GLES
+#include <GLES/gl.h>
+#include <EGL/egl.h>
+#else
 #include <GL/gl.h>
 #include <GL/glx.h>
+#endif
 //#include <GL/glxew.h>
 //#include <GL/fxmesa.h> //LAvaPort 
 #else
@@ -43,6 +48,26 @@
 #define WINAPI
 #endif
 
+#ifdef HAVE_GLES
+#define GLdouble	GLfloat
+extern	void ( APIENTRY * qglMultiTexCoord2fARB )( GLenum texture, GLfloat s, GLfloat t );
+extern	void ( APIENTRY * qglActiveTextureARB )( GLenum texture );
+extern	void ( APIENTRY * qglClientActiveTextureARB )( GLenum texture );
+
+extern	void ( APIENTRY * qglPointParameterfEXT)( GLenum, GLfloat);
+extern	void ( APIENTRY * qglPointParameterfvEXT)( GLenum, GLfloat *);
+
+extern void (* qglLockArraysEXT) (GLint first, GLsizei count);
+extern void (* qglUnlockArraysEXT) (void);
+
+extern void myglClear(GLbitfield mask);
+extern void myglTexImage2D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
+extern void myglDrawBuffer(GLenum mode);
+extern void myglViewport(GLint x, GLint y, GLsizei width, GLsizei height);
+extern void myglScissor(GLint x, GLint y, GLsizei width, GLsizei height);
+
+
+#else
 
 //===========================================================================
 
@@ -131,6 +156,7 @@ typedef void (APIENTRY * PFNGLCLIENTACTIVETEXTUREARBPROC) (GLenum target);
 #define GL_SPARE1_NV						0x852F
 #define GL_UNSIGNED_IDENTITY_NV				0x8536
 #define GL_UNSIGNED_INVERT_NV				0x8537
+#endif //HAVE_GLES
 
 typedef void (APIENTRY *PFNGLCOMBINERPARAMETERFVNV) (GLenum pname,const GLfloat *params);
 typedef void (APIENTRY *PFNGLCOMBINERPARAMETERIVNV) (GLenum pname,const GLint *params);
@@ -165,7 +191,7 @@ extern PFNGLGETCOMBINEROUTPUTPARAMETERFVNV		qglGetCombinerOutputParameterfvNV;
 extern PFNGLGETCOMBINEROUTPUTPARAMETERIVNV		qglGetCombinerOutputParameterivNV;
 extern PFNGLGETFINALCOMBINERINPUTPARAMETERFVNV	qglGetFinalCombinerInputParameterfvNV;
 extern PFNGLGETFINALCOMBINERINPUTPARAMETERIVNV	qglGetFinalCombinerInputParameterivNV;
-
+#ifndef HAVE_GLES
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Pixel Format extension definitions. - AReis
@@ -290,6 +316,7 @@ extern PFNWGLSETPBUFFERATTRIBARBPROC		qwglSetPbufferAttribARB;
 // only including the ones I use (to reduce code clutter), so if you need any of the other flags, just add them.
 #define GL_VERTEX_PROGRAM_ARB                       0x8620
 #define GL_PROGRAM_FORMAT_ASCII_ARB                 0x8875
+#endif //HAVE_GLES
 
 typedef void (APIENTRY * PFNGLPROGRAMSTRINGARBPROC) (GLenum target, GLenum format, GLsizei len, const GLvoid *string); 
 typedef void (APIENTRY * PFNGLBINDPROGRAMARBPROC) (GLenum target, GLuint program);
@@ -333,7 +360,7 @@ extern PFNGLGETPROGRAMIVARBPROC qglGetProgramivARB;
 extern PFNGLGETPROGRAMSTRINGARBPROC qglGetProgramStringARB;
 extern PFNGLISPROGRAMARBPROC qglIsProgramARB;
 
-
+#ifndef HAVE_GLES
 /*
 ** extension constants
 */
@@ -356,6 +383,7 @@ extern	void ( APIENTRY * qglUnlockArraysEXT) (void);
 extern	void ( APIENTRY * qglPointParameterfEXT)( GLenum, GLfloat);
 extern	void ( APIENTRY * qglPointParameterfvEXT)( GLenum, GLfloat *);
 
+#endif //HAVE_GLES
 // Added 10/23/02 by Aurelio Reis.
 extern	void ( APIENTRY * qglPointParameteriNV)( GLenum, GLint);
 extern	void ( APIENTRY * qglPointParameterivNV)( GLenum, const GLint *);
@@ -363,7 +391,7 @@ extern	void ( APIENTRY * qglPointParameterivNV)( GLenum, const GLint *);
 //===========================================================================
 
 // non-windows systems will just redefine qgl* to gl*
-#if !defined( _WIN32 ) && !defined( __linux__ )
+#if (!defined( _WIN32 ) && !defined( __linux__ )) || defined(HAVE_GLES)
 
 #include "qgl_linked.h"
 
@@ -756,8 +784,8 @@ extern void (*qglXCopyContext)( Display *dpy, GLXContext src, GLXContext dst, GL
 extern void (*qglXSwapBuffers)( Display *dpy, GLXDrawable drawable );
 extern Bool (*qglXSwapIntervalEXT) (int interval);
 
+#endif //HAVE_GLES
+
 #endif // __linux__
 
 #endif	// _WIN32 && __linux__
-
-#endif

@@ -2,6 +2,10 @@
 #include "cm_local.h"
 #include "cm_patch.h"
 
+#ifdef NEON
+#include "../game/neon_math.h"
+#endif
+
 //#define	CULL_BBOX
 
 /*
@@ -354,7 +358,7 @@ static void CM_SubdivideGridColumns( cGrid_t *grid ) {
 }
 
 
-#define	POINT_EPSILON	0.1
+#define	POINT_EPSILON	0.1f
 /*
 ======================
 CM_ComparePoints
@@ -448,8 +452,8 @@ static	patchPlane_t	planes[MAX_PATCH_PLANES];
 //static	facet_t			facets[MAX_FACETS];	// Switched to MAX_FACETS = VV_FIXME, allocate these only during use
 static	facet_t			*facets = NULL;
 
-#define	NORMAL_EPSILON	0.0001
-#define	DIST_EPSILON	0.02
+#define	NORMAL_EPSILON	0.0001f
+#define	DIST_EPSILON	0.02f
 
 int CM_PlaneEqual(patchPlane_t *p, float plane[4], int *flipped) {
 	float invplane[4];
@@ -1489,6 +1493,9 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf,
 			if ( borders[EN_RIGHT] == -1 || noAdjust[EN_RIGHT] ) {
 				borders[EN_RIGHT] = CM_EdgePlaneNum( grid, gridPlanes, i, j, 1 );
 			}
+/*		#ifdef PANDORA
+		return;	// don't do it for now :(
+		#endif*/
 
 			if ( numFacets == MAX_FACETS ) {
 				Com_Error( ERR_DROP, "MAX_FACETS" );
@@ -2200,11 +2207,13 @@ void CM_TracePointThroughPatchCollide( traceWork_t *tw, const struct patchCollid
 	qboolean	frontFacing[MAX_PATCH_PLANES];
 	float		intersection[MAX_PATCH_PLANES];
 	float		intersect;
-	const patchPlane_t	*planes;
+	const patchPlane_t	*planes, *previous;
 	const facet_t	*facet;
 	int			i, j, k;
 	float		offset;
 	float		d1, d2;
+	qboolean	intersect_calc[MAX_PATCH_PLANES];
+	
 #ifndef BSPC
 	static cvar_t *cv;
 #endif //BSPC
@@ -2222,6 +2231,7 @@ void CM_TracePointThroughPatchCollide( traceWork_t *tw, const struct patchCollid
 	// determine the trace's relationship to all planes
 	planes = pc->planes;
 	for ( i = 0 ; i < pc->numPlanes ; i++, planes++ ) {
+	#if 0
 		offset = DotProduct( tw->offsets[ planes->signbits ], planes->plane );
 		d1 = DotProduct( tw->start, planes->plane ) - planes->plane[3] + offset;
 		d2 = DotProduct( tw->end, planes->plane ) - planes->plane[3] + offset;
@@ -2238,12 +2248,49 @@ void CM_TracePointThroughPatchCollide( traceWork_t *tw, const struct patchCollid
 				intersection[i] = WORLD_SIZE;
 			}
 		}
+	#else
+		intersect_calc[i]=qfalse;
+	#endif
 	}
 
 
 	// see if any of the surface planes are intersected
 	facet = pc->facets;
+	previous=NULL;
+	float bestone = tw->trace.fraction;
 	for ( i = 0 ; i < pc->numFacets ; i++, facet++ ) {
+		#if 1
+		k=facet->surfacePlane;
+		if (!intersect_calc[k]) {
+			planes = pc->planes+k;
+			#ifdef NEON
+			offset = DotProductNeon( tw->offsets[ planes->signbits ], planes->plane );
+			d1 = DotProductNeon( tw->start, planes->plane )/* - planes->plane[3] + offset*/;
+			d2 = d1 - DotProductNeon( tw->end, planes->plane )/* - planes->plane[3] + offset*/;
+			#else
+			offset = DotProduct( tw->offsets[ planes->signbits ], planes->plane );
+			d1 = DotProduct( tw->start, planes->plane )/* - planes->plane[3] + offset*/;
+			d2 = d1 - DotProduct( tw->end, planes->plane )/* - planes->plane[3] + offset*/;
+			#endif
+			d1 += offset - planes->plane[3];
+			if ( d1 <= 0 ) {
+				frontFacing[k] = qfalse;
+				if (d2>=0)  {
+					intersection[k] = WORLD_SIZE;
+				} else {
+					intersection[k] = d1 / ( d2 );
+				}
+			} else {
+				frontFacing[k] = qtrue;
+				if (d2<=0) {
+					intersection[k] = WORLD_SIZE;
+				} else {
+					intersection[k] = d1 / ( d2 );
+				}
+			}
+			intersect_calc[k]=true;
+		}
+		#endif
 		if ( !frontFacing[facet->surfacePlane] ) {
 			continue;
 		}
@@ -2251,11 +2298,42 @@ void CM_TracePointThroughPatchCollide( traceWork_t *tw, const struct patchCollid
 		if ( intersect < 0 ) {
 			continue;		// surface is behind the starting point
 		}
-		if ( intersect > tw->trace.fraction ) {
+		if ( intersect > bestone ) {
 			continue;		// already hit something closer
 		}
 		for ( j = 0 ; j < facet->numBorders ; j++ ) {
 			k = facet->borderPlanes[j];
+			#if 1
+			if (!intersect_calc[k]) {
+				planes = pc->planes+k;
+				#ifdef NEON
+				offset = DotProductNeon( tw->offsets[ planes->signbits ], planes->plane );
+				d1 = DotProductNeon( tw->start, planes->plane )/* - planes->plane[3] + offset*/;
+				d2 = d1 - DotProductNeon( tw->end, planes->plane )/* - planes->plane[3] + offset*/;
+				#else
+				offset = DotProduct( tw->offsets[ planes->signbits ], planes->plane );
+				d1 = DotProduct( tw->start, planes->plane )/* - planes->plane[3] + offset*/;
+				d2 = d1 - DotProduct( tw->end, planes->plane )/* - planes->plane[3] + offset*/;
+				#endif
+				d1 += offset - planes->plane[3];
+				if ( d1 <= 0 ) {
+					frontFacing[k] = qfalse;
+					if (d2>=0)  {
+						intersection[k] = WORLD_SIZE;
+					} else {
+						intersection[k] = d1 / ( d2 );
+					}
+				} else {
+					frontFacing[k] = qtrue;
+					if (d2<=0) {
+						intersection[k] = WORLD_SIZE;
+					} else {
+						intersection[k] = d1 / ( d2 );
+					}
+				}
+				intersect_calc[k]=true;
+			}
+			#endif
 			if ( frontFacing[k] ^ facet->borderInward[j] ) {
 				if ( intersection[k] > intersect ) {
 					break;
@@ -2268,6 +2346,41 @@ void CM_TracePointThroughPatchCollide( traceWork_t *tw, const struct patchCollid
 		}
 		if ( j == facet->numBorders ) {
 			// we hit this facet
+			previous = &pc->planes[facet->surfacePlane];
+			bestone = intersect;
+			/*break;*/
+		}
+	}
+	if (previous != NULL) {
+		planes = previous;
+		// calculate intersection with a slight pushoff
+		#ifdef NEON
+		offset = DotProductNeon( tw->offsets[ planes->signbits ], planes->plane );
+		d1 = DotProductNeon( tw->start, planes->plane )/* - planes->plane[3] + offset*/;
+		d2 = DotProductNeon( tw->end, planes->plane )/* - planes->plane[3] + offset*/;
+		tw->trace.fraction = ( d1  - planes->plane[3] + offset - SURFACE_CLIP_EPSILON ) / ( d1 - d2 );
+		#else
+		offset = DotProduct( tw->offsets[ planes->signbits ], planes->plane );
+		d1 = DotProduct( tw->start, planes->plane ) - planes->plane[3] + offset;
+		d2 = DotProduct( tw->end, planes->plane ) - planes->plane[3] + offset;
+		tw->trace.fraction = ( d1 - SURFACE_CLIP_EPSILON ) / ( d1 - d2 );
+		#endif
+
+		if ( tw->trace.fraction < 0 ) {
+			tw->trace.fraction = 0;
+		}
+
+		VectorCopy( planes->plane,  tw->trace.plane.normal );
+		tw->trace.plane.dist = planes->plane[3];
+	}
+/*
+#ifndef BSPC
+	if (!cv) {
+		cv = Cvar_Get( "r_debugSurfaceUpdate", "1", 0 );
+	}
+#endif
+		if ( j == facet->numBorders && (&pc->planes[facet->surfacePlane]!=previous)) {
+			// we hit this facet
 #ifndef BSPC
 			if (!cv) {
 				cv = Cvar_Get( "r_debugSurfaceUpdate", "1", 0 );
@@ -2278,6 +2391,7 @@ void CM_TracePointThroughPatchCollide( traceWork_t *tw, const struct patchCollid
 			}
 #endif //BSPC
 			planes = &pc->planes[facet->surfacePlane];
+			previous = planes;
 
 			// calculate intersection with a slight pushoff
 			offset = DotProduct( tw->offsets[ planes->signbits ], planes->plane );
@@ -2293,6 +2407,7 @@ void CM_TracePointThroughPatchCollide( traceWork_t *tw, const struct patchCollid
 			tw->trace.plane.dist = planes->plane[3];
 		}
 	}
+*/
 }
 
 #endif

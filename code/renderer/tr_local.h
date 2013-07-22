@@ -11,10 +11,20 @@
 #include "glext_console.h"
 #else
 #include "qgl.h"
+#ifdef HAVE_GLES
+#include "GLES/glext.h"
+#ifndef GL_RGBA4
+#define GL_RGBA4				0x8056
+#endif
+#ifndef GL_RGB5
+#define GL_RGB5					0x8050
+#endif
+#else
 #include "glext.h"
 #endif
+#endif
 
-#ifdef _XBOX
+#if defined(_XBOX) || defined(HAVE_GLES)
 #define GL_INDEX_TYPE		GL_UNSIGNED_SHORT
 typedef unsigned short glIndex_t;
 #else
@@ -23,7 +33,7 @@ typedef unsigned int glIndex_t;
 #endif
 
 // fast float to int conversion
-#if id386 && !(defined __linux__ && defined __i386__)
+#if id386 && !(defined __linux__ && defined __i386__) && !(ARM)
 long myftol( float f );
 #else
 #define	myftol(x) ((int)(x))

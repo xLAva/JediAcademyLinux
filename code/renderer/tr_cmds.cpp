@@ -364,6 +364,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	// do overdraw measurement
 	//
 #ifndef _XBOX
+#ifndef HAVE_GLES
 	if ( r_measureOverdraw->integer )
 	{
 		if ( glConfig.stencilBits < 4 )
@@ -398,6 +399,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 			r_measureOverdraw->modified = qfalse;
 		}
 	}
+#endif
 #endif
 
 	//
@@ -439,6 +441,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	}
 	cmd->commandId = RC_DRAW_BUFFER;
 
+#ifndef HAVE_GLES
 	if ( glConfig.stereoEnabled ) {
 		if ( stereoFrame == STEREO_LEFT ) {
 			cmd->buffer = (int)GL_BACK_LEFT;
@@ -447,7 +450,9 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		} else {
 			Com_Error( ERR_FATAL, "RE_BeginFrame: Stereo is enabled, but stereoFrame was %i", stereoFrame );
 		}
-	} else {
+	} else 
+#endif
+	{
 		if ( stereoFrame != STEREO_CENTER ) {
 			Com_Error( ERR_FATAL, "RE_BeginFrame: Stereo is disabled, but stereoFrame was %i", stereoFrame );
 		}

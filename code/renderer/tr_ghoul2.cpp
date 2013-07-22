@@ -31,6 +31,10 @@
 #include "tr_lightmanager.h"
 #endif
 
+#ifdef NEON
+#include "../game/neon_math.h"
+#endif
+
 #define	LL(x) x=LittleLong(x)
 
 #ifdef G2_PERFORMANCE_ANALYSIS
@@ -1333,6 +1337,25 @@ static int G2_ComputeLOD( trRefEntity_t *ent, const model_t *currentModel, int l
 
 void Multiply_3x4Matrix(mdxaBone_t *out,const  mdxaBone_t *in2,const mdxaBone_t *in) 
 {
+	#ifdef NEON
+	// first row of out                                                                                      
+	vst1q_f32(out->matrix[0], vaddq_f32(vaddq_f32(	vmulq_n_f32(vld1q_f32(in->matrix[0]), in2->matrix[0][0]),
+													vmulq_n_f32(vld1q_f32(in->matrix[1]), in2->matrix[0][1])),
+													vmulq_n_f32(vld1q_f32(in->matrix[2]), in2->matrix[0][2])));
+	// second row of outf out                                                                                     
+	vst1q_f32(out->matrix[1], vaddq_f32(vaddq_f32(	vmulq_n_f32(vld1q_f32(in->matrix[0]), in2->matrix[1][0]),
+													vmulq_n_f32(vld1q_f32(in->matrix[1]), in2->matrix[1][1])),
+													vmulq_n_f32(vld1q_f32(in->matrix[2]), in2->matrix[1][2])));
+
+	// third row of out  out                                                                                      
+	vst1q_f32(out->matrix[2], vaddq_f32(vaddq_f32(	vmulq_n_f32(vld1q_f32(in->matrix[0]), in2->matrix[2][0]),
+													vmulq_n_f32(vld1q_f32(in->matrix[1]), in2->matrix[2][1])),
+													vmulq_n_f32(vld1q_f32(in->matrix[2]), in2->matrix[2][2])));
+	// add last element not in neon...
+	out->matrix[0][3]+= in2->matrix[0][3];
+	out->matrix[1][3]+= in2->matrix[1][3];
+	out->matrix[2][3]+= in2->matrix[2][3];
+	#else
 	// first row of out                                                                                      
 	out->matrix[0][0] = (in2->matrix[0][0] * in->matrix[0][0]) + (in2->matrix[0][1] * in->matrix[1][0]) + (in2->matrix[0][2] * in->matrix[2][0]);
 	out->matrix[0][1] = (in2->matrix[0][0] * in->matrix[0][1]) + (in2->matrix[0][1] * in->matrix[1][1]) + (in2->matrix[0][2] * in->matrix[2][1]);
@@ -1348,6 +1371,7 @@ void Multiply_3x4Matrix(mdxaBone_t *out,const  mdxaBone_t *in2,const mdxaBone_t 
 	out->matrix[2][1] = (in2->matrix[2][0] * in->matrix[0][1]) + (in2->matrix[2][1] * in->matrix[1][1]) + (in2->matrix[2][2] * in->matrix[2][1]);
 	out->matrix[2][2] = (in2->matrix[2][0] * in->matrix[0][2]) + (in2->matrix[2][1] * in->matrix[1][2]) + (in2->matrix[2][2] * in->matrix[2][2]);
 	out->matrix[2][3] = (in2->matrix[2][0] * in->matrix[0][3]) + (in2->matrix[2][1] * in->matrix[1][3]) + (in2->matrix[2][2] * in->matrix[2][3]) + in2->matrix[2][3]; 
+	#endif
 }
 
 static int G2_GetBonePoolIndex(	const mdxaHeader_t *pMDXAHeader, int iFrame, int iBone)

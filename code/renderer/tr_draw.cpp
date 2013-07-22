@@ -52,7 +52,14 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 		}
 #endif
 
+ 
+#ifdef HAVE_GLES
+      //don't do qglTexImage2D as this may end up doing a compressed image
+      //on which we are not allowed to do further sub images
+		glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+#else
 		qglTexImage2D( GL_TEXTURE_2D, 0, GL_RGB8, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+#endif
 		
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
@@ -101,6 +108,34 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 	}
 	qglColor3f( tr.identityLight, tr.identityLight, tr.identityLight );
 
+#ifdef HAVE_GLES
+	qglColor4f( tr.identityLight, tr.identityLight, tr.identityLight, 1.0f );
+	GLfloat tex[] = {
+	 0.5 / cols,  0.5 / rows,
+	 ( cols - 0.5 ) / cols ,  0.5 / rows,
+	 ( cols - 0.5 ) / cols, ( rows - 0.5 ) / rows,
+	 0.5 / cols, ( rows - 0.5 ) / rows
+	};
+	GLfloat vtx[] = {
+	 x, y,
+	 x + w, y,
+	 x + w, y + h,
+	 x, y + h
+	};
+	GLboolean text = qglIsEnabled(GL_TEXTURE_COORD_ARRAY);
+	GLboolean glcol = qglIsEnabled(GL_COLOR_ARRAY);
+	if (glcol)
+		qglDisableClientState(GL_COLOR_ARRAY);
+	if (!text)
+		qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	qglTexCoordPointer( 2, GL_FLOAT, 0, tex );
+	qglVertexPointer  ( 2, GL_FLOAT, 0, vtx );
+	qglDrawArrays( GL_TRIANGLE_FAN, 0, 4 );
+	if (glcol)
+		qglEnableClientState(GL_COLOR_ARRAY);
+	if (!text)
+		qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
+#else
 #ifdef _XBOX
 	qglBeginEXT (GL_TRIANGLE_STRIP, 4, 0, 0, 4, 0);//, 0, 0);
 	qglTexCoord2f ( 0.5 / cols,  0.5 / rows );
@@ -124,6 +159,7 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 	qglVertex2f (x, y+h);
 	qglEnd ();
 #endif
+#endif
 }
 
 
@@ -136,10 +172,14 @@ void RE_UploadCinematic (int cols, int rows, const byte *data, int client, qbool
 	if ( cols != tr.scratchImage[client]->width || rows != tr.scratchImage[client]->height ) {
 		tr.scratchImage[client]->width = cols;
 		tr.scratchImage[client]->height = rows;
+#ifdef HAVE_GLES
+		qglTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+#else
 #ifdef _XBOX
 		qglTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, cols, rows, 0, GL_LIN_RGBA, GL_UNSIGNED_BYTE, data );
 #else
 		qglTexImage2D( GL_TEXTURE_2D, 0, GL_RGB8, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
+#endif
 #endif
 
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
@@ -209,13 +249,24 @@ void RE_GetScreenShot(byte *buffer, int w, int h)
 
     qglFinish();	// try and fix broken Radeon cards (7500 & 8500) that don't read screen pixels properly
 
+	#ifdef HAVE_GLES
+	int p2width=16, p2height=16;
+	while (p2width<glConfig.vidWidth) p2width*=2;
+	while (p2height<glConfig.vidHeight) p2height*=2;
+	source = (byte*) Z_Malloc( p2width * p2height * 4, TAG_TEMP_WORKSPACE, qfalse );
+	#else
 	source = (byte *)Z_Malloc(glConfig.vidWidth * glConfig.vidHeight * 3, TAG_TEMP_WORKSPACE, qfalse);
+	#endif
 	if(!source)
 	{
 		return;
 	}
 	glPixelStorei(GL_PACK_ALIGNMENT,1);
+	#ifdef HAVE_GLES
+	qglReadPixels( 0, 0, p2width, p2height, GL_RGBA, GL_UNSIGNED_BYTE, source );
+	#else
 	qglReadPixels (0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_RGB, GL_UNSIGNED_BYTE, source ); 
+	#endif
 	
 	assert (w == h);
 	int count = 0;
@@ -227,7 +278,11 @@ void RE_GetScreenShot(byte *buffer, int w, int h)
 			r = g = b = 0;
 			for ( yy = 0 ; yy < 3 ; yy++ ) {
 				for ( xx = 0 ; xx < 4 ; xx++ ) {
+					#ifdef HAVE_GLES
+					src = source + 4 * ( p2width * (int)( (y*3+yy)*yScale ) + (int)( (x*4+xx)*xScale ) );
+					#else
 					src = source + 3 * ( glConfig.vidWidth * (int)( (y*3+yy)*yScale ) + (int)( (x*4+xx)*xScale ) );
+					#endif
 					r += src[0];
 					g += src[1];
 					b += src[2];
@@ -237,6 +292,7 @@ void RE_GetScreenShot(byte *buffer, int w, int h)
 			dst[0] = r / 12;
 			dst[1] = g / 12;
 			dst[2] = b / 12;
+			dst[3] = 255;
 			count++;
 		}
 	}
@@ -471,6 +527,34 @@ static void RE_Blit(float fX0, float fY0, float fX1, float fY1, float fX2, float
 	GL_Bind( pImage );
 	GL_State(iGLState);
 	GL_Cull( CT_TWO_SIDED ) ;
+#ifdef HAVE_GLES
+	GLboolean text = qglIsEnabled(GL_TEXTURE_COORD_ARRAY);
+	GLboolean glcol = qglIsEnabled(GL_COLOR_ARRAY);
+	if (glcol)
+		qglDisableClientState(GL_COLOR_ARRAY);
+	if (!text)
+		qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	qglColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
+	GLfloat tex[] = {
+	 0,0 ,
+	 1,0,
+	 1,1,
+	 0,1
+	};
+	GLfloat vtx[] = {
+	 fX0, fY0,
+	 fX1, fY1,
+	 fX2, fY2,
+	 fX3, fY3
+	};
+	qglTexCoordPointer( 2, GL_FLOAT, 0, tex );
+	qglVertexPointer  ( 2, GL_FLOAT, 0, vtx );
+	qglDrawArrays( GL_TRIANGLE_FAN, 0, 4 );
+	if (glcol)
+		qglEnableClientState(GL_COLOR_ARRAY);
+	if (!text)
+		qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
+#else
 
 	qglColor3f( 1.0f, 1.0f, 1.0f );
 
@@ -505,6 +589,7 @@ static void RE_Blit(float fX0, float fY0, float fX1, float fY1, float fX2, float
 		qglVertex2f( fX3, fY3);
 	}
 	qglEnd ();
+#endif
 }
 
 static void RE_KillDissolve(void)
@@ -876,6 +961,11 @@ qboolean RE_InitDissolve(qboolean bForceCircularExtroWipe)
 			// read current screen image...  (GL_RGBA should work even on 3DFX in that the RGB parts will be valid at least)
 			//
 			glPixelStorei(GL_PACK_ALIGNMENT,1);
+			#ifdef HAVE_GLES
+			qglReadPixels (0, 0, iPow2VidWidth, iPow2VidHeight, GL_RGBA, GL_UNSIGNED_BYTE, pBuffer );
+			byte *pbSrc, *pbDst;
+			int iCopyBytes	= glConfig.vidWidth * 4;
+			#else
 			qglReadPixels (0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_RGBA, GL_UNSIGNED_BYTE, pBuffer );
 			//
 			// now expand the pic over the top of itself so that it has a stride value of {PowerOf2(glConfig.vidWidth)}
@@ -904,6 +994,7 @@ qboolean RE_InitDissolve(qboolean bForceCircularExtroWipe)
 				pbSrc -= iCopyBytes;
 				memmove(pbDst, pbSrc, iCopyBytes);
 			}
+			#endif	//HAVE_GLES
 			//
 			// ok, now we've got the screen image in the top left of the power-of-2 texture square,
 			//	but of course the damn thing's upside down (thanks, GL), so invert it, but only within

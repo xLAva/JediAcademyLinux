@@ -470,8 +470,10 @@ void S_Init( void ) {
 #if !(defined __linux__ && defined __i386__)
 #if	!id386
 #else
+#ifndef ARM
 	extern unsigned int uiMMXAvailable;
 	uiMMXAvailable = !!(s_CPUType->integer >= CPUID_INTEL_MMX);
+#endif
 #endif
 #endif
 

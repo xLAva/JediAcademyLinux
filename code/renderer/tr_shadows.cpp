@@ -79,6 +79,14 @@ void R_RenderShadowEdges( void ) {
 	// but lots of models have dangling edges or overfanned edges
 	c_edges = 0;
 	c_rejected = 0;
+	#ifdef HAVE_GLES
+	GLboolean text = qglIsEnabled(GL_TEXTURE_COORD_ARRAY);
+	GLboolean glcol = qglIsEnabled(GL_COLOR_ARRAY);
+	if (text)
+		qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	if (glcol)
+		qglDisableClientState( GL_COLOR_ARRAY );
+	#endif
 
 	for ( i = 0 ; i < tess.numVertexes ; i++ ) {
 		c = numEdgeDefs[ i ];
@@ -92,12 +100,22 @@ void R_RenderShadowEdges( void ) {
 			//we are going to render all edges even though it is a tiny bit slower. -rww
 #if 1
 			i2 = edgeDefs[ i ][ j ].i2;
+			#ifdef HAVE_GLES
+			GLfloat vtx[3*4];
+			memcpy(vtx, tess.xyz[i], sizeof(GLfloat)*3);
+			memcpy(vtx+3, tess.xyz[i+tess.numVertexes], sizeof(GLfloat)*3);
+			memcpy(vtx+6, tess.xyz[i2], sizeof(GLfloat)*3);
+			memcpy(vtx+9, tess.xyz[i2+tess.numVertexes], sizeof(GLfloat)*3);
+			qglVertexPointer (3, GL_FLOAT, 0, vtx);
+			qglDrawArrays(GL_TRIANGLE_STRIP, 0, 4);				
+			#else
 			qglBegin( GL_TRIANGLE_STRIP );
 				qglVertex3fv( tess.xyz[ i ] );
 				qglVertex3fv( tess.xyz[ i + tess.numVertexes ] );
 				qglVertex3fv( tess.xyz[ i2 ] );
 				qglVertex3fv( tess.xyz[ i2 + tess.numVertexes ] );
 			qglEnd();
+			#endif
 #else
 			hit[0] = 0;
 			hit[1] = 0;
@@ -113,12 +131,22 @@ void R_RenderShadowEdges( void ) {
 			// if it doesn't share the edge with another front facing
 			// triangle, it is a sil edge
 			if ( hit[ 1 ] == 0 ) {
+				#ifdef HAVE_GLES
+				GLfloat vtx[3*4];
+				memcpy(vtx, tess.xyz[i], sizeof(GLfloat)*3);
+				memcpy(vtx+3, tess.xyz[i+tess.numVertexes], sizeof(GLfloat)*3);
+				memcpy(vtx+6, tess.xyz[i2], sizeof(GLfloat)*3);
+				memcpy(vtx+9, tess.xyz[i2+tess.numVertexes], sizeof(GLfloat)*3);
+				qglVertexPointer (3, GL_FLOAT, 0, vtx);
+				qglDrawArrays(GL_TRIANGLE_STRIP, 0, 4);				
+				#else
 				qglBegin( GL_TRIANGLE_STRIP );
 				qglVertex3fv( tess.xyz[ i ] );
 				qglVertex3fv( tess.xyz[ i + tess.numVertexes ] );
 				qglVertex3fv( tess.xyz[ i2 ] );
 				qglVertex3fv( tess.xyz[ i2 + tess.numVertexes ] );
 				qglEnd();
+				#endif
 				c_edges++;
 			} else {
 				c_rejected++;
@@ -143,6 +171,17 @@ void R_RenderShadowEdges( void ) {
 		o2 = tess.indexes[ i*3 + 1 ];
 		o3 = tess.indexes[ i*3 + 2 ];
 
+		#ifdef HAVE_GLES
+		GLfloat vtx[3*6];
+		memcpy(vtx, tess.xyz[o1], sizeof(GLfloat)*3);
+		memcpy(vtx+3, tess.xyz[o2], sizeof(GLfloat)*3);
+		memcpy(vtx+6, tess.xyz[o3], sizeof(GLfloat)*3);
+		memcpy(vtx+9, tess.xyz[o3 +  + tess.numVertexes], sizeof(GLfloat)*3);
+		memcpy(vtx+12, tess.xyz[o2 +  + tess.numVertexes], sizeof(GLfloat)*3);
+		memcpy(vtx+15, tess.xyz[o1 +  + tess.numVertexes], sizeof(GLfloat)*3);
+		qglVertexPointer (3, GL_FLOAT, 0, vtx);
+		qglDrawArrays(GL_TRIANGLES, 0, 6);				
+		#else
 		qglBegin(GL_TRIANGLES);
 			qglVertex3fv(tess.xyz[o1]);
 			qglVertex3fv(tess.xyz[o2]);
@@ -153,7 +192,15 @@ void R_RenderShadowEdges( void ) {
 			qglVertex3fv(tess.xyz[o2 + tess.numVertexes]);
 			qglVertex3fv(tess.xyz[o1 + tess.numVertexes]);
 		qglEnd();
+		#endif
 	}
+	#ifdef HAVE_GLES
+	if (text)
+		qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	if (glcol)
+		qglEnableClientState( GL_COLOR_ARRAY );
+	#endif
+
 #endif
 #endif // VV_LIGHTING && _XBOX
 }
@@ -479,12 +526,33 @@ void RB_ShadowFinish( void ) {
 	//GL_State( GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
 	GL_State( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
 
+	#ifdef HAVE_GLES
+	GLboolean text = qglIsEnabled(GL_TEXTURE_COORD_ARRAY);
+	GLboolean glcol = qglIsEnabled(GL_COLOR_ARRAY);
+	if (text)
+		qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	if (glcol)
+		qglDisableClientState( GL_COLOR_ARRAY );
+	GLfloat vtx[] = {
+	 -100,  100, -10,
+	  100,  100, -10,
+	  100, -100, -10,
+	 -100, -100, -10
+	};
+	qglVertexPointer  ( 3, GL_FLOAT, 0, vtx );
+	qglDrawArrays( GL_TRIANGLE_FAN, 0, 4 );
+	if (text)
+		qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	if (glcol)
+		qglEnableClientState( GL_COLOR_ARRAY );
+	#else
 	qglBegin( GL_QUADS );
 	qglVertex3f( -100, 100, -10 );
 	qglVertex3f( 100, 100, -10 );
 	qglVertex3f( 100, -100, -10 );
 	qglVertex3f( -100, -100, -10 );
 	qglEnd ();
+	#endif
 
 	qglColor4f(1,1,1,1);
 	qglDisable( GL_STENCIL_TEST );
@@ -657,7 +725,11 @@ void RB_CaptureScreenImage(void)
 	}
 
 #ifndef _XBOX
+#ifdef HAVE_GLES
+	qglCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, cX, cY, radX, radY, 0);
+#else
 	qglCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, cX, cY, radX, radY, 0);
+#endif
 #else
 	qglCopyBackBufferToTexEXT(radX, radY, cX, (480 - cY), (cX + radX), (480 - (cY + radY)));
 #endif // _XBOX
@@ -733,6 +805,34 @@ void RB_DistortionFill(void)
 		GL_State(0);
 	}
 
+#ifdef HAVE_GLES
+	qglColor4f(1.0f, 1.0f, 1.0f, alpha);
+	GLboolean text = qglIsEnabled(GL_TEXTURE_COORD_ARRAY);
+	GLboolean glcol = qglIsEnabled(GL_COLOR_ARRAY);
+	if (!text)
+		qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	if (glcol)
+		qglDisableClientState( GL_COLOR_ARRAY );
+	GLfloat tex[] = {
+		0+spost2, 1-spost,
+		0+spost2, 0+spost,
+		1-spost2, 0+spost,
+		1-spost2, 1-spost
+	};
+	GLfloat vtx[] = {
+		0, 0,
+		0, glConfig.vidHeight,
+		glConfig.vidWidth, glConfig.vidHeight,
+		glConfig.vidWidth, 0
+	};
+	qglTexCoordPointer( 2, GL_FLOAT, 0, tex );
+	qglVertexPointer  ( 2, GL_FLOAT, 0, vtx );
+	qglDrawArrays( GL_TRIANGLE_FAN, 0, 4 );
+	if (glcol)
+		qglEnableClientState( GL_COLOR_ARRAY );
+	if (!text)
+		qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
+#else
 #ifdef _XBOX
 	qglBeginEXT(GL_QUADS, 4, 0, 0, 4, 0);
 #else
@@ -751,6 +851,7 @@ void RB_DistortionFill(void)
 		qglTexCoord2f(1-spost2, 1-spost);
 		qglVertex2f(glConfig.vidWidth, 0);
 	qglEnd();
+#endif
 
 	if (tr_distortionAlpha == 1.0f && tr_distortionStretch == 0.0f)
 	{ //no overrides
@@ -779,6 +880,34 @@ void RB_DistortionFill(void)
 		}
 		spost2 *= 0.2f;
 
+#ifdef HAVE_GLES
+		qglColor4f(1.0f, 1.0f, 1.0f, alpha);
+		GLboolean text = qglIsEnabled(GL_TEXTURE_COORD_ARRAY);
+		GLboolean glcol = qglIsEnabled(GL_COLOR_ARRAY);
+		if (!text)
+			qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
+		if (glcol)
+			qglDisableClientState( GL_COLOR_ARRAY );
+		GLfloat tex[] = {
+			0+spost2, 1-spost,
+			0+spost2, 0+spost,
+			1-spost2, 0+spost,
+			1-spost2, 1-spost
+		};
+		GLfloat vtx[] = {
+			0, 0,
+			0, glConfig.vidHeight,
+			glConfig.vidWidth, glConfig.vidHeight,
+			glConfig.vidWidth, 0
+		};
+		qglTexCoordPointer( 2, GL_FLOAT, 0, tex );
+		qglVertexPointer  ( 2, GL_FLOAT, 0, vtx );
+		qglDrawArrays( GL_TRIANGLE_FAN, 0, 4 );
+		if (glcol)
+			qglEnableClientState( GL_COLOR_ARRAY );
+		if (!text)
+			qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
+#else
 #ifdef _XBOX
 		qglBeginEXT(GL_QUADS, 4, 0, 0, 4, 0);
 #else
@@ -797,6 +926,7 @@ void RB_DistortionFill(void)
 			qglTexCoord2f(1-spost2, 1-spost);
 			qglVertex2f(glConfig.vidWidth, 0);
 		qglEnd();
+#endif
 	}
 
 	//pop the view matrices back

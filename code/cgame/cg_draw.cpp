@@ -168,7 +168,7 @@ static void CG_DrawForcePower(const centity_t *cent,const int xPos,const int yPo
 		if ( extra )
 		{//supercharged
 			memcpy(calcColor, colorTable[CT_WHITE], sizeof(vec4_t));
-			percent = 0.75f + (sin( cg.time * 0.005f )*((extra/cent->gent->client->ps.forcePowerMax)*0.25f));
+			percent = 0.75f + (sinf( cg.time * 0.005f )*((extra/cent->gent->client->ps.forcePowerMax)*0.25f));
 			calcColor[0] *= percent;
 			calcColor[1] *= percent;
 			calcColor[2] *= percent;
@@ -1905,7 +1905,7 @@ static void CG_DrawZoomMask( void )
 
 		if ( power )
 		{
-			color1[0] = sin( cg.time * 0.01f ) * 0.5f + 0.5f;
+			color1[0] = sinf( cg.time * 0.01f ) * 0.5f + 0.5f;
 			color1[0] = color1[0] * color1[0];
 			color1[1] = color1[0];
 			color1[2] = color1[0];
@@ -1996,7 +1996,7 @@ static void CG_DrawZoomMask( void )
 			color1[0] = 1.0f; 
 			color1[1] = 1.0f;
 			color1[2] = 1.0f;
-			color1[3] = 0.7f + sin( cg.time * 0.01f ) * 0.3f;
+			color1[3] = 0.7f + sinf( cg.time * 0.01f ) * 0.3f;
 
 			cgi_R_SetColor( color1 );
 		}
@@ -2041,8 +2041,8 @@ static void CG_DrawZoomMask( void )
 
 		for ( float i = 18.5f; i <= 18.5f + max; i+= 3 ) // going from 15 to 45 degrees, with 5 degree increments
 		{
-			cx = 320 + sin( (i+90.0f)/57.296f ) * 190;
-			cy = 240 + cos( (i+90.0f)/57.296f ) * 190;
+			cx = 320 + sinf( (i+90.0f)/57.296f ) * 190;
+			cy = 240 + cosf( (i+90.0f)/57.296f ) * 190;
 
 			CG_DrawRotatePic2( cx, cy, 12, 24, 90 - i, cgs.media.disruptorInsertTick );
 		}
@@ -2085,7 +2085,7 @@ static void CG_DrawZoomMask( void )
 			}
 
 			float pos1 = 220 + light;
-			float pos2 = 220 + cos( cg.time * 0.0004f + light * 0.05f ) * 40 + sin( cg.time * 0.0013f + 1 ) * 20 + sin( cg.time * 0.0021f ) * 5;
+			float pos2 = 220 + cosf( cg.time * 0.0004f + light * 0.05f ) * 40 + sinf( cg.time * 0.0013f + 1 ) * 20 + sinf( cg.time * 0.0021f ) * 5;
 
 			// Flickery color
 			color1[0] = 0.7f + crandom() * 0.2f;
@@ -2114,7 +2114,7 @@ static void CG_DrawZoomMask( void )
 			CG_DrawPic( 247.0f, 362.5f, charge * 143.0f, 6, cgs.media.whiteShader );
 
 			// pulsing dot bit
-			color1[0] = sin( cg.time * 0.01f ) * 0.5f + 0.5f;
+			color1[0] = sinf( cg.time * 0.01f ) * 0.5f + 0.5f;
 			color1[0] = color1[0] * color1[0];
 			color1[1] = color1[0];
 			color1[2] = color1[0];
@@ -2339,7 +2339,7 @@ CROSSHAIR
 CG_DrawCrosshair
 =================
 */
-#ifdef _XBOX
+#ifdef AUTOAIM
 short cg_crossHairStatus = 0;
 #endif
 static void CG_DrawCrosshair( vec3_t worldPoint ) 
@@ -2362,7 +2362,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint )
 		return;
 	}
 
-#ifdef _XBOX
+#ifdef AUTOAIM
 	cg_crossHairStatus = 0;
 #endif
 	//set color based on what kind of ent is under crosshair
@@ -2392,7 +2392,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint )
 			}
 			else if ( g_entities[0].client && g_entities[0].client->playerTeam == TEAM_FREE )
 			{//evil player: everyone is red
-#ifdef _XBOX
+#ifdef AUTOAIM
 				cg_crossHairStatus = 1;
 #endif
 				//Enemies are red
@@ -2416,7 +2416,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint )
 			}
 			else
 			{
-#ifdef _XBOX
+#ifdef AUTOAIM
 				cg_crossHairStatus = 1;
 #endif
 				//Enemies are red
@@ -2438,7 +2438,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint )
 			else
 			{
 				// hostile ones are red
-#ifdef _XBOX
+#ifdef AUTOAIM
 				cg_crossHairStatus = 1;
 #endif
 				ecolor[0] = 1.0;//R
@@ -2449,7 +2449,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint )
 		else if ( crossEnt->s.weapon == WP_TRIP_MINE )
 		{
 			// tripmines are red
-#ifdef _XBOX
+#ifdef AUTOAIM
 			cg_crossHairStatus = 1;
 #endif
 			ecolor[0] = 1.0;//R
@@ -2458,6 +2458,9 @@ static void CG_DrawCrosshair( vec3_t worldPoint )
 		}
 		else if ( (crossEnt->flags&FL_RED_CROSSHAIR) )
 		{//special case flagged to turn crosshair red
+#ifdef AUTOAIM
+			cg_crossHairStatus = 1;
+#endif
 			ecolor[0] = 1.0;//R
 			ecolor[1] = 0.0;//G
 			ecolor[2] = 0.0;//B
@@ -2589,7 +2592,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint )
 
 	if ( cg.forceCrosshairStartTime && cg_crosshairForceHint.integer ) // drawing extra bits
 	{
-		ecolor[0] = ecolor[1] = ecolor[2] = (1 - ecolor[3]) * ( sin( cg.time * 0.001f ) * 0.08f + 0.35f ); // don't draw full color
+		ecolor[0] = ecolor[1] = ecolor[2] = (1 - ecolor[3]) * ( sinf( cg.time * 0.001f ) * 0.08f + 0.35f ); // don't draw full color
 		ecolor[3] = 1.0f;
 
 		cgi_R_SetColor( ecolor );
@@ -3160,7 +3163,7 @@ static void CG_DrawRocketLocking( int lockEntNum, int lockTime )
 		// we are locked and loaded baby
 		if ( dif == 8 )
 		{
-			color[0] = color[1] = color[2] = sin( cg.time * 0.05f ) * 0.5f + 0.5f;
+			color[0] = color[1] = color[2] = sinf( cg.time * 0.05f ) * 0.5f + 0.5f;
 			color[3] = 1.0f; // this art is additive, so the alpha value does nothing
 
 			cgi_R_SetColor( color );
@@ -3710,7 +3713,7 @@ static void CG_Draw2DScreenTints( void )
 	if ( (cg.refdef.viewContents&CONTENTS_LAVA) )
 	{//tint screen red
 		float phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
-		hcolor[3] = 0.5 + (0.15f*sin( phase ));
+		hcolor[3] = 0.5 + (0.15f*sinf( phase ));
 		hcolor[0] = 0.7f;
 		hcolor[1] = 0;
 		hcolor[2] = 0;
@@ -3720,7 +3723,7 @@ static void CG_Draw2DScreenTints( void )
 	else if ( (cg.refdef.viewContents&CONTENTS_SLIME) )
 	{//tint screen green
 		float phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
-		hcolor[3] = 0.4 + (0.1f*sin( phase ));
+		hcolor[3] = 0.4 + (0.1f*sinf( phase ));
 		hcolor[0] = 0;
 		hcolor[1] = 0.7f;
 		hcolor[2] = 0;
@@ -3730,7 +3733,7 @@ static void CG_Draw2DScreenTints( void )
 	else if ( (cg.refdef.viewContents&CONTENTS_WATER) )
 	{//tint screen light blue -- FIXME: check to see if in fog? 
 		float phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
-		hcolor[3] = 0.3 + (0.05f*sin( phase ));
+		hcolor[3] = 0.3 + (0.05f*sinf( phase ));
 		hcolor[0] = 0;
 		hcolor[1] = 0.2f;
 		hcolor[2] = 0.8f;

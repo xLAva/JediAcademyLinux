@@ -604,6 +604,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		theFxScheduler.RegisterEffect( "eweb/shot" );
 		theFxScheduler.RegisterEffect( "eweb/shotNPC" );
 		theFxScheduler.RegisterEffect( "eweb/wall_impact" );
+//if (item->giType==IT_AMMO)
 		theFxScheduler.RegisterEffect( "eweb/flesh_impact" );
 
 		cgi_R_RegisterShader( "models/map_objects/imp_mine/turret_chair_dmg" );
@@ -1682,6 +1683,7 @@ void CG_DrawDataPadWeaponSelect( void )
 		++iconCnt;					// Good icon
 
 		if (weaponData[weaponSelectI].weaponIcon[0])
+
 		{
 			weaponInfo_t	*weaponInfo;
 			CG_RegisterWeapon( weaponSelectI );	

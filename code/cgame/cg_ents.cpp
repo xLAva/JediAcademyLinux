@@ -196,7 +196,7 @@ void CG_AddRefEntWithTransportEffect ( centity_t *cent, refEntity_t *ent )
 
 		ent->customShader = cgi_R_RegisterShader( "gfx/effects/solidWhite_cull" );
 		ent->renderfx = RF_RGB_TINT;
-		wv = sin( cg.time * 0.003f ) * 0.08f + 0.1f;
+		wv = sinf( cg.time * 0.003f ) * 0.08f + 0.1f;
 		ent->shaderRGBA[0] = wv * 255;
 		ent->shaderRGBA[1] = wv * 255;
 		ent->shaderRGBA[2] = wv * 0;
@@ -724,7 +724,7 @@ Ghoul2 Insert End
 		float val = (1.0f - (float)(cent->gent->nextthink - cg.time) / 3200.0f ) * 0.3f;
 
 		ent.customShader = cgi_R_RegisterShader( "gfx/effects/solidWhite" );
-		ent.shaderRGBA[0] = (sin( cg.time * 0.04f ) * val * 0.4f + val) * 255;
+		ent.shaderRGBA[0] = (sinf( cg.time * 0.04f ) * val * 0.4f + val) * 255;
 		ent.shaderRGBA[1] = ent.shaderRGBA[2] = 0;
 		ent.renderfx |= RF_RGB_TINT;
 		cgi_R_AddRefEntityToScene( &ent );
@@ -1056,7 +1056,7 @@ Ghoul2 Insert End
 
 		ent.customShader = cgi_R_RegisterShader( "gfx/effects/solidWhite_cull" );
 		ent.renderfx = RF_RGB_TINT;
-		wv = sin( cg.time * 0.002f ) * 0.08f + 0.2f;
+		wv = sinf( cg.time * 0.002f ) * 0.08f + 0.2f;
 		ent.shaderRGBA[0] = ent.shaderRGBA[1] = wv * 255;
 		ent.shaderRGBA[2] = 0;
 		cgi_R_AddRefEntityToScene(&ent);
