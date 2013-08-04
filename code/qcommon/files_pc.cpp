@@ -811,11 +811,13 @@ int FS_ReadFile( const char *qpath, void **buffer ) {
 
 	// PRECACE CHECKER!
 #ifndef FINAL_BUILD
+#ifndef FINAL_BUILD_PRECACHE
 	if (com_sv_running && com_sv_running->integer && cls.state >= CA_ACTIVE) {	//com_cl_running
 		if (strncmp(qpath,"menu/",5) ) {
 			Com_Printf( S_COLOR_MAGENTA"FS_ReadFile: %s NOT PRECACHED!\n", qpath );
 		}
 	}
+#endif
 #endif
 
 	FS_Read (buf, len, h);
