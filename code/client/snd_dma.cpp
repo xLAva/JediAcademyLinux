@@ -519,6 +519,11 @@ void S_Init( void ) {
 		if (alcGetError(ALCDevice) != ALC_NO_ERROR)
 			return;
 
+		VID_Printf(PRINT_ALL, "OpenAL vendor string: %s\n", alGetString(AL_VENDOR));
+		VID_Printf(PRINT_ALL, "OpenAL renderer string: %s\n", alGetString(AL_RENDERER));
+		VID_Printf(PRINT_ALL, "OpenAL version string: %s\n", alGetString(AL_VERSION));
+
+
 		s_soundStarted = 1;
 		s_soundMuted = 1;
 		s_soundtime = 0;
@@ -535,6 +540,12 @@ void S_Init( void ) {
 		alListenerfv(AL_ORIENTATION,listenerOri);
 
 		InitEAXManager();
+		
+		if (!s_bEAX)
+		{
+			// on Linux we use OpenAL without EAX -> emulate the fallback linear sound system
+			alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
+		}
 
 		memset(s_channels, 0, sizeof(s_channels));
 
@@ -2856,30 +2867,74 @@ void S_Update_(void) {
 				alSourcefv(s_channels[source].alSource, AL_POSITION, pos);
 				alSourcei(s_channels[source].alSource, AL_LOOPING, AL_FALSE);
 
-				if (ch->entchannel == CHAN_VOICE)
+				if (s_bEAX)
 				{
-					// Reduced fall-off (Large Reference Distance), affected by Voice Volume
-					alSourcef(s_channels[source].alSource, AL_REFERENCE_DISTANCE, DEFAULT_VOICE_REF_DISTANCE);
-					alSourcef(s_channels[source].alSource, AL_GAIN, ((float)(ch->master_vol) * s_volumeVoice->value) / 255.0f);
-				}
-				else if (ch->entchannel == CHAN_VOICE_ATTEN)
-				{
-					// Normal fall-off, affected by Voice Volume
-					alSourcef(s_channels[source].alSource, AL_REFERENCE_DISTANCE, DEFAULT_REF_DISTANCE);
-					alSourcef(s_channels[source].alSource, AL_GAIN, ((float)(ch->master_vol) * s_volumeVoice->value) / 255.0f);
-				}
-				else if (ch->entchannel == CHAN_LESS_ATTEN)
-				{
-					// Reduced fall-off, affected by Sound Effect Volume
-					alSourcef(s_channels[source].alSource, AL_REFERENCE_DISTANCE, DEFAULT_VOICE_REF_DISTANCE);
-					alSourcef(s_channels[source].alSource, AL_GAIN, ((float)(ch->master_vol) * s_volume->value) / 255.f);
+					if (ch->entchannel == CHAN_VOICE)
+					{
+						// Reduced fall-off (Large Reference Distance), affected by Voice Volume
+						alSourcef(s_channels[source].alSource, AL_REFERENCE_DISTANCE, DEFAULT_VOICE_REF_DISTANCE);
+						alSourcef(s_channels[source].alSource, AL_GAIN, ((float)(ch->master_vol) * s_volumeVoice->value) / 255.0f);
+					}
+					else if (ch->entchannel == CHAN_VOICE_ATTEN)
+					{
+						// Normal fall-off, affected by Voice Volume
+						alSourcef(s_channels[source].alSource, AL_REFERENCE_DISTANCE, DEFAULT_REF_DISTANCE);
+						alSourcef(s_channels[source].alSource, AL_GAIN, ((float)(ch->master_vol) * s_volumeVoice->value) / 255.0f);
+					}
+					else if (ch->entchannel == CHAN_LESS_ATTEN)
+					{
+						// Reduced fall-off, affected by Sound Effect Volume
+						alSourcef(s_channels[source].alSource, AL_REFERENCE_DISTANCE, DEFAULT_VOICE_REF_DISTANCE);
+						alSourcef(s_channels[source].alSource, AL_GAIN, ((float)(ch->master_vol) * s_volume->value) / 255.f);
+					}
+					else
+					{
+						// Normal fall-off, affect by Sound Effect Volume
+						alSourcef(s_channels[source].alSource, AL_REFERENCE_DISTANCE, DEFAULT_REF_DISTANCE);
+						alSourcef(s_channels[source].alSource, AL_GAIN, ((float)(ch->master_vol) * s_volume->value) / 255.f);
+					}
 				}
 				else
 				{
-					// Normal fall-off, affect by Sound Effect Volume
-					alSourcef(s_channels[source].alSource, AL_REFERENCE_DISTANCE, DEFAULT_REF_DISTANCE);
-					alSourcef(s_channels[source].alSource, AL_GAIN, ((float)(ch->master_vol) * s_volume->value) / 255.f);
-				}
+					// emulate the fallback linear sound system with OpenAL
+					// the distance values are taken from S_SpatializeOrigin and converted for OpenAL
+					if (ch->entchannel == CHAN_VOICE_ATTEN)
+					{
+						// Normal fall-off, affected by Voice Volume
+						alSourcef(s_channels[source].alSource, AL_REFERENCE_DISTANCE, 345.0f);
+						alSourcef(s_channels[source].alSource, AL_MAX_DISTANCE, 970.0f);
+						alSourcef(s_channels[source].alSource, AL_ROLLOFF_FACTOR, 1.0f);					
+						alSourcef(s_channels[source].alSource, AL_GAIN, ((float)(ch->master_vol) * s_volumeVoice->value) / 255.0f);
+					}
+					else if (ch->entchannel == CHAN_VOICE)
+					{
+						alSourcef(s_channels[source].alSource, AL_REFERENCE_DISTANCE, 768.0f);
+						alSourcef(s_channels[source].alSource, AL_MAX_DISTANCE, 2018.0f);
+						alSourcef(s_channels[source].alSource, AL_ROLLOFF_FACTOR, 1.0f);						
+						alSourcef(s_channels[source].alSource, AL_GAIN, ((float)(ch->master_vol) * s_volumeVoice->value) / 255.0f);
+					}					
+					else if (ch->entchannel == CHAN_VOICE_GLOBAL)
+					{
+						alSourcef(s_channels[source].alSource, AL_REFERENCE_DISTANCE, 768.0f);
+						alSourcef(s_channels[source].alSource, AL_MAX_DISTANCE, 2018.0f);
+						alSourcef(s_channels[source].alSource, AL_ROLLOFF_FACTOR, 0.0f);
+						alSourcef(s_channels[source].alSource, AL_GAIN, ((float)(ch->master_vol) * s_volumeVoice->value) / 255.0f);
+					}
+					else if (ch->entchannel == CHAN_LESS_ATTEN)
+					{
+						alSourcef(s_channels[source].alSource, AL_REFERENCE_DISTANCE, 2048.f);
+						alSourcef(s_channels[source].alSource, AL_MAX_DISTANCE, 3298.f);
+						alSourcef(s_channels[source].alSource, AL_ROLLOFF_FACTOR, 1.0f);						
+						alSourcef(s_channels[source].alSource, AL_GAIN, ((float)(ch->master_vol) * s_volume->value) / 255.f);			
+					}				
+					else
+					{				
+						alSourcef(s_channels[source].alSource, AL_REFERENCE_DISTANCE, 256.f);
+						alSourcef(s_channels[source].alSource, AL_MAX_DISTANCE, 1506.f);
+						alSourcef(s_channels[source].alSource, AL_ROLLOFF_FACTOR, 1.0f);						
+						alSourcef(s_channels[source].alSource, AL_GAIN, ((float)(ch->master_vol) * s_volume->value) / 255.f);			
+					}
+				}				
 			}
 
 			if (s_bEALFileLoaded)
