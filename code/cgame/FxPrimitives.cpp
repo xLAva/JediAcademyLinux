@@ -7,6 +7,9 @@
 
 #include "cg_media.h"
 
+#ifdef ARM
+#define	myftol(x) ((int)(x))
+#else
 #ifdef __linux__
 static long myftol (float f)
 {
@@ -24,6 +27,7 @@ static long myftol( float f )
 	__asm mov eax, tmp
 }
 #pragma warning(default: 4035)
+#endif
 #endif
 
 extern int drawnFx;
@@ -1896,12 +1900,12 @@ void CPoly::CalcRotateMatrix()
 
 	// rotate around Z
 	rad = DEG2RAD( mRotDelta[YAW] * theFxHelper.mFrameTime * 0.01f );
-	cosZ = cos( rad );
-	sinZ = sin( rad );
+	cosZ = cosf( rad );
+	sinZ = sinf( rad );
 	// rotate around X
 	rad = DEG2RAD( mRotDelta[PITCH] * theFxHelper.mFrameTime * 0.01f );
-	cosX = cos( rad );
-	sinX = sin( rad );
+	cosX = cosf( rad );
+	sinX = sinf( rad );
 
 /*Pitch - aroundx  Yaw - around z
 1 0  0			 c -s 0

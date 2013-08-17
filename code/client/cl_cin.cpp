@@ -39,7 +39,9 @@
 
 #define MAX_VIDEO_HANDLES	16
 
+#ifndef HAVE_GLES
 extern glconfig_t glConfig;
+#endif
 extern	int		s_paintedtime;
 extern	int		s_rawend;
 
@@ -58,9 +60,9 @@ static void RoQ_init( void );
 typedef struct {
 	byte				linbuf[DEFAULT_CIN_WIDTH*DEFAULT_CIN_HEIGHT*4*2];
 	byte				file[65536];
-	short				sqrTable[256];
+	signed short		sqrTable[256];
 
-	unsigned int		mcomp[256];
+	/*unsigned*/ int		mcomp[256];
 	unsigned short		vq2[256*16*4];
 	unsigned short		vq4[256*64*4];
 	unsigned short		vq8[256*256*4];
@@ -94,7 +96,7 @@ typedef struct {
 	long				numQuads;
 	long				samplesPerLine;
 	unsigned int		roq_id;
-	long				screenDelta;
+	signed long			screenDelta;
 
 	void ( *VQ0)(byte *status, void *qdata );
 	void ( *VQ1)(byte *status, void *qdata );
@@ -105,11 +107,11 @@ typedef struct {
 	unsigned int		xsize, ysize, maxsize, minsize;
 
 	qboolean			inMemory;
-	long				normalBuffer0;
+	signed long			normalBuffer0;
 	long				roq_flags;
-	long				roqF0;
-	long				roqF1;
-	long				t[2];
+	signed long			roqF0;
+	signed long			roqF1;
+	signed long			t[2];
 	long				roqFPS;
 	int					playonwalls;
 	byte*				buf;
@@ -173,8 +175,8 @@ static void RllSetupTable()
 	if (currentHandle < 0) return;
 
 	for (z=0;z<128;z++) {
-		cin.sqrTable[z] = (short)(z*z);
-		cin.sqrTable[z+128] = (short)(-cin.sqrTable[z]);
+		cin.sqrTable[z] = (signed short)(z*z);
+		cin.sqrTable[z+128] = (signed short)(-cin.sqrTable[z]);
 	}
 }
 
@@ -248,7 +250,7 @@ static long RllDecodeMonoToStereo(unsigned char *from,unsigned int size,char sig
 	for (z = 0; z < size; z++) {
 		dst = s_rawend&(MAX_RAW_SAMPLES-1);
 		s_rawend++;
-		prev = (short)(prev + cin.sqrTable[from[z]]);
+		prev = (signed short)(prev + cin.sqrTable[from[z]]);
 		samps[dst].left = samps[dst].right =  prev*iVolume;
 	}
 	
@@ -296,8 +298,8 @@ static long RllDecodeStereoToStereo(unsigned char *from,unsigned int size,char s
 		case 11025:
 		{
 			for (z=0;z<size;z+=2) {
-				prevL = (short)(prevL + cin.sqrTable[*zz++]); 
-				prevR = (short)(prevR + cin.sqrTable[*zz++]);
+				prevL = (signed short)(prevL + cin.sqrTable[*zz++]); 
+				prevR = (signed short)(prevR + cin.sqrTable[*zz++]);
 
 				if (z&2)
 				{
@@ -317,8 +319,8 @@ static long RllDecodeStereoToStereo(unsigned char *from,unsigned int size,char s
 			for (z=0;z<size;z+=2) {
 				dst = s_rawend&(MAX_RAW_SAMPLES-1);
 				s_rawend++;
-				prevL = (short)(prevL + cin.sqrTable[*zz++]); 
-				prevR = (short)(prevR + cin.sqrTable[*zz++]);
+				prevL = (signed short)(prevL + cin.sqrTable[*zz++]); 
+				prevR = (signed short)(prevR + cin.sqrTable[*zz++]);
 				samps[dst].left  = prevL*iVolume;
 				samps[dst].right = prevR*iVolume;
 			}
@@ -328,8 +330,8 @@ static long RllDecodeStereoToStereo(unsigned char *from,unsigned int size,char s
 		case 44100:
 		{
 			for (z=0;z<size;z+=2) {
-				prevL = (short)(prevL + cin.sqrTable[*zz++]); 
-				prevR = (short)(prevR + cin.sqrTable[*zz++]);
+				prevL = (signed short)(prevL + cin.sqrTable[*zz++]); 
+				prevR = (signed short)(prevR + cin.sqrTable[*zz++]);
 
 				dst = s_rawend&(MAX_RAW_SAMPLES-1);
 				s_rawend++;
@@ -397,6 +399,12 @@ static long RllDecodeStereoToMono(unsigned char *from,short *to,unsigned int siz
 
 static void move8_32( byte *src, byte *dst, int spl )
 {
+#ifdef ARM
+	for (int i=0; i<8; i++) {
+		memcpy(dst, src, 32);
+		dst+=spl; src+=spl;
+	}
+#else
 	double *dsrc, *ddst;
 	int dspl;
 
@@ -419,6 +427,7 @@ static void move8_32( byte *src, byte *dst, int spl )
 	ddst[0] = dsrc[0]; ddst[1] = dsrc[1]; ddst[2] = dsrc[2]; ddst[3] = dsrc[3];
 	dsrc += dspl; ddst += dspl;
 	ddst[0] = dsrc[0]; ddst[1] = dsrc[1]; ddst[2] = dsrc[2]; ddst[3] = dsrc[3];
+#endif
 }
 
 /******************************************************************************
@@ -431,6 +440,12 @@ static void move8_32( byte *src, byte *dst, int spl )
 
 static void move4_32( byte *src, byte *dst, int spl  )
 {
+#ifdef ARM
+	for (int i=0; i<4; i++) {
+		memcpy(dst, src, 16);
+		dst+=spl; src+=spl;
+	}
+#else
 	double *dsrc, *ddst;
 	int dspl;
 
@@ -445,6 +460,7 @@ static void move4_32( byte *src, byte *dst, int spl  )
 	ddst[0] = dsrc[0]; ddst[1] = dsrc[1];
 	dsrc += dspl; ddst += dspl;
 	ddst[0] = dsrc[0]; ddst[1] = dsrc[1];
+#endif
 }
 
 /******************************************************************************
@@ -457,6 +473,12 @@ static void move4_32( byte *src, byte *dst, int spl  )
 
 static void blit8_32( byte *src, byte *dst, int spl  )
 {
+#ifdef ARM
+	for (int i=0; i<8; i++) {
+		memcpy(dst, src, 32);
+		dst+=spl; src+=32;
+	}
+#else
 	double *dsrc, *ddst;
 	int dspl;
 
@@ -479,6 +501,7 @@ static void blit8_32( byte *src, byte *dst, int spl  )
 	ddst[0] = dsrc[0]; ddst[1] = dsrc[1]; ddst[2] = dsrc[2]; ddst[3] = dsrc[3];
 	dsrc += 4; ddst += dspl;
 	ddst[0] = dsrc[0]; ddst[1] = dsrc[1]; ddst[2] = dsrc[2]; ddst[3] = dsrc[3];
+#endif
 }
 
 /******************************************************************************
@@ -491,6 +514,12 @@ static void blit8_32( byte *src, byte *dst, int spl  )
 
 static void blit4_32( byte *src, byte *dst, int spl  )
 {
+#ifdef ARM
+	for (int i=0; i<4; i++) {
+		memcpy(dst, src, 16);
+		dst+=spl; src+=16;
+	}
+#else
 	double *dsrc, *ddst;
 	int dspl;
 
@@ -505,6 +534,7 @@ static void blit4_32( byte *src, byte *dst, int spl  )
 	ddst[0] = dsrc[0]; ddst[1] = dsrc[1];
 	dsrc += 2; ddst += dspl;
 	ddst[0] = dsrc[0]; ddst[1] = dsrc[1];
+#endif
 }
 
 /******************************************************************************
@@ -517,6 +547,12 @@ static void blit4_32( byte *src, byte *dst, int spl  )
 
 static void blit2_32( byte *src, byte *dst, int spl  )
 {
+#ifdef ARM
+	for (int i=0; i<2; i++) {
+		memcpy(dst, src, 8);
+		dst+=spl; src+=8;
+	}
+#else
 	double *dsrc, *ddst;
 	int dspl;
 
@@ -526,6 +562,7 @@ static void blit2_32( byte *src, byte *dst, int spl  )
 
 	ddst[0] = dsrc[0];
 	ddst[dspl] = dsrc[1];
+#endif
 }
 
 /******************************************************************************
@@ -540,7 +577,6 @@ static void blitVQQuad32fs( byte **status, unsigned char *data )
 {
 unsigned short	newd, celdata, code;
 unsigned int	index, i;
-
 	newd	= 0;
 	celdata = 0;
 	index	= 0;
@@ -711,16 +747,17 @@ static unsigned short yuv_to_rgb( long y, long u, long v )
 
 static unsigned int yuv_to_rgb24( long y, long u, long v )
 { 
-	long r,g,b,YY = (long)(cin.ROQ_YY_tab[(y)]);
+	long a,r,g,b,YY = (long)(cin.ROQ_YY_tab[(y)]);
 
 	r = (YY + cin.ROQ_VR_tab[v]) >> 6;
 	g = (YY + cin.ROQ_UG_tab[u] + cin.ROQ_VG_tab[v]) >> 6;
 	b = (YY + cin.ROQ_UB_tab[u]) >> 6;
+	a = 255;
 	
 	if (r<0) r = 0; if (g<0) g = 0; if (b<0) b = 0;
 	if (r > 255) r = 255; if (g > 255) g = 255; if (b > 255) b = 255;
 	
-	return LittleLong((r)+(g<<8)+(b<<16));
+	return LittleLong((r)+(g<<8)+(b<<16)+(a<<24));
 }
 
 /******************************************************************************
@@ -893,12 +930,13 @@ static void readQuadInfo( byte *qData )
 	cinTable[currentHandle].VQ0 = cinTable[currentHandle].VQNormal;
 	cinTable[currentHandle].VQ1 = cinTable[currentHandle].VQBuffer;
 
-	cinTable[currentHandle].t[0] = (0 - (unsigned int)cin.linbuf)+(unsigned int)cin.linbuf+cinTable[currentHandle].screenDelta;
-	cinTable[currentHandle].t[1] = (0 - ((unsigned int)cin.linbuf + cinTable[currentHandle].screenDelta))+(unsigned int)cin.linbuf;
+	cinTable[currentHandle].t[0] = (0 - (signed int)cin.linbuf)+(signed int)cin.linbuf+cinTable[currentHandle].screenDelta;
+	cinTable[currentHandle].t[1] = (0 - ((signed int)cin.linbuf + cinTable[currentHandle].screenDelta))+(signed int)cin.linbuf;
 
 	cinTable[currentHandle].drawX = cinTable[currentHandle].CIN_WIDTH;
 	cinTable[currentHandle].drawY = cinTable[currentHandle].CIN_HEIGHT;
 	// jic the card sucks
+	#ifdef HAVE_GLES
 	if ( glConfig.maxTextureSize <= 256) {
         if (cinTable[currentHandle].drawX>256) {
             cinTable[currentHandle].drawX = 256;
@@ -910,6 +948,7 @@ static void readQuadInfo( byte *qData )
 			Com_DPrintf("HACK: approxmimating cinematic for Rage Pro or Voodoo\n");
 		}
 	}
+	#endif
 }
 
 /******************************************************************************
@@ -920,9 +959,9 @@ static void readQuadInfo( byte *qData )
 *
 ******************************************************************************/
 
-static void RoQPrepMcomp( long xoff, long yoff ) 
+static void RoQPrepMcomp( signed long xoff, signed long yoff ) 
 {
-	long i, j, x, y, temp, temp2;
+	signed long i, j, x, y, temp, temp2;
 
 	if (currentHandle < 0) return;
 
@@ -937,6 +976,7 @@ static void RoQPrepMcomp( long xoff, long yoff )
 	for(y=0;y<16;y++) {
 		temp2 = (y+yoff-8)*i;
 		for(x=0;x<16;x++) {
+	
 			temp = (x+xoff-8)*j;
 			cin.mcomp[(x*16)+y] = cinTable[currentHandle].normalBuffer0-(temp2+temp);
 		}
@@ -1132,8 +1172,8 @@ redump:
 	cinTable[currentHandle].roq_id		 = framedata[0] + framedata[1]*256;
 	cinTable[currentHandle].RoQFrameSize = framedata[2] + framedata[3]*256 + framedata[4]*65536;
 	cinTable[currentHandle].roq_flags	 = framedata[6] + framedata[7]*256;
-	cinTable[currentHandle].roqF0		 = (char)framedata[7];
-	cinTable[currentHandle].roqF1		 = (char)framedata[6];
+	cinTable[currentHandle].roqF0		 = (signed char)framedata[7];
+	cinTable[currentHandle].roqF1		 = (signed char)framedata[6];
 
 	if (cinTable[currentHandle].RoQFrameSize>65536||cinTable[currentHandle].roq_id==0x1084) {
 		Com_DPrintf("roq_size>65536||roq_id==0x1084\n");
@@ -1467,7 +1507,6 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 		Con_Close();
 
 		s_rawend = s_soundtime;
-
 		return currentHandle;
 	}
 	Com_DPrintf("trFMV::play(), invalid RoQ ID\n");

@@ -4007,6 +4007,7 @@ static void CreateInternalShaders( void ) {
 
 
 #ifndef _XBOX	// GLOWXXX
+#ifndef HAVE_GLES
 	#define GL_PROGRAM_ERROR_STRING_ARB						0x8874
 	#define GL_PROGRAM_ERROR_POSITION_ARB					0x864B
 
@@ -4086,6 +4087,7 @@ static void CreateInternalShaders( void ) {
 		qglGetIntegerv( GL_PROGRAM_ERROR_POSITION_ARB, &iErrPos );
 		assert( iErrPos == -1 );
 	}
+#endif //HAVE_GLES
 #endif
 }
 

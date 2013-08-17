@@ -1462,7 +1462,7 @@ static void CG_UpdateAngleClamp( float destAngle, float clampMin, float clampMax
 
 	// modify the angleSpeed depending on the delta
 	// so it doesn't seem so linear
-	scale = fabs( swing );
+	scale = fabsf( swing );
 	if (swing > 0)
 	{
 		if ( swing < clampMax * 0.25 ) 
@@ -1577,7 +1577,7 @@ static void CG_SwingAngles( float destAngle,
 
 	// modify the angleSpeed depending on the delta
 	// so it doesn't seem so linear
-	scale = fabs( swing );
+	scale = fabsf( swing );
 
 	if (swing > 0)
 	{
@@ -1920,7 +1920,7 @@ static qboolean CG_PlayerLegsYawFromMovement( centity_t *cent, const vec3_t velo
 	//lerp the legs angle to the new angle
 	angleDiff = AngleDelta( cent->pe.legs.yawAngle, (*yaw+addAngle) );
 	newAddAngle = angleDiff*cg.frameInterpolation*-1;
-	if ( fabs(newAddAngle) > fabs(angleDiff) )
+	if ( fabsf(newAddAngle) > fabsf(angleDiff) )
 	{
 		newAddAngle = angleDiff*-1;
 	}
@@ -1956,7 +1956,7 @@ static void CG_ATSTLegsYaw( centity_t *cent, vec3_t trailingLegsAngles )
 	float legAngleDiff = AngleNormalize180(ATSTLegsYaw) - AngleNormalize180(cent->pe.legs.yawAngle);
 	int legsAnim = cent->currentState.legsAnim;
 	qboolean moving = (!VectorCompare(cent->gent->client->ps.velocity, vec3_origin));
-	if ( moving || legsAnim == BOTH_TURN_LEFT1 || legsAnim == BOTH_TURN_RIGHT1 || fabs(legAngleDiff) > 45 )
+	if ( moving || legsAnim == BOTH_TURN_LEFT1 || legsAnim == BOTH_TURN_RIGHT1 || fabsf(legAngleDiff) > 45 )
 	{//moving or turning or beyond the turn allowance
 		if ( legsAnim == BOTH_STAND1 && !moving )
 		{//standing
@@ -3346,14 +3346,14 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t torso[3], v
 
 			//Yaw change
 			swing = AngleSubtract( legsAngles[YAW], headAngles[YAW] );
-			scale = fabs( swing ) / ( torsoYawClampMax + 0.01 );	//NOTENOTE: Some ents have a clamp of 0, which is bad for division
+			scale = fabsf( swing ) / ( torsoYawClampMax + 0.01 );	//NOTENOTE: Some ents have a clamp of 0, which is bad for division
 
 			scale *= LOOK_SWING_SCALE;
 			torsoAngles[YAW] = legsAngles[YAW] - ( swing * scale );
 
 			//Pitch change
 			swing = AngleSubtract( legsAngles[PITCH], headAngles[PITCH] );
-			scale = fabs( swing ) / ( torsoPitchClampMax + 0.01 );	//NOTENOTE: Some ents have a clamp of 0, which is bad for division
+			scale = fabsf( swing ) / ( torsoPitchClampMax + 0.01 );	//NOTENOTE: Some ents have a clamp of 0, which is bad for division
 
 			scale *= LOOK_SWING_SCALE;
 			torsoAngles[PITCH] = legsAngles[PITCH] - ( swing * scale );	

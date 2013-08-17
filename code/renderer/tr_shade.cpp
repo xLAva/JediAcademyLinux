@@ -36,6 +36,7 @@ This is just for OpenGL conformance testing, it should never be the fastest
 */
 static void APIENTRY R_ArrayElementDiscrete( GLint index ) {
 #ifndef _XBOX
+#ifndef HAVE_GLES
 	qglColor4ubv( tess.svars.colors[ index ] );
 	if ( glState.currenttmu ) {
 		qglMultiTexCoord2fARB( 0, tess.svars.texcoords[ 0 ][ index ][0], tess.svars.texcoords[ 0 ][ index ][1] );
@@ -45,6 +46,7 @@ static void APIENTRY R_ArrayElementDiscrete( GLint index ) {
 	}
 	qglVertex3fv( tess.xyz[ index ] );
 #endif
+#endif
 }
 
 /*
@@ -53,6 +55,7 @@ R_DrawStripElements
 
 ===================
 */
+#ifndef HAVE_GLES
 static int		c_vertexes;		// for seeing how long our average strips are
 static int		c_begins;
 static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void ( APIENTRY *element )(GLint) ) {
@@ -146,7 +149,7 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 
 	qglEnd();
 }
-
+#endif
 #ifdef _XBOX
 qboolean RB_IsCurrentShaderTransparent( void );
 #endif
@@ -190,7 +193,7 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
 		return;
 	}
 
-#ifdef _XBOX
+#if defined(_XBOX) || defined(HAVE_GLES)
 	if (primitives == 1 || primitives == 3)
 	{
 //		if (tess.useConstantColor)
@@ -356,8 +359,10 @@ static void DrawTris (shaderCommands_t *input)
 		// tries to do non-xray style showtris
 		GL_State( GLS_POLYMODE_LINE );
 
+		#ifndef HAVE_GLES
 		qglEnable( GL_POLYGON_OFFSET_LINE );
 		qglPolygonOffset( -1, -2 );
+		#endif
 
 		qglDisableClientState( GL_COLOR_ARRAY );
 		qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -370,7 +375,14 @@ static void DrawTris (shaderCommands_t *input)
 			GLimp_LogComment( "glLockArraysEXT\n" );
 		}
 
+		#ifdef HAVE_GLES
+		qglDrawElements( GL_LINE_STRIP, 
+						input->numIndexes,
+						GL_INDEX_TYPE,
+						input->indexes );
+		#else
 		R_DrawElements( input->numIndexes, input->indexes );
+		#endif
 
 		if ( qglUnlockArraysEXT ) 
 		{
@@ -378,7 +390,9 @@ static void DrawTris (shaderCommands_t *input)
 			GLimp_LogComment( "glUnlockArraysEXT\n" );
 		}
 
+		#ifndef HAVE_GLES
 		qglDisable( GL_POLYGON_OFFSET_LINE );
+		#endif
 	}
 	else
 	{
@@ -423,6 +437,9 @@ static void DrawNormals (shaderCommands_t *input) {
 	qglDepthRange( 0, 0 );	// never occluded
 	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE );
 
+	#ifdef HAVE_GLES
+	/*SEB *TODO* */
+	#else
 	qglBegin (GL_LINES);
 	for (i = 0 ; i < input->numVertexes ; i++) {
 		qglVertex3fv (input->xyz[i]);
@@ -430,6 +447,7 @@ static void DrawNormals (shaderCommands_t *input) {
 		qglVertex3fv (temp);
 	}
 	qglEnd ();
+	#endif
 
 	qglDepthRange( 0, 1 );
 }
@@ -1429,12 +1447,6 @@ static void RB_FogPass( void ) {
 	fog_t		*fog;
 	int			i;
 
-	qglEnableClientState( GL_COLOR_ARRAY );
-	qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
-
-	qglEnableClientState( GL_TEXTURE_COORD_ARRAY);
-	qglTexCoordPointer( 2, GL_FLOAT, 0, tess.svars.texcoords[0] );
-
 	fog = tr.world->fogs + tess.fogNum;
 
 	for ( i = 0; i < tess.numVertexes; i++ ) {
@@ -1444,6 +1456,12 @@ static void RB_FogPass( void ) {
 	RB_CalcFogTexCoords( ( float * ) tess.svars.texcoords[0] );
 
 	GL_Bind( tr.fogImage );
+
+	qglEnableClientState( GL_COLOR_ARRAY );
+	qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
+
+	qglEnableClientState( GL_TEXTURE_COORD_ARRAY);
+	qglTexCoordPointer( 2, GL_FLOAT, 0, tess.svars.texcoords[0] );
 
 	if ( tess.shader->fogPass == FP_EQUAL ) {
 		GL_State( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_DEPTHFUNC_EQUAL );

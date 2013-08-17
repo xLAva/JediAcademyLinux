@@ -1,5 +1,8 @@
 
 #include "cm_local.h"
+#ifdef NEON
+#include "../game/neon_math.h"
+#endif
 
 #ifdef _XBOX
 #include "../renderer/tr_local.h"

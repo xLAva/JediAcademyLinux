@@ -234,10 +234,19 @@ typedef struct
 } sphere_t;
 
 typedef struct traceWork_s {
+	#ifdef NEON
+	vec4_t		start;
+	vec4_t		end;
+	#else
 	vec3_t		start;
 	vec3_t		end;
+	#endif
 	vec3_t		size[2];	// size of the box being swept through the model
+	#ifdef NEON
+	vec4_t		offsets[8];	// [signbits][x] = either size[0][x] or size[1][x]
+	#else
 	vec3_t		offsets[8];	// [signbits][x] = either size[0][x] or size[1][x]
+	#endif
 	float		maxOffset;	// longest corner length from origin
 	vec3_t		extents;	// greatest of abs(size[0]) and abs(size[1])
 

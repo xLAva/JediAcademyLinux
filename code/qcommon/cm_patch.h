@@ -110,8 +110,8 @@ typedef struct {
 } cGrid_t;
 
 #define	SUBDIVIDE_DISTANCE	16	//4	// never more than this units away from curve
-#define	PLANE_TRI_EPSILON	0.1
-#define	WRAP_POINT_EPSILON	0.1
+#define	PLANE_TRI_EPSILON	0.1f
+#define	WRAP_POINT_EPSILON	0.1f
 
 #ifdef _XBOX
 struct patchCollide_s	*CM_GeneratePatchCollide( int width, int height, vec3_t *points,

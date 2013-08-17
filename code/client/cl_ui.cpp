@@ -365,7 +365,6 @@ vm_t	uivm;
 #define	VMF(x)	((float *)args)[x]
 int CL_UISystemCalls( int *args ) 
 {
-
 	switch( args[0] ) 
 	{
 	case UI_ERROR:

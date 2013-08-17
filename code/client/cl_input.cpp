@@ -239,6 +239,77 @@ void IN_KeyUp( kbutton_t *b ) {
 
 	b->active = qfalse;
 }
+#ifdef CROUCH
+void IN_ToggleKeyDown( kbutton_t *b ) {
+	int k;
+	char    *c;
+	unsigned uptime;
+
+	c = Cmd_Argv( 1 );
+	if ( c[0] ) {
+		k = atoi( c );
+	} else {
+		k = -1;     // typed manually at the console for continuous down
+	}
+
+	if ( k == b->down[0] || k == b->down[1] ) {
+		return;     // repeating key
+	}
+
+	if ( !b->down[0] ) {
+		b->down[0] = k;
+	} else if ( !b->down[1] ) {
+		b->down[1] = k;
+	} else {
+		Com_Printf( "Three keys down for a button!\n" );
+		return;
+	}
+
+	b->active = 1-b->active;	// toggle
+	// save timestamp for partial frame summing
+	c = Cmd_Argv( 2 );
+	uptime = atoi( c );
+	if (b->active)
+		b->downtime = uptime;
+	else 
+	{
+		if ( uptime ) {
+			b->msec += uptime - b->downtime;
+		} else {
+			b->msec += frame_msec / 2;
+		}
+	}
+	b->wasPressed = b->active;
+}
+
+void IN_ToggleKeyUp( kbutton_t *b ) {
+	int k;
+	char    *c;
+
+	c = Cmd_Argv( 1 );
+	if ( c[0] ) {
+		k = atoi( c );
+	} else {
+		// typed manually at the console, assume for unsticking, so clear all
+		b->down[0] = b->down[1] = 0;
+		b->active = qfalse;
+		return;
+	}
+
+	if ( b->down[0] == k ) {
+		b->down[0] = 0;
+	} else if ( b->down[1] == k ) {
+		b->down[1] = 0;
+	} else {
+		return;     // key up without coresponding down (menu pass through)
+	}
+	if ( b->down[0] || b->down[1] ) {
+		return;     // some other key is still holding it down
+	}
+
+}
+#endif
+
 
 
 
@@ -285,10 +356,29 @@ float CL_KeyState( kbutton_t *key ) {
 
 
 
+#ifdef CROUCH
+void IN_UpDown( void ) {in_down.active = 0; IN_KeyDown(&in_up);}
+#else
 void IN_UpDown(void) {IN_KeyDown(&in_up);}
+#endif
 void IN_UpUp(void) {IN_KeyUp(&in_up);}
+#ifdef CROUCH
+void IN_DownDown( void ) {IN_ToggleKeyDown(&in_down);}
+void IN_DownUp( void ) 
+{
+	if (in_forward.active || in_back.active || in_moveleft.active || in_moveright.active)
+		IN_KeyUp(&in_down);
+	else
+#ifdef JOYSTICK
+		if ((cl.joystickAxis[AXIS_SIDE]>10) || (cl.joystickAxis[AXIS_SIDE]<-10) || (cl.joystickAxis[AXIS_FORWARD]>10) || (cl.joystickAxis[AXIS_FORWARD]<-10))
+			IN_KeyUp(&in_down);
+#endif
+		IN_ToggleKeyUp(&in_down);
+}
+#else
 void IN_DownDown(void) {IN_KeyDown(&in_down);}
 void IN_DownUp(void) {IN_KeyUp(&in_down);}
+#endif
 void IN_LeftDown(void) {IN_KeyDown(&in_left);}
 void IN_LeftUp(void) {IN_KeyUp(&in_left);}
 void IN_RightDown(void) {IN_KeyDown(&in_right);}
@@ -492,7 +582,11 @@ void CL_JoystickMove( usercmd_t *cmd ) {
 	}
 
 #ifndef _XBOX
+#ifdef PANDORA
+	if ( in_strafe.active ) {
+#else
 	if ( !in_strafe.active ) {
+#endif
 		if ( cl_mYawOverride )
 		{
 			cl.viewangles[YAW] += 5.0f * cl_mYawOverride * cl.joystickAxis[AXIS_SIDE];
@@ -528,7 +622,7 @@ void CL_JoystickMove( usercmd_t *cmd ) {
 CL_MouseMove
 =================
 */
-#ifdef _XBOX
+#ifdef AUTOAIM
 void CL_MouseClamp(int *x, int *y)
 {
 	float ax = Q_fabs(*x);
@@ -554,10 +648,20 @@ void CL_MouseMove( usercmd_t *cmd ) {
 	const float	speed = static_cast<float>(frame_msec);
 	const float pitch = m_pitch->value;
 
-#ifdef _XBOX
+#ifdef AUTOAIM
 	const float mouseSpeedX = 0.06f;
 	const float mouseSpeedY = 0.05f;
 
+	#ifdef PANDORA
+	// allow mouse smoothing
+	if ( m_filter->integer ) {
+		mx = ( cl.mouseDx[0] + cl.mouseDx[1] ) * 0.5;
+		my = ( cl.mouseDy[0] + cl.mouseDy[1] ) * 0.5;
+	} else {
+		mx = cl.mouseDx[cl.mouseIndex];
+		my = cl.mouseDy[cl.mouseIndex];
+	}
+	#else
 	// allow mouse smoothing
 	if ( m_filter->integer ) {
 		mx = ( cl.mouseDx[0] + cl.mouseDx[1] ) * 0.5f * frame_msec * mouseSpeedX;
@@ -570,8 +674,17 @@ void CL_MouseMove( usercmd_t *cmd ) {
 		mx = ax * speed * mouseSpeedX;	
 		my = ay * speed * mouseSpeedY;		
 	}
+	#endif
 
-	extern short cg_crossHairStatus;
+	//extern short cg_crossHairStatus;
+#ifdef AUTOAIM
+	int g_lastFireTime = 0;
+	short cg_crossHairStatus = 0;
+	if (ge) {
+		g_lastFireTime = ge->GetLastFireTime();
+		cg_crossHairStatus = ge->GetCrossHairStatus();
+	}
+#endif
 	const float m_hoverSensitivity = 0.4f;
 	if (cg_crossHairStatus == 1)
 	{
@@ -604,12 +717,16 @@ void CL_MouseMove( usercmd_t *cmd ) {
 	}
 
 	mx *= accelSensitivity;
+	#ifdef PANDORA
+	my *= accelSensitivity*0.5f;	// lower acceleration on Y axis
+	#else
 	my *= accelSensitivity;
+	#endif
 
 	if (!mx && !my) {
-#ifdef _XBOX
+#ifdef AUTOAIM
 		// If there was a movement but no change in angles then start auto-leveling the camera
-		extern int g_lastFireTime;
+		//extern int g_lastFireTime;
 		float autolevelSpeed = 0.03f;
 
 		if (cg_crossHairStatus != 1 &&							// Not looking at an enemy
@@ -664,7 +781,7 @@ void CL_MouseMove( usercmd_t *cmd ) {
 
 	if ( (in_mlooking || cl_freelook->integer) && !in_strafe.active ) {
 		// VVFIXME - This is supposed to be a CVAR
-#ifdef _XBOX
+#ifdef AUTOAIM
 		const float cl_pitchSensitivity = 0.5f;
 #else
 		const float cl_pitchSensitivity = 1.0f;

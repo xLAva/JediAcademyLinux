@@ -178,7 +178,6 @@ Ghoul2 Insert End
 	}
 	return -1;
 }
-
 #ifdef __linux__
 }
 #endif

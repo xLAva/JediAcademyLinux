@@ -331,6 +331,35 @@ void R_Splash()
 	const float y2 = 240 + height / 2;
 
 
+#ifdef HAVE_GLES
+	GLimp_EndFrame();
+	GLfloat tex[] = {
+	 0,0 ,
+	 1,0,
+	 0,1,
+	 1,1
+	};
+	GLfloat vtx[] = {
+	 x1, y1,
+	 x2, y1,
+	 x1, y2,
+	 x2, y2
+	};
+	GLboolean text = qglIsEnabled(GL_TEXTURE_COORD_ARRAY);
+	GLboolean glcol = qglIsEnabled(GL_COLOR_ARRAY);
+	if (glcol)
+		qglDisableClientState(GL_COLOR_ARRAY);
+	if (!text)
+		qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	qglEnableClientState( GL_VERTEX_ARRAY );
+	qglTexCoordPointer( 2, GL_FLOAT, 0, tex );
+	qglVertexPointer  ( 2, GL_FLOAT, 0, vtx );
+	qglDrawArrays( GL_TRIANGLE_STRIP, 0, 4 );
+	if (glcol)
+		qglDisableClientState(GL_COLOR_ARRAY);
+	if (!text)
+		qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
+#else
 	qglBegin (GL_TRIANGLE_STRIP);
 		qglTexCoord2f( 0,  0 );
 		qglVertex2f(x1, y1);
@@ -341,6 +370,7 @@ void R_Splash()
 		qglTexCoord2f( 1, 1 );
 		qglVertex2f(x2, y2);
 	qglEnd();
+#endif
 
 	GLimp_EndFrame();
 #endif
@@ -450,8 +480,9 @@ const vidmode_t r_vidModes[] =
     { "Mode  8: 1280x1024",		1280,	1024 },
     { "Mode  9: 1600x1200",		1600,	1200 },
     { "Mode 10: 2048x1536",		2048,	1536 },
-    { "Mode 11: 856x480 (wide)", 856,	 480 },
-    { "Mode 12: 2400x600(surround)",2400,600 }
+    { "Mode 11: 800x480 (pandora)",		800,	480 },
+    { "Mode 12: 856x480 (wide)", 856,	 480 },
+    { "Mode 13: 2400x600(surround)",2400,600 }
 };
 static const int	s_numVidModes = ( sizeof( r_vidModes ) / sizeof( r_vidModes[0] ) );
 
@@ -523,9 +554,24 @@ void R_TakeScreenshot( int x, int y, int width, int height, char *fileName ) {
 	{
 		// JPG saver expects to be fed RGBA data, though it presumably ignores 'A'...
 		//
+		#ifdef HAVE_GLES
+		int p2width=1, p2height=1;
+		while (p2width<glConfig.vidWidth) p2width*=2;
+		while (p2height<glConfig.vidHeight) p2height*=2;
+		byte *source = (byte*) Z_Malloc( p2width * p2height * 4, TAG_TEMP_WORKSPACE, qfalse );
+		#endif
 		buffer = (unsigned char *) Z_Malloc(glConfig.vidWidth*glConfig.vidHeight*4, TAG_TEMP_WORKSPACE, qfalse);
 		glPixelStorei(GL_PACK_ALIGNMENT,1);
+		#ifdef HAVE_GLES
+		qglReadPixels( 0, 0, p2width, p2height, GL_RGBA, GL_UNSIGNED_BYTE, source );
+		for (int yy=0; yy<height; yy++)
+			for (int xx=0; xx<width; xx++)
+				for (int aa=0; aa<4; aa++)
+					buffer[yy*width*4+xx*4+aa]=source[(yy+y)*p2width*4+(xx+x)*4+aa];
+		Z_Free(source);
+		#else
 		qglReadPixels( x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer ); 
+		#endif
 
 		// gamma correct
 		if ( tr.overbrightBits>0 && glConfig.deviceSupportsGamma ) {
@@ -548,6 +594,18 @@ void R_TakeScreenshot( int x, int y, int width, int height, char *fileName ) {
 		buffer[16] = 24;	// pixel size
 
 		glPixelStorei(GL_PACK_ALIGNMENT,1);
+		#ifdef HAVE_GLES
+		int p2width=1, p2height=1;
+		while (p2width<glConfig.vidWidth) p2width*=2;
+		while (p2height<glConfig.vidHeight) p2height*=2;
+		byte *source = (byte*) Z_Malloc( p2width * p2height * 4, TAG_TEMP_WORKSPACE, qfalse );
+		qglReadPixels( 0, 0, p2width, p2height, GL_RGBA, GL_UNSIGNED_BYTE, source );
+		for (int yy=0; yy<height; yy++)
+			for (int xx=0; xx<width; xx++)
+				for (int aa=0; aa<3; aa++)
+					buffer[18+yy*width*3+xx*3+aa]=source[(yy+y)*p2width*4+(xx+x)*4+(3-aa)];
+		Z_Free(source);
+		#else
 		qglReadPixels( x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer+18 ); 
 
 		// swap rgb to bgr
@@ -557,6 +615,7 @@ void R_TakeScreenshot( int x, int y, int width, int height, char *fileName ) {
 			buffer[i] = buffer[i+2];
 			buffer[i+2] = temp;
 		}
+		#endif
 
 		// gamma correct
 		if ( tr.overbrightBits>0 && glConfig.deviceSupportsGamma ) {
@@ -616,7 +675,14 @@ void R_LevelShot( void ) {
 
 	sprintf( checkname, "levelshots/%s.tga", tr.worldDir + strlen("maps/") );
 
+	#ifdef HAVE_GLES
+	int p2width=1, p2height=1;
+	while (p2width<glConfig.vidWidth) p2width*=2;
+	while (p2height<glConfig.vidHeight) p2height*=2;
+	source = (byte*) Z_Malloc( p2width * p2height * 4, TAG_TEMP_WORKSPACE, qfalse );
+	#else
 	source = (byte*) Z_Malloc( glConfig.vidWidth * glConfig.vidHeight * 3, TAG_TEMP_WORKSPACE, qfalse );
+	#endif
 
 	buffer = (byte*) Z_Malloc( LEVELSHOTSIZE * LEVELSHOTSIZE*3 + 18, TAG_TEMP_WORKSPACE, qfalse );
 	memset (buffer, 0, 18);
@@ -628,7 +694,11 @@ void R_LevelShot( void ) {
 	buffer[16] = 24;	// pixel size
 
 	glPixelStorei(GL_PACK_ALIGNMENT,1);
+	#ifdef HAVE_GLES
+	qglReadPixels( 0, 0,p2width, p2height, GL_RGBA, GL_UNSIGNED_BYTE, source ); 
+	#else
 	qglReadPixels( 0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_RGB, GL_UNSIGNED_BYTE, source ); 
+	#endif
 
 	// resample from source
 	xScale = glConfig.vidWidth / (4.0*LEVELSHOTSIZE);
@@ -638,7 +708,11 @@ void R_LevelShot( void ) {
 			r = g = b = 0;
 			for ( yy = 0 ; yy < 3 ; yy++ ) {
 				for ( xx = 0 ; xx < 4 ; xx++ ) {
+					#ifdef HAVE_GLES
+					src = source + 4 * ( p2width * (int)( (y*3+yy)*yScale ) + (int)( (x*4+xx)*xScale ) );
+					#else
 					src = source + 3 * ( glConfig.vidWidth * (int)( (y*3+yy)*yScale ) + (int)( (x*4+xx)*xScale ) );
+					#endif
 					r += src[0];
 					g += src[1];
 					b += src[2];
@@ -846,7 +920,9 @@ void GL_SetDefaultState( void )
 	//
 	glState.glStateBits = GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE;
 
+#ifndef HAVE_GLES
 	qglPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+#endif
 	qglDepthMask( GL_TRUE );
 	qglDisable( GL_DEPTH_TEST );
 	qglEnable( GL_SCISSOR_TEST );
@@ -857,6 +933,11 @@ void GL_SetDefaultState( void )
 #ifdef _XBOX
 	qglDisable( GL_LIGHTING );
 #endif
+#ifdef HAVE_GLES
+	glPixelStorei(GL_PACK_ALIGNMENT, 1);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+#endif
+
 }
 
 
@@ -1171,7 +1252,7 @@ void R_Register( void )
 	r_finish = Cvar_Get ("r_finish", "0", CVAR_ARCHIVE);
 	r_textureMode = Cvar_Get( "r_textureMode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE );
 	r_swapInterval = Cvar_Get( "r_swapInterval", "0", CVAR_ARCHIVE );
-#ifdef __MACOS__
+#if defined(__MACOS__) || defined(PANDORA)
 	r_gamma = Cvar_Get( "r_gamma", "1.2", CVAR_ARCHIVE );
 #else
 	r_gamma = Cvar_Get( "r_gamma", "1", CVAR_ARCHIVE );
@@ -1457,6 +1538,7 @@ void RE_Shutdown( qboolean destroyWindow ) {
 
 	if ( tr.registered ) {
 #ifndef _XBOX	// GLOWXXX
+#ifndef HAVE_GLES
 		if ( r_DynamicGlow && r_DynamicGlow->integer )
 		{
 			// Release the Glow Vertex Shader.
@@ -1464,7 +1546,6 @@ void RE_Shutdown( qboolean destroyWindow ) {
 			{
 				qglDeleteProgramsARB( 1, &tr.glowVShader );
 			}
-
 			// Release Pixel Shader.
 			if ( tr.glowPShader )
 			{
@@ -1479,7 +1560,6 @@ void RE_Shutdown( qboolean destroyWindow ) {
 					qglDeleteProgramsARB( 1, &tr.glowPShader );
 				}
 			}
-
 			// Release the scene glow texture.
 			qglDeleteTextures( 1, &tr.screenGlow );
 
@@ -1489,6 +1569,7 @@ void RE_Shutdown( qboolean destroyWindow ) {
 			// Release the blur texture.
 			qglDeleteTextures( 1, &tr.blurImage );
 		}
+#endif
 #endif
 //		R_SyncRenderThread();
 		R_ShutdownCommandBuffers();

@@ -1160,12 +1160,16 @@ public:
 		}
 
 		mVertexCount = VertexCount;
-#ifdef _XBOX	// Check for point sprite use
+#if defined(_XBOX) || defined(HAVE_GLES)	// Check for point sprite use
 		if(mVertexCount == 1)
 			mGLModeEnum = GL_POINTS;
 		else
 #endif
+#ifdef HAVE_GLES
+		mGLModeEnum = (mVertexCount==3)?(GL_TRIANGLES):(GL_TRIANGLE_FAN);
+#else
 		mGLModeEnum = (mVertexCount==3)?(GL_TRIANGLES):(GL_QUADS);
+#endif
 	}
 
 
@@ -1546,6 +1550,25 @@ public:
 
 		// Enable And Disable Things
 		//---------------------------
+#ifdef HAVE_GLES
+		GLfloat tex[2*6*mParticleCount];
+		GLfloat vtx[3*6*mParticleCount];
+		GLfloat col[4*6*mParticleCount];
+		GLfloat curcol[4];
+		qglGetFloatv(GL_CURRENT_COLOR, curcol);
+		GLboolean text = qglIsEnabled(GL_TEXTURE_COORD_ARRAY);
+		GLboolean glcol = qglIsEnabled(GL_COLOR_ARRAY);
+		if (!text)
+			qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
+		if (!glcol)
+			qglEnableClientState( GL_COLOR_ARRAY );
+
+		if (mGLModeEnum==GL_POINTS)
+		{
+			qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
+			// Nothing to do ?!
+		}
+#else
 #ifdef _XBOX	// Simpler pointsprite setup on Xbox
 		if (mGLModeEnum==GL_POINTS)
 		{
@@ -1562,6 +1585,7 @@ public:
 
 			qglTexEnvi(GL_POINT_SPRITE_NV, GL_COORD_REPLACE_NV, GL_TRUE);
 		}
+#endif
 #endif
 		else
 		{
@@ -1585,7 +1609,11 @@ public:
 		// Begin
 		//-------
 #ifndef _XBOX
+#ifdef HAVE_GLES
+		int idx = 0;
+#else
 		qglBegin(mGLModeEnum);
+#endif
 #endif
 		for (particleNum=0; particleNum<mParticleCount; particleNum++)
 		{
@@ -1618,27 +1646,59 @@ public:
 			//------------------------------------------------------
 			if (mBlendMode==0)
 			{
+				#ifdef HAVE_GLES
+				curcol[0]=mColor[0]; curcol[1]=mColor[1], curcol[2]=mColor[2]; curcol[3]=part->mAlpha;
+				#else
 				qglColor4f(mColor[0], mColor[1], mColor[2], part->mAlpha);
+				#endif
 			}
 
 			// Otherwise Apply Alpha To All Channels
 			//---------------------------------------
 			else
 			{
+				#ifdef HAVE_GLES
+				curcol[0]=mColor[0]*part->mAlpha; curcol[1]=mColor[1]*part->mAlpha, curcol[2]=mColor[2]*part->mAlpha; curcol[3]=mColor[3]*part->mAlpha;
+				#else
 				qglColor4f(mColor[0]*part->mAlpha, mColor[1]*part->mAlpha, mColor[2]*part->mAlpha, mColor[3]*part->mAlpha);
+				#endif
 			}
 
 			// Render A Point
 			//----------------
 			if (mGLModeEnum==GL_POINTS)
 			{
+				#ifdef HAVE_GLES
+				memcpy(vtx+idx*3, part->mPosition.v, 3*sizeof(GLfloat));
+				memcpy(col+idx*4, curcol, 4*sizeof(GLfloat));
+				idx++;
+				#else
 				qglVertex3fv(part->mPosition.v);
+				#endif
 			}
 
 			// Render A Triangle
 			//-------------------
 			else if (mVertexCount==3)
 			{
+				#ifdef HAVE_GLES
+				memcpy(col+idx*4, curcol, 4*sizeof(GLfloat));
+				tex[idx*2+0]=1.0f; tex[idx*2+1]=0.0f;
+				vtx[idx*3+0]=part->mPosition[0];
+				vtx[idx*3+1]=part->mPosition[1];
+				vtx[idx*3+2]=part->mPosition[2];
+				memcpy(col+idx*4+4, curcol, 4*sizeof(GLfloat));
+				tex[idx*2+2]=0.0f; tex[idx*2+3]=1.0f;
+				vtx[idx*3+3]=part->mPosition[0] + mCameraLeft[0];
+				vtx[idx*3+4]=part->mPosition[1] + mCameraLeft[1];
+				vtx[idx*3+5]=part->mPosition[2] + mCameraLeft[2];
+				memcpy(col+idx*4+8, curcol, 4*sizeof(GLfloat));
+				tex[idx*2+4]=0.0f; tex[idx*2+5]=0.0f;
+				vtx[idx*3+6]=part->mPosition[0] + mCameraLeftPlusUp[0];
+				vtx[idx*3+7]=part->mPosition[1] + mCameraLeftPlusUp[1];
+				vtx[idx*3+8]=part->mPosition[2] + mCameraLeftPlusUp[2];
+				idx+=3;
+				#else
  				qglTexCoord2f(1.0, 0.0);
 				qglVertex3f(part->mPosition[0],
 							part->mPosition[1],
@@ -1653,12 +1713,71 @@ public:
 				qglVertex3f(part->mPosition[0] + mCameraLeftPlusUp[0],
 							part->mPosition[1] + mCameraLeftPlusUp[1],
 							part->mPosition[2] + mCameraLeftPlusUp[2]);
+				#endif
 			}
 
 			// Render A Quad
 			//---------------
 			else
 			{
+				#ifdef HAVE_GLES
+				/*tex[0]=0.0f; tex[1]=0.0f;
+				vtx[0]=part->mPosition[0] - mCameraLeftMinusUp[0];
+				vtx[1]=part->mPosition[1] - mCameraLeftMinusUp[1];
+				vtx[2]=part->mPosition[2] - mCameraLeftMinusUp[2];
+				tex[2]=1.0f; tex[3]=0.0f;
+				vtx[3]=part->mPosition[0] - mCameraLeftPlusUp[0];
+				vtx[4]=part->mPosition[1] - mCameraLeftPlusUp[1];
+				vtx[5]=part->mPosition[2] - mCameraLeftPlusUp[2];
+				tex[4]=1.0f; tex[5]=1.0f;
+				vtx[6]=part->mPosition[0] + mCameraLeftMinusUp[0];
+				vtx[7]=part->mPosition[1] + mCameraLeftMinusUp[1];
+				vtx[8]=part->mPosition[2] + mCameraLeftMinusUp[2];
+				tex[6]=0.0f; tex[7]=1.0f;
+				vtx[9]=part->mPosition[0] + mCameraLeftPlusUp[0];
+				vtx[10]=part->mPosition[1] + mCameraLeftPlusUp[1];
+				vtx[11]=part->mPosition[2] + mCameraLeftPlusUp[2];
+				qglTexCoordPointer( 2, GL_FLOAT, 0, tex );
+				qglVertexPointer  ( 3, GL_FLOAT, 0, vtx );
+				qglDrawArrays( GL_TRIANGLE_FAN, 0, 4 );*/
+				memcpy(col+idx*4, curcol, 4*sizeof(GLfloat));
+				tex[idx*2+0]=0.0f; tex[idx*2+1]=0.0f;
+				vtx[idx*3+0]=part->mPosition[0] - mCameraLeftMinusUp[0];
+				vtx[idx*3+1]=part->mPosition[1] - mCameraLeftMinusUp[1];
+				vtx[idx*3+2]=part->mPosition[2] - mCameraLeftMinusUp[2];
+				idx++;
+				memcpy(col+idx*4, curcol, 4*sizeof(GLfloat));
+				tex[idx*2+0]=1.0f; tex[idx*2+1]=0.0f;
+				vtx[idx*3+0]=part->mPosition[0] - mCameraLeftPlusUp[0];
+				vtx[idx*3+1]=part->mPosition[1] - mCameraLeftPlusUp[1];
+				vtx[idx*3+2]=part->mPosition[2] - mCameraLeftPlusUp[2];
+				idx++;
+				memcpy(col+idx*4, curcol, 4*sizeof(GLfloat));
+				tex[idx*2+0]=1.0f; tex[idx*2+1]=1.0f;
+				vtx[idx*3+0]=part->mPosition[0] + mCameraLeftMinusUp[0];
+				vtx[idx*3+1]=part->mPosition[1] + mCameraLeftMinusUp[1];
+				vtx[idx*3+2]=part->mPosition[2] + mCameraLeftMinusUp[2];
+				idx++;
+				// triangle 2
+				memcpy(col+idx*4, curcol, 4*sizeof(GLfloat));
+				tex[idx*2+0]=0.0f; tex[idx*2+1]=0.0f;
+				vtx[idx*3+0]=part->mPosition[0] - mCameraLeftMinusUp[0];
+				vtx[idx*3+1]=part->mPosition[1] - mCameraLeftMinusUp[1];
+				vtx[idx*3+2]=part->mPosition[2] - mCameraLeftMinusUp[2];
+				idx++;
+				memcpy(col+idx*4, curcol, 4*sizeof(GLfloat));
+				tex[idx*2+0]=1.0f; tex[idx*2+1]=1.0f;
+				vtx[idx*3+0]=part->mPosition[0] + mCameraLeftMinusUp[0];
+				vtx[idx*3+1]=part->mPosition[1] + mCameraLeftMinusUp[1];
+				vtx[idx*3+2]=part->mPosition[2] + mCameraLeftMinusUp[2];
+				idx++;
+				memcpy(col+idx*4, curcol, 4*sizeof(GLfloat));
+				tex[idx*2+0]=0.0f; tex[idx*2+1]=1.0f;
+				vtx[idx*3+0]=part->mPosition[0] + mCameraLeftPlusUp[0];
+				vtx[idx*3+1]=part->mPosition[1] + mCameraLeftPlusUp[1];
+				vtx[idx*3+2]=part->mPosition[2] + mCameraLeftPlusUp[2];
+				idx++;
+				#else
 				// Left bottom.
 				qglTexCoord2f( 0.0, 0.0 );
 				qglVertex3f(part->mPosition[0] - mCameraLeftMinusUp[0],
@@ -1682,24 +1801,52 @@ public:
 				qglVertex3f(part->mPosition[0] + mCameraLeftPlusUp[0],
 							part->mPosition[1] + mCameraLeftPlusUp[1], 
 							part->mPosition[2] + mCameraLeftPlusUp[2] );
+				#endif
 			}
 		}
+		#ifndef HAVE_GLES
 		qglEnd();
+		#endif
 
 		if (mGLModeEnum==GL_POINTS)
 		{
+#ifdef HAVE_GLES
+		qglVertexPointer  ( 3, GL_FLOAT, 0, vtx );
+		qglColorPointer (4, GL_FLOAT, 0, col );
+		qglDrawArrays( GL_POINTS, 0, idx );
+#else
 #ifdef _XBOX
 			pointEnd();
 #else
 			qglDisable(GL_POINT_SPRITE_NV);
 			qglTexEnvi(GL_POINT_SPRITE_NV, GL_COORD_REPLACE_NV, GL_FALSE);
 #endif
+#endif
 		}
 		else
 		{
+#ifdef HAVE_GLES
+//			if (mGLModeEnum==GL_TRIANGLES) {
+				qglTexCoordPointer( 2, GL_FLOAT, 0, tex );
+				qglVertexPointer  ( 3, GL_FLOAT, 0, vtx );
+				qglColorPointer (4, GL_FLOAT, 0, col );
+				qglDrawArrays( GL_TRIANGLES, 0, idx );
+//			}
+#endif
 			qglEnable(GL_CULL_FACE);
 			qglPopMatrix();
 		}
+#ifdef HAVE_GLES
+		if (!glcol)
+			qglDisableClientState( GL_COLOR_ARRAY );
+		if (mGLModeEnum == GL_POINTS ) {
+			if (!text)
+				qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
+		} else {
+			if (text)
+				qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
+		}
+#endif
 
 		mParticlesRendered += mParticleCountRender;
 	}
