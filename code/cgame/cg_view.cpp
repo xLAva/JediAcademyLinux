@@ -1246,7 +1246,7 @@ qboolean CG_CalcFOVFromX( float fov_x )
 
 
 	x = cg.refdef.width / tan( fov_x / 360 * M_PI );
-	fov_y = atan2( cg.refdef.height, x );
+	fov_y = atan2f( cg.refdef.height, x );
 	fov_y = fov_y * 360 / M_PI;
 
 	// there's a problem with this, it only takes the leafbrushes into account, not the entity brushes,
@@ -1264,7 +1264,7 @@ qboolean CG_CalcFOVFromX( float fov_x )
 	if ( cg.refdef.viewContents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) )
 	{
 		phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
-		v = WAVE_AMPLITUDE * sin( phase );
+		v = WAVE_AMPLITUDE * sinf( phase );
 		fov_x += v;
 		fov_y -= v;
 		inwater = qtrue;
@@ -1592,8 +1592,8 @@ static qboolean CG_CalcViewValues( void ) {
 	}
 
 	cg.bobcycle = ( ps->bobCycle & 128 ) >> 7;
-	cg.bobfracsin = fabs( sin( ( ps->bobCycle & 127 ) / 127.0 * M_PI ) );
-	cg.xyspeed = sqrt( ps->velocity[0] * ps->velocity[0] +
+	cg.bobfracsin = fabsf( sinf( ( ps->bobCycle & 127 ) / 127.0 * M_PI ) );
+	cg.xyspeed = sqrtf( ps->velocity[0] * ps->velocity[0] +
 		ps->velocity[1] * ps->velocity[1] );
 
 	if ( G_IsRidingVehicle( &g_entities[0] ) )
@@ -1722,8 +1722,8 @@ static qboolean CG_CalcViewValues( void ) {
 	{
 		float perc = (float)(cg.wonkyTime - cg.time) / 10000.0f; // goes for 10 seconds
 
-		cg.refdefViewAngles[ROLL] += ( sin( cg.time * 0.0004f )  * 7.0f * perc );
-		cg.refdefViewAngles[PITCH] += ( 26.0f * perc + sin( cg.time * 0.0011f ) * 3.0f * perc );
+		cg.refdefViewAngles[ROLL] += ( sinf( cg.time * 0.0004f )  * 7.0f * perc );
+		cg.refdefViewAngles[PITCH] += ( 26.0f * perc + sinf( cg.time * 0.0011f ) * 3.0f * perc );
 	}
 
 	AnglesToAxis( cg.refdefViewAngles, cg.refdef.viewaxis );

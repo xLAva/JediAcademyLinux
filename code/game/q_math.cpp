@@ -3,6 +3,9 @@
 // leave this at the top for PCH reasons...
 #include "common_headers.h"
 
+#ifdef NEON
+#include <arm_neon.h>
+#endif
 
 //#include "q_shared.h"
 
@@ -200,6 +203,44 @@ vec3_t	bytedirs[NUMVERTEXNORMALS] =
 
 
 //=======================================================
+#ifdef NEON
+// for neon use
+
+inline float32_t sum3() {           
+        register float32x4_t v asm ("q0");
+        float32_t ret;
+
+        asm volatile(
+        "vadd.f32       s0, s1\n"
+        "vadd.f32       s0, s2\n"
+        "vmov           %[ret], s0\n"
+        : [ret] "=r" (ret)
+        :
+        :);
+
+        return ret;
+// non asm version should be
+//float32x2_t r = vadd_f32(vget_high_f32(input), vget_low_f32(input));
+//return vget_lane_f32(vpadd_f32(r, r), 0); // vpadd adds adjacent elements
+}
+inline __attribute__((always_inline)) void CrossProduct( const float32x4_t &v1, const float32x4_t &v2, float32x4_t &cross ) {
+
+	asm volatile( 
+		"vext.8 d6, %e2, %f2, 4 \n\t" // y1, z1
+		"vext.8 d7, %e1, %f1, 4 \n\t" // y0, z0
+		"vmul.f32 %e0, %f1, %e2 \n\t" // z0*x1, ?
+		"vmul.f32 %f0, %e1, d6  \n\t" // x0*y1, y0*z1
+		"vmls.f32 %e0, %f2, %e1 \n\t" // z0*x1-x0*z1, ?
+		"vmls.f32 %f0, %e2, d7  \n\t" // x0*y1-x1*y0, y0*z1-z0*y1
+		"vext.8 %e0, %f0, %e0, 4    " // y0*z1-z0*y1, z0*x1-x0*z1
+		: "+w" (cross) 
+		: "w" (v1), "w" (v2)
+		: "d6", "d7" );
+
+
+}
+#endif
+
 
 /*
 erandom
@@ -212,7 +253,7 @@ float erandom( float mean ) {
 
 	do {
 		r = random();
-	} while ( r == 0.0 );
+	} while ( r == 0.0f );
 
 	return -mean * log( r );
 }
@@ -410,10 +451,10 @@ void RotatePointAroundVector( vec3_t dst, const vec3_t dir, const vec3_t point,
 	zrot[0][0] = zrot[1][1] = zrot[2][2] = 1.0F;
 
 	rad = DEG2RAD( degrees );
-	zrot[0][0] = cos( rad );
-	zrot[0][1] = sin( rad );
-	zrot[1][0] = -sin( rad );
-	zrot[1][1] = cos( rad );
+	zrot[0][0] = cosf( rad );
+	zrot[0][1] = sinf( rad );
+	zrot[1][0] = -zrot[0][1];
+	zrot[1][1] = zrot[0][0];
 
 	MatrixMultiply( m, zrot, tmpmat );
 	MatrixMultiply( tmpmat, im, rot );
@@ -533,8 +574,21 @@ void MakeNormalVectors( const vec3_t forward, vec3_t right, vec3_t up) {
 /*
 ** float q_rsqrt( float number )
 */
+#ifndef NEON
 float Q_rsqrt( float number )
 {
+#ifdef NEON
+	float32x2_t a,b;
+	float res[2];
+	a=vdup_n_f32(number);
+	b=a;
+	a=vrsqrte_f32(a);
+	a=vmul_f32(a,vrsqrts_f32(b, vmul_f32(a,a)));
+//	b=vmul_f32(a,vrsqrts_f32(b, vmul_f32(a,a)));
+
+	vst1_f32(res, a);
+	return res[0];
+#else
 	long i;
 	float x2, y;
 	const float threehalfs = 1.5F;
@@ -548,7 +602,29 @@ float Q_rsqrt( float number )
 //	y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can be removed
 
 	return y;
+#endif
 }
+#endif
+
+#ifdef NEON
+float SQRTFAST( float y )
+{
+	float32x2_t a,b;
+	float res[2];
+	a=vdup_n_f32(y);
+	b=a;
+	a=vrsqrte_f32(a);
+//	a=vmul_f32(a,vrsqrts_f32(b, vmul_f32(a,a)));
+	b=vmul_f32(a,vrsqrts_f32(b, vmul_f32(a,a)));
+
+	a=vrecpe_f32(b);
+	a=vmul_f32(a,vrecps_f32(b, a));
+//	a=vmul_f32(a,vrecps_f32(b, a));
+
+	vst1_f32(res, a);
+	return res[0];
+}
+#endif
 
 float Q_fabs( float f ) {
 	int tmp = * ( int * ) &f;
@@ -629,8 +705,8 @@ int BoxOnPlaneSide2 (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 ==================
 */
 
-#if !(defined __linux__ && defined __i386__) || defined __LCC__
-#if !id386
+#if !(defined __linux__ && defined __i386__) || defined __LCC__ || defined(ARM)
+#if !id386 || defined(ARM)
 
 int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 {
@@ -1098,11 +1174,11 @@ void AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up)
 	// static to help MS compiler fp bugs
 
 	angle = angles[YAW] * (M_PI*2 / 360.0);
-	sy = sin(angle);
-	cy = cos(angle);
+	sy = sinf(angle);
+	cy = cosf(angle);
 	angle = angles[PITCH] * (M_PI*2 / 360.0);
-	sp = sin(angle);
-	cp = cos(angle);
+	sp = sinf(angle);
+	cp = cosf(angle);
 
 	if (forward)
 	{
@@ -1113,8 +1189,8 @@ void AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up)
 	if (right || up)
 	{
 		angle = angles[ROLL] * (M_PI*2 / 360.0);
-		sr = sin(angle);
-		cr = cos(angle);
+		sr = sinf(angle);
+		cr = cosf(angle);
 		if (right)
 		{
 			right[0] = (-sr*sp*cy + cr*sy);

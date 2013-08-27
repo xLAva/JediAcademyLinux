@@ -289,7 +289,11 @@ float sintable[1024] = {
 0.999925,0.999942,0.999958,0.999971,0.999981,0.999989,0.999995,0.999999
 };
 
+#ifdef ARM
+float sin( float x ) {
+#else
 double sin( double x ) {
+#endif
 	int	index;
 	int	quad;
 
@@ -309,8 +313,11 @@ double sin( double x ) {
 	return 0;
 }
 
-
+#ifdef ARM
+float cos( float x ) {
+#else
 double cos( double x ) {
+#endif
 	int	index;
 	int	quad;
 
@@ -330,8 +337,11 @@ double cos( double x ) {
 	return 0;
 }
 
-
+#ifdef ARM
+float atan2( float y, float x ) {
+#else
 double atan2( double y, double x ) {
+#endif
 	float	base;
 	float	temp;
 	float	dir;
@@ -386,11 +396,13 @@ double atan2( double y, double x ) {
 
 	return base + dir * i * ( M_PI/2048); 
 }
-
-
 #endif
 
+#ifdef ARM
+float tan( float x ) {
+#else
 double tan( double x ) {
+#endif
 	return sin(x) / cos(x);
 }
 
@@ -402,9 +414,15 @@ int		rand( void ) {
 	return randSeed & 0x7fff;
 }
 
+#ifdef ARM
+float atof( const char *string ) {
+	float	sign;
+	float	value;
+#else
 double atof( const char *string ) {
 	double	sign;
 	double	value;
+#else
 	int		c;
 
 
@@ -518,7 +536,11 @@ int abs( int n ) {
 	return n < 0 ? -n : n;
 }
 
+#ifdef ARM
+float fabs( float x ) {
+#else
 double fabs( double x ) {
+#endif
 	return x < 0 ? -x : x;
 }
 

@@ -549,7 +549,7 @@ void FireSeeker( gentity_t *owner, gentity_t *target, vec3_t origin, vec3_t dir 
 */
 
 
-#ifdef _XBOX	// Auto-aim
+#ifdef AUTOAIM	// Auto-aim
 
 static float VectorDistanceSquared(vec3_t p1, vec3_t p2)
 {
@@ -690,13 +690,13 @@ int WP_FindClosestBodyPart(gentity_t *ent, gentity_t *other, vec3_t point, vec3_
 #endif // Auto-aim
 
 //extern cvar_t *cv_autoAim;
-#ifdef _XBOX // Auto-aim
+#ifdef AUTOAIM // Auto-aim
 static bool cv_autoAim = qtrue;
 #endif // Auto-aim
 
 bool WP_MissileTargetHint(gentity_t* shooter, vec3_t start, vec3_t out)
 {
-#ifdef _XBOX
+#ifdef AUTOAIM
 	extern short cg_crossHairStatus;
 	extern int g_crosshairEntNum;
 //	int allow = 0;

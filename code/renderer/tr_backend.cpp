@@ -128,11 +128,12 @@ void GL_Cull( int cullType ) {
 	if ( glState.faceCulling == cullType ) {
 		return;
 	}
-	glState.faceCulling = cullType;
+//*SEB*	glState.faceCulling = cullType; //Too early ?
 	if (backEnd.projection2D){	//don't care, we're in 2d when it's always disabled
 		return;	
 	}
-
+	glState.faceCulling = cullType;	//*SEB* Now it's ok to change
+	//*SEB* return; //????
 	if ( cullType == CT_TWO_SIDED ) 
 	{
 		qglDisable( GL_CULL_FACE );
@@ -339,6 +340,7 @@ void GL_State( unsigned long stateBits )
 	//
 	if ( diff & GLS_POLYMODE_LINE )
 	{
+#ifndef HAVE_GLES
 		if ( stateBits & GLS_POLYMODE_LINE )
 		{
 			qglPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
@@ -347,6 +349,7 @@ void GL_State( unsigned long stateBits )
 		{
 			qglPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 		}
+#endif
 	}
 
 	//
@@ -551,7 +554,11 @@ static void RB_BeginDrawingView (void) {
 	// clip to the plane of the portal
 	if ( backEnd.viewParms.isPortal ) {
 		float	plane[4];
+#ifdef HAVE_GLES
+		float	plane2[4];
+#else
 		double	plane2[4];
+#endif
 
 		plane[0] = backEnd.viewParms.portalPlane.normal[0];
 		plane[1] = backEnd.viewParms.portalPlane.normal[1];
@@ -962,7 +969,11 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 #ifdef _XBOX
 					qglCopyBackBufferToTexEXT(rad, rad, cX, (480 - cY), (cX + rad), (480 - (cY + rad)));
 #else
+#ifdef HAVE_GLES
+					qglCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, cX, cY, rad, rad, 0);
+#else
 					qglCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, cX, cY, rad, rad, 0);
+#endif
 #endif
 
 					lastPostEnt = pRender->entNum;
@@ -1174,6 +1185,33 @@ const void *RB_RotatePic ( const void *data )
 		qglRotatef(cmd->a, 0.0, 0.0, 1.0);
 		
 		GL_Bind( image );
+#ifdef HAVE_GLES
+		GLfloat tex[] = {
+		 cmd->s1, cmd->t1,
+		 cmd->s2, cmd->t1,
+		 cmd->s2, cmd->t2,
+		 cmd->s1, cmd->t2
+		};
+		GLfloat vtx[] = {
+		 -cmd->w, 0,
+		 0, 0,
+		 0, cmd->h,
+		 -cmd->w, cmd->h
+		};
+		GLboolean text = qglIsEnabled(GL_TEXTURE_COORD_ARRAY);
+		GLboolean glcol = qglIsEnabled(GL_COLOR_ARRAY);
+		if (glcol)
+			qglDisableClientState(GL_COLOR_ARRAY);
+		if (!text)
+			qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
+		qglTexCoordPointer( 2, GL_FLOAT, 0, tex );
+		qglVertexPointer  ( 2, GL_FLOAT, 0, vtx );
+		qglDrawArrays( GL_TRIANGLE_FAN, 0, 4 );
+		if (glcol)
+			qglEnableClientState(GL_COLOR_ARRAY);
+		if (!text)
+			qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
+#else
 #ifdef _XBOX
 		qglBeginEXT (GL_QUADS, 4, 0, 0, 4, 0);
 #else
@@ -1188,6 +1226,7 @@ const void *RB_RotatePic ( const void *data )
 		qglTexCoord2f( cmd->s1, cmd->t2 );
 		qglVertex2f( -cmd->w, cmd->h );
 		qglEnd();
+#endif
 		
 		qglPopMatrix();
 	}
@@ -1232,6 +1271,33 @@ const void *RB_RotatePic2 ( const void *data )
 			qglRotatef( cmd->a, 0.0, 0.0, 1.0 );
 			
 			GL_Bind( image );
+#ifdef HAVE_GLES
+			GLfloat tex[] = {
+			 cmd->s1, cmd->t1,
+			 cmd->s2, cmd->t1,
+			 cmd->s2, cmd->t2,
+			 cmd->s1, cmd->t2
+			};
+			GLfloat vtx[] = {
+			 -cmd->w * 0.5f, -cmd->h * 0.5f,
+			 cmd->w * 0.5f, -cmd->h * 0.5f,
+			 cmd->w * 0.5f, cmd->h * 0.5f,
+			 -cmd->w * 0.5f, cmd->h * 0.5f
+			};
+			GLboolean text = qglIsEnabled(GL_TEXTURE_COORD_ARRAY);
+			GLboolean glcol = qglIsEnabled(GL_COLOR_ARRAY);
+			if (glcol)
+				qglDisableClientState(GL_COLOR_ARRAY);
+			if (!text)
+				qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
+			qglTexCoordPointer( 2, GL_FLOAT, 0, tex );
+			qglVertexPointer  ( 2, GL_FLOAT, 0, vtx );
+			qglDrawArrays( GL_TRIANGLE_FAN, 0, 4 );
+			if (glcol)
+				qglEnableClientState(GL_COLOR_ARRAY);
+			if (!text)
+				qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
+#else
 #ifdef _XBOX
 			qglBeginEXT( GL_QUADS, 4, 0, 0, 4, 0);
 #else
@@ -1249,6 +1315,7 @@ const void *RB_RotatePic2 ( const void *data )
 				qglTexCoord2f( cmd->s1, cmd->t2 );
 				qglVertex2f( -cmd->w * 0.5f, cmd->h * 0.5f );
 			qglEnd();
+#endif
 			
 			qglPopMatrix();
 
@@ -1332,6 +1399,7 @@ const void	*RB_DrawSurfs( const void *data ) {
 
 	// Render dynamic glowing/flaring objects.
 #ifndef _XBOX	// GLOWXXX
+#ifndef HAVE_GLES
 	if ( !(backEnd.refdef.rdflags & RDF_NOWORLDMODEL) && g_bDynamicGlowSupported && r_DynamicGlow->integer )
 	{
 		// Copy the normal scene to texture.
@@ -1387,6 +1455,7 @@ const void	*RB_DrawSurfs( const void *data ) {
 		// Draw the glow additively over the screen.
 		RB_DrawGlowOverlay(); 
 	}
+#endif	// HAVE_GLES
 #endif	// _XBOX
 
 	return (const void *)(cmd + 1);
@@ -1404,7 +1473,9 @@ const void	*RB_DrawBuffer( const void *data ) {
 
 	cmd = (const drawBufferCommand_t *)data;
 
+#ifndef HAVE_GLES
 	qglDrawBuffer( cmd->buffer );
+#endif
 
 		// clear screen for debugging
 	if (!( backEnd.refdef.rdflags & RDF_NOWORLDMODEL ) && tr.world && tr.refdef.rdflags & RDF_doLAGoggles)
@@ -1486,6 +1557,14 @@ void RB_ShowImages( void ) {
 
 	start = Sys_Milliseconds();
 
+#ifdef HAVE_GLES
+	GLboolean text = qglIsEnabled(GL_TEXTURE_COORD_ARRAY);
+	GLboolean glcol = qglIsEnabled(GL_COLOR_ARRAY);
+	if (glcol)
+		qglDisableClientState(GL_COLOR_ARRAY);
+	if (!text)
+		qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
+#endif
 	int i=0;
 //	int iNumImages = 
 	   				 R_Images_StartIteration();
@@ -1503,6 +1582,23 @@ void RB_ShowImages( void ) {
 		}
 
 		GL_Bind( image );
+#ifdef HAVE_GLES
+		GLfloat tex[] = {
+		 0, 0,
+		 1, 0,
+		 1, 1,
+		 0, 1
+		};
+		GLfloat vtx[] = {
+		 x, y,
+		 x + w, y,
+		 x + w, y + h,
+		 x, y + h
+		};
+		qglTexCoordPointer( 2, GL_FLOAT, 0, tex );
+		qglVertexPointer  ( 2, GL_FLOAT, 0, vtx );
+		qglDrawArrays( GL_TRIANGLE_FAN, 0, 4 );
+#else
 #ifdef _XBOX
 		qglBeginEXT (GL_QUADS, 4, 0, 0, 4, 0);
 #else
@@ -1517,9 +1613,16 @@ void RB_ShowImages( void ) {
 		qglTexCoord2f( 0, 1 );
 		qglVertex2f( x, y + h );
 		qglEnd();
+#endif
 		i++;
 	}
 
+#ifdef HAVE_GLES
+	if (glcol)
+		qglEnableClientState(GL_COLOR_ARRAY);
+	if (!text)
+		qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
+#endif
 	qglFinish();
 
 	end = Sys_Milliseconds();
@@ -1552,6 +1655,7 @@ const void	*RB_SwapBuffers( const void *data ) {
 	// we measure overdraw by reading back the stencil buffer and
 	// counting up the number of increments that have happened
 #ifndef _XBOX
+#ifndef HAVE_GLES
 	if ( r_measureOverdraw->integer ) {
 		int i;
 		long sum = 0;
@@ -1568,6 +1672,7 @@ const void	*RB_SwapBuffers( const void *data ) {
 		backEnd.pc.c_overDraw += sum;
 		Z_Free( stencilReadback );
 	}
+#endif
 #endif
 
     if ( !glState.finishCalled ) {
@@ -1658,6 +1763,7 @@ void RB_ExecuteRenderCommands( const void *data ) {
 }
 
 #ifndef _XBOX	// GLOWXXX
+#ifndef HAVE_GLES
 // What Pixel Shader type is currently active (regcoms or fragment programs).
 GLuint g_uiCurrentPixelShaderType = 0x0;
 
@@ -1961,4 +2067,5 @@ static inline void RB_DrawGlowOverlay()
 	qglMatrixMode(GL_MODELVIEW);
 	qglPopMatrix();
 }
+#endif //HAVE_GLES
 #endif

@@ -7,6 +7,10 @@
 
 #include "tr_local.h"
 
+#ifdef NEON
+#include <arm_neon.h>
+#endif
+
 /*
 
   THIS ENTIRE FILE IS BACK END
@@ -1203,12 +1207,32 @@ static void RB_SurfaceBeam( void )
 		break;
 	}
 
+	#ifdef HAVE_GLES
+	GLboolean text = qglIsEnabled(GL_TEXTURE_COORD_ARRAY);
+	GLboolean glcol = qglIsEnabled(GL_COLOR_ARRAY);
+	if (glcol)
+		qglDisableClientState(GL_COLOR_ARRAY);
+	if (text)
+		qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	GLfloat vtx[NUM_BEAM_SEGS*6+6];
+	for ( i = 0; i <= NUM_BEAM_SEGS; i++ ) {
+		memcpy(vtx+i*6, start_points[ i % NUM_BEAM_SEGS], sizeof(GLfloat)*3);
+		memcpy(vtx+i*6+3, end_points[ i % NUM_BEAM_SEGS], sizeof(GLfloat)*3);
+	}
+	qglVertexPointer (3, GL_FLOAT, 0, vtx);
+	qglDrawArrays(GL_TRIANGLE_STRIP, 0, NUM_BEAM_SEGS*2+2);
+	if (glcol)
+		qglEnableClientState(GL_COLOR_ARRAY);
+	if (text)
+		qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	#else
 	qglBegin( GL_TRIANGLE_STRIP );
 	for ( i = 0; i <= NUM_BEAM_SEGS; i++ ) {
 		qglVertex3fv( start_points[ i % NUM_BEAM_SEGS] );
 		qglVertex3fv( end_points[ i % NUM_BEAM_SEGS] );
 	}
 	qglEnd();
+	#endif
 }
 
 
@@ -1298,9 +1322,13 @@ static void LerpMeshVertexes (md3Surface_t *surf, float backlerp)
 			outXyz += 4, outNormal += 4) 
 		{
 
+			#ifdef NEON
+			vst1q_f32(outXyz, vmulq_n_f32(vcvtq_f32_s32(vmovl_s16(vld1_s16(newXyz))), newXyzScale));
+			#else
 			outXyz[0] = newXyz[0] * newXyzScale;
 			outXyz[1] = newXyz[1] * newXyzScale;
 			outXyz[2] = newXyz[2] * newXyzScale;
+			#endif
 
 			lat = ( newNormals[0] >> 8 ) & 0xff;
 			lng = ( newNormals[0] & 0xff );
@@ -1341,9 +1369,14 @@ static void LerpMeshVertexes (md3Surface_t *surf, float backlerp)
 			vec3_t uncompressedOldNormal, uncompressedNewNormal;
 
 			// interpolate the xyz
+			#ifdef NEON
+			vst1q_f32(outXyz, vaddq_f32(vmulq_n_f32(vcvtq_f32_s32(vmovl_s16(vld1_s16(newXyz))), newXyzScale),
+										vmulq_n_f32(vcvtq_f32_s32(vmovl_s16(vld1_s16(oldXyz))), oldXyzScale)));
+			#else
 			outXyz[0] = oldXyz[0] * oldXyzScale + newXyz[0] * newXyzScale;
 			outXyz[1] = oldXyz[1] * oldXyzScale + newXyz[1] * newXyzScale;
 			outXyz[2] = oldXyz[2] * oldXyzScale + newXyz[2] * newXyzScale;
+			#endif
 
 #ifdef _XBOX
 			if(tess.shader->needsNormal || tess.dlightBits )
@@ -1875,8 +1908,8 @@ static void RB_SurfaceLathe()
 			Vector2Set( pt, l_oldpt[0], 0 );
 			Vector2Set( pt2, l_oldpt2[0], 0 );
 
-			s = sin( DEG2RAD( t ));
-			c = cos( DEG2RAD( t ));
+			s = sinf( DEG2RAD( t ));
+			c = cosf( DEG2RAD( t ));
 
 			// rotate lathe points
 //c -s 0
@@ -1899,7 +1932,7 @@ static void RB_SurfaceLathe()
 			VectorNormalize( tess.normal[tess.numVertexes] );
 			i = oldpt[0] * 0.1f + oldpt[1] * 0.1f;
 			tess.texCoords[tess.numVertexes][0][0] = (t-latheStep)/360.0f;
-			tess.texCoords[tess.numVertexes][0][1] = mu-bezierStep + cos( i + backEnd.refdef.floatTime ) * pain;
+			tess.texCoords[tess.numVertexes][0][1] = mu-bezierStep + cosf( i + backEnd.refdef.floatTime ) * pain;
 			tess.vertexColors[tess.numVertexes][0] = e->shaderRGBA[0];
 			tess.vertexColors[tess.numVertexes][1] = e->shaderRGBA[1];
 			tess.vertexColors[tess.numVertexes][2] = e->shaderRGBA[2];
@@ -1911,7 +1944,7 @@ static void RB_SurfaceLathe()
 			VectorNormalize( tess.normal[tess.numVertexes] );
 			i = oldpt2[0] * 0.1f + oldpt2[1] * 0.1f;
 			tess.texCoords[tess.numVertexes][0][0] = (t-latheStep) / 360.0f;
-			tess.texCoords[tess.numVertexes][0][1] = mu + cos( i + backEnd.refdef.floatTime ) * pain;
+			tess.texCoords[tess.numVertexes][0][1] = mu + cosf( i + backEnd.refdef.floatTime ) * pain;
 			tess.vertexColors[tess.numVertexes][0] = e->shaderRGBA[0];
 			tess.vertexColors[tess.numVertexes][1] = e->shaderRGBA[1];
 			tess.vertexColors[tess.numVertexes][2] = e->shaderRGBA[2];
@@ -1923,7 +1956,7 @@ static void RB_SurfaceLathe()
 			VectorNormalize( tess.normal[tess.numVertexes] );
 			i = pt[0] * 0.1f + pt[1] * 0.1f;
 			tess.texCoords[tess.numVertexes][0][0] = t/360.0f;
-			tess.texCoords[tess.numVertexes][0][1] = mu-bezierStep + cos( i + backEnd.refdef.floatTime ) * pain;
+			tess.texCoords[tess.numVertexes][0][1] = mu-bezierStep + cosf( i + backEnd.refdef.floatTime ) * pain;
 			tess.vertexColors[tess.numVertexes][0] = e->shaderRGBA[0];
 			tess.vertexColors[tess.numVertexes][1] = e->shaderRGBA[1];
 			tess.vertexColors[tess.numVertexes][2] = e->shaderRGBA[2];
@@ -1935,7 +1968,7 @@ static void RB_SurfaceLathe()
 			VectorNormalize( tess.normal[tess.numVertexes] );
 			i = pt2[0] * 0.1f + pt2[1] * 0.1f;
 			tess.texCoords[tess.numVertexes][0][0] = t/360.0f;
-			tess.texCoords[tess.numVertexes][0][1] = mu + cos( i + backEnd.refdef.floatTime ) * pain;
+			tess.texCoords[tess.numVertexes][0][1] = mu + cosf( i + backEnd.refdef.floatTime ) * pain;
 			tess.vertexColors[tess.numVertexes][0] = e->shaderRGBA[0];
 			tess.vertexColors[tess.numVertexes][1] = e->shaderRGBA[1];
 			tess.vertexColors[tess.numVertexes][2] = e->shaderRGBA[2];
@@ -2051,8 +2084,8 @@ static void RB_SurfaceClouds()
 				VectorCopy( oldpt, pt );
 				VectorCopy( oldpt2, pt2 );
 
-				s = sin( DEG2RAD( latheStep ));
-				c = cos( DEG2RAD( latheStep ));
+				s = sinf( DEG2RAD( latheStep ));
+				c = cosf( DEG2RAD( latheStep ));
 
 				// rotate lathe points
 				temp = c * pt[0] - s * pt[1];	// c -s 0
@@ -2145,6 +2178,37 @@ Draws x/y/z lines from the origin for orientation debugging
 static void RB_SurfaceAxis( void ) {
 	GL_Bind( tr.whiteImage );
 	qglLineWidth( 3 );
+#ifdef HAVE_GLES
+	 GLfloat col[] = {
+	  1,0,0, 1,
+	  1,0,0, 1,
+	  0,1,0, 1,
+	  0,1,0, 1,
+	  0,0,1, 1,
+	  0,0,1, 1
+	 };
+	 GLfloat vtx[] = {
+	  0,0,0,
+	  16,0,0,
+	  0,0,0,
+	  0,16,0,
+	  0,0,0,
+	  0,0,16
+	 };
+	GLboolean text = qglIsEnabled(GL_TEXTURE_COORD_ARRAY);
+	GLboolean glcol = qglIsEnabled(GL_COLOR_ARRAY);
+	if (text)
+		qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	if (!glcol)
+		qglEnableClientState( GL_COLOR_ARRAY);
+	qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, col );
+	qglVertexPointer (3, GL_FLOAT, 0, vtx);
+	qglDrawArrays(GL_LINES, 0, 6);
+	if (text)
+		qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	if (!glcol)
+		qglDisableClientState( GL_COLOR_ARRAY);
+#else
 #ifdef _XBOX
 	qglBeginEXT( GL_LINES, 6, 3, 0, 0, 0);
 #else
@@ -2160,6 +2224,7 @@ static void RB_SurfaceAxis( void ) {
 	qglVertex3f( 0,0,0 );
 	qglVertex3f( 0,0,16 );
 	qglEnd();
+#endif
 	qglLineWidth( 1 );
 }
 
@@ -2249,7 +2314,7 @@ static bool RB_TestZFlare( vec3_t point) {
 	float			screenZ;
 
 	// read back the z buffer contents
-#ifdef _XBOX
+#if defined(_XBOX) || defined(HAVE_GLES)
 	depth = 0.0f;
 #else
 	if ( r_flares->integer !=1 ) {	//skipping the the z-test
@@ -2348,7 +2413,11 @@ void RB_SurfaceFlare( srfFlare_t *surf ) {
 void RB_SurfaceDisplayList( srfDisplayList_t *surf ) {
 	// all apropriate state must be set in RB_BeginSurface
 	// this isn't implemented yet...
+	#ifdef HAVE_GLES
+	assert(0);
+	#else
 	qglCallList( surf->listNum );
+	#endif
 }
 
 void RB_SurfaceSkip( void *surf ) {

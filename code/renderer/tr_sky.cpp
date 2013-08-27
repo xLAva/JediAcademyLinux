@@ -125,7 +125,7 @@ static void AddSkyPolygon (int nump, vec3_t vecs)
 	}
 }
 
-#define	ON_EPSILON		0.1			// point on plane side epsilon
+#define	ON_EPSILON		0.1f			// point on plane side epsilon
 #define	MAX_CLIP_VERTS	64
 /*
 ================
@@ -351,6 +351,18 @@ static void DrawSkySide( struct image_s *image, const int mins[2], const int max
 	int s, t;
 
 	GL_Bind( image );
+	#ifdef HAVE_GLES
+	GLfloat vtx[3*1024];	// arbitrary sized
+	GLfloat tex[2*1024];
+	int idx;
+	
+	GLboolean text = qglIsEnabled(GL_TEXTURE_COORD_ARRAY);
+	GLboolean glcol = qglIsEnabled(GL_COLOR_ARRAY);
+	if (glcol)
+		qglDisableClientState(GL_COLOR_ARRAY);
+	if (!text)
+		qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	#endif
 
 #ifdef _XBOX
 	int verts = ((maxs[0]+HALF_SKY_SUBDIVISIONS) - (mins[0]+HALF_SKY_SUBDIVISIONS)) * 2 + 2;
@@ -361,20 +373,46 @@ static void DrawSkySide( struct image_s *image, const int mins[2], const int max
 #ifdef _XBOX
 		qglBeginEXT( GL_TRIANGLE_STRIP, verts, 0, 0, verts, 0);
 #else
+#ifdef HAVE_GLES
+		idx=0;
+#else
 		qglBegin( GL_TRIANGLE_STRIP );
+#endif
 #endif
 
 		for ( s = mins[0]+HALF_SKY_SUBDIVISIONS; s <= maxs[0]+HALF_SKY_SUBDIVISIONS; s++ )
 		{
+			#ifdef HAVE_GLES
+			memcpy(tex+idx*2, s_skyTexCoords[t][s], sizeof(GLfloat)*2);
+			memcpy(vtx+idx*3, s_skyPoints[t][s], sizeof(GLfloat)*3);
+			idx++;
+			memcpy(tex+idx*2, s_skyTexCoords[t+1][s], sizeof(GLfloat)*2);
+			memcpy(vtx+idx*3, s_skyPoints[t+1][s], sizeof(GLfloat)*3);
+			idx++;
+			#else
 			qglTexCoord2fv( s_skyTexCoords[t][s] );
 			qglVertex3fv( s_skyPoints[t][s] );
 
 			qglTexCoord2fv( s_skyTexCoords[t+1][s] );
 			qglVertex3fv( s_skyPoints[t+1][s] );
+			#endif
 		}
 
+		#ifdef HAVE_GLES
+
+		qglVertexPointer (3, GL_FLOAT, 0, vtx);
+		qglTexCoordPointer(2, GL_FLOAT, 0, tex);
+		qglDrawArrays(GL_TRIANGLE_STRIP, 0, idx);
+		#else
 		qglEnd();
+		#endif
 	}
+	#ifdef HAVE_GLES
+	if (glcol)
+		qglEnableClientState(GL_COLOR_ARRAY);
+	if (!text)
+		qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	#endif
 }
 
 static void DrawSkyBox( shader_t *shader )

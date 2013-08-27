@@ -10,6 +10,19 @@
 */
 
 #include "../server/exe_headers.h"
+#ifdef HAVE_GLES
+void QGL_Shutdown( void )
+{
+	VID_Printf( PRINT_ALL, "...shutting down QGL(GLES)\n" );
+}
+qboolean QGL_Init( const char *dllname )
+{
+	qglLockArraysEXT = NULL;
+	qglUnlockArraysEXT = NULL;
+	VID_Printf( PRINT_ALL, "Starting QGL(GLES)...\n" );
+	return qtrue;
+}
+#else
 
 
 #include <float.h>
@@ -370,9 +383,6 @@ void ( APIENTRY * qglVertex4s )(GLshort x, GLshort y, GLshort z, GLshort w);
 void ( APIENTRY * qglVertex4sv )(const GLshort *v);
 void ( APIENTRY * qglVertexPointer )(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
 void ( APIENTRY * qglViewport )(GLint x, GLint y, GLsizei width, GLsizei height);
-
-
-
 static void ( APIENTRY * dllAccum )(GLenum op, GLfloat value);
 static void ( APIENTRY * dllAlphaFunc )(GLenum func, GLclampf ref);
 GLboolean ( APIENTRY * dllAreTexturesResident )(GLsizei n, const GLuint *textures, GLboolean *residences);
@@ -3530,7 +3540,6 @@ qboolean QGL_Init( const char *dllname )
 	qglXMakeCurrent              =  (int (*)(Display*, GLXDrawable, GLXContext)) GPA("glXMakeCurrent");
 	qglXCopyContext              =  (void (*)(Display*, GLXContext, GLXContext, GLuint)) GPA("glXCopyContext");
 	qglXSwapBuffers              =  (void (*)(Display*, GLXDrawable)) GPA("glXSwapBuffers");
-
 	qglActiveTextureARB = 0;
 	qglClientActiveTextureARB = 0;
 	qglMultiTexCoord2fARB = 0;
@@ -4275,6 +4284,7 @@ void QGL_EnableLogging( qboolean enable )
 	}
 }
 
+#endif //HAVE_GLES
 
 
 

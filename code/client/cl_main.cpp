@@ -806,6 +806,7 @@ void CL_CheckUserinfo( void ) {
 	if ( cls.state < CA_CHALLENGING ) {
 		return;
 	}
+//Com_Printf ("CL_Frame(%i, %f)\n", msec, fractionMsec);
 
 	// send a reliable userinfo update if needed
 	if ( cvar_modifiedFlags & CVAR_USERINFO ) {
