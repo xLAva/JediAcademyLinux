@@ -497,7 +497,7 @@ void S_Init( void ) {
 	s_UseOpenAL = !!(cv->integer);
 	
 	#ifdef LINUX
-	s_UseOpenAL = true;
+//	s_UseOpenAL = true;
 	#endif
 
 

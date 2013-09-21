@@ -332,6 +332,7 @@ void R_Splash()
 
 
 #ifdef HAVE_GLES
+	GLimp_EndFrame();
 	GLfloat tex[] = {
 	 0,0 ,
 	 1,0,
@@ -350,6 +351,7 @@ void R_Splash()
 		qglDisableClientState(GL_COLOR_ARRAY);
 	if (!text)
 		qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	qglEnableClientState( GL_VERTEX_ARRAY );
 	qglTexCoordPointer( 2, GL_FLOAT, 0, tex );
 	qglVertexPointer  ( 2, GL_FLOAT, 0, vtx );
 	qglDrawArrays( GL_TRIANGLE_STRIP, 0, 4 );

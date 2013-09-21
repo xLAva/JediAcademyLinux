@@ -185,6 +185,12 @@ static cvar_t	*in_dgamouse;
 
 static cvar_t	*r_fakeFullscreen;
 
+#ifdef JOYSTICK
+cvar_t   *in_joystick      = NULL;
+cvar_t   *in_joystickDebug = NULL;
+cvar_t   *joy_threshold    = NULL;
+#endif
+
 Window root;
 qboolean dgamouse = qfalse;
 qboolean vidmode_ext = qfalse;
@@ -1077,10 +1083,23 @@ static void GLW_InitExtensions( void )
 	qglActiveTextureARB = NULL;
 	qglClientActiveTextureARB = NULL;
 	#ifdef HAVE_GLES
-//	glConfig.maxActiveTextures = 2;	///*SEB*/
-//	qglMultiTexCoord2fARB = myglMultiTexCoord2f;
-//	qglActiveTextureARB = &glActiveTexture;
-//	qglClientActiveTextureARB = &glClientActiveTexture;
+	qglGetIntegerv( GL_MAX_TEXTURE_UNITS, &glConfig.maxActiveTextures );
+	//ri.Printf( PRINT_ALL, "...not using GL_ARB_multitexture, %i texture units\n", glConfig.maxActiveTextures );
+	//glConfig.maxActiveTextures=4;
+	qglMultiTexCoord2fARB = myglMultiTexCoord2f;
+	qglActiveTextureARB = glActiveTexture;
+	qglClientActiveTextureARB = glClientActiveTexture;
+	if ( glConfig.maxActiveTextures > 1 )
+	{
+		VID_Printf( PRINT_ALL, "...using GL_ARB_multitexture (%i texture units)\n", glConfig.maxActiveTextures );
+	}
+	else
+	{
+		qglMultiTexCoord2fARB = NULL;
+		qglActiveTextureARB = NULL;
+		qglClientActiveTextureARB = NULL;
+		VID_Printf( PRINT_ALL, "...not using GL_ARB_multitexture, < 2 texture units\n" );
+	}
 	#else
 	if ( strstr( glConfig.extensions_string, "GL_ARB_multitexture" )  )
 	{
@@ -1890,12 +1909,22 @@ static char *XLateKey(XKeyEvent *ev, int *key)
 
 		case XK_Pause:	*key = A_PAUSE;		 break;
 
+#ifdef PANDORA
+		case XK_Shift_L:	*key = A_SHIFT;		break;
+		case XK_Shift_R:	*key = A_MOUSE2;	break;
+#else
 		case XK_Shift_L:
 		case XK_Shift_R:	*key = A_SHIFT;		break;
+#endif
 
 		case XK_Execute: 
+#ifdef PANDORA
+		case XK_Control_L: 	*key = A_CTRL;		 break;
+		case XK_Control_R:	*key = A_MOUSE1;	 break;
+#else
 		case XK_Control_L: 
 		case XK_Control_R:	*key = A_CTRL;		 break;
+#endif
 
 		case XK_Alt_L:	
 		case XK_Meta_L: 
@@ -2234,6 +2263,13 @@ void IN_Init(void)
 		mouse_avail = qtrue;
 	else
 		mouse_avail = qfalse;
+	
+	#ifdef JOYSTICK
+	in_joystick = Cvar_Get( "in_joystick", "0", CVAR_ARCHIVE | CVAR_LATCH );
+	in_joystickDebug = Cvar_Get( "in_debugjoystick", "0", CVAR_TEMP );
+	joy_threshold = Cvar_Get( "joy_threshold", "0.30", CVAR_ARCHIVE ); // FIXME: in_joythreshold
+	IN_StartupJoystick();
+	#endif
 }
 
 void IN_Shutdown(void)
@@ -2272,6 +2308,8 @@ void IN_MouseMove(void)
 
 void IN_Frame (void)
 {
+	IN_JoyMove();
+
 	if ( cls.keyCatchers || cls.state != CA_ACTIVE ) {
 		// temporarily deactivate if not in the game and
 		// running on the desktop

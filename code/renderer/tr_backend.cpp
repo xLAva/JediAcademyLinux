@@ -128,12 +128,12 @@ void GL_Cull( int cullType ) {
 	if ( glState.faceCulling == cullType ) {
 		return;
 	}
-	glState.faceCulling = cullType;
+//*SEB*	glState.faceCulling = cullType; //Too early ?
 	if (backEnd.projection2D){	//don't care, we're in 2d when it's always disabled
 		return;	
 	}
-	return;
-
+	glState.faceCulling = cullType;	//*SEB* Now it's ok to change
+	//*SEB* return; //????
 	if ( cullType == CT_TWO_SIDED ) 
 	{
 		qglDisable( GL_CULL_FACE );

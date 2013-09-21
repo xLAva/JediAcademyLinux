@@ -36,6 +36,10 @@ typedef struct {
 static	edgeDef_t	edgeDefs[SHADER_MAX_VERTEXES][MAX_EDGE_DEFS];
 static	int			numEdgeDefs[SHADER_MAX_VERTEXES];
 static	int			facing[SHADER_MAX_INDEXES/3];
+#ifdef HAVE_GLES
+static unsigned short indexes[6 * MAX_EDGE_DEFS * SHADER_MAX_VERTEXES + SHADER_MAX_INDEXES * 2];
+static int idx = 0;
+#endif
 
 #endif // _XBOX
 
@@ -80,12 +84,7 @@ void R_RenderShadowEdges( void ) {
 	c_edges = 0;
 	c_rejected = 0;
 	#ifdef HAVE_GLES
-	GLboolean text = qglIsEnabled(GL_TEXTURE_COORD_ARRAY);
-	GLboolean glcol = qglIsEnabled(GL_COLOR_ARRAY);
-	if (text)
-		qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
-	if (glcol)
-		qglDisableClientState( GL_COLOR_ARRAY );
+	idx = 0;
 	#endif
 
 	for ( i = 0 ; i < tess.numVertexes ; i++ ) {
@@ -101,13 +100,14 @@ void R_RenderShadowEdges( void ) {
 #if 1
 			i2 = edgeDefs[ i ][ j ].i2;
 			#ifdef HAVE_GLES
-			GLfloat vtx[3*4];
-			memcpy(vtx, tess.xyz[i], sizeof(GLfloat)*3);
-			memcpy(vtx+3, tess.xyz[i+tess.numVertexes], sizeof(GLfloat)*3);
-			memcpy(vtx+6, tess.xyz[i2], sizeof(GLfloat)*3);
-			memcpy(vtx+9, tess.xyz[i2+tess.numVertexes], sizeof(GLfloat)*3);
-			qglVertexPointer (3, GL_FLOAT, 0, vtx);
-			qglDrawArrays(GL_TRIANGLE_STRIP, 0, 4);				
+			// A single drawing call is better than many. So I prefer a singe TRIANGLES call than many TRIANGLE_STRIP call
+			// even if it seems less efficiant, it's faster on the PANDORA
+			indexes[idx++] = i;
+			indexes[idx++] = i + tess.numVertexes;
+			indexes[idx++] = i2;
+			indexes[idx++] = i2;
+			indexes[idx++] = i + tess.numVertexes;
+			indexes[idx++] = i2 + tess.numVertexes;
 			#else
 			qglBegin( GL_TRIANGLE_STRIP );
 				qglVertex3fv( tess.xyz[ i ] );
@@ -117,6 +117,7 @@ void R_RenderShadowEdges( void ) {
 			qglEnd();
 			#endif
 #else
+			int k;
 			hit[0] = 0;
 			hit[1] = 0;
 
@@ -132,13 +133,14 @@ void R_RenderShadowEdges( void ) {
 			// triangle, it is a sil edge
 			if ( hit[ 1 ] == 0 ) {
 				#ifdef HAVE_GLES
-				GLfloat vtx[3*4];
-				memcpy(vtx, tess.xyz[i], sizeof(GLfloat)*3);
-				memcpy(vtx+3, tess.xyz[i+tess.numVertexes], sizeof(GLfloat)*3);
-				memcpy(vtx+6, tess.xyz[i2], sizeof(GLfloat)*3);
-				memcpy(vtx+9, tess.xyz[i2+tess.numVertexes], sizeof(GLfloat)*3);
-				qglVertexPointer (3, GL_FLOAT, 0, vtx);
-				qglDrawArrays(GL_TRIANGLE_STRIP, 0, 4);				
+				// A single drawing call is better than many. So I prefer a singe TRIANGLES call than many TRAINGLE_STRIP call
+				// even if it seems less efficiant, it's faster on the PANDORA
+				indexes[idx++] = i;
+				indexes[idx++] = i + tess.numVertexes;
+				indexes[idx++] = i2;
+				indexes[idx++] = i2;
+				indexes[idx++] = i + tess.numVertexes;
+				indexes[idx++] = i2 + tess.numVertexes;
 				#else
 				qglBegin( GL_TRIANGLE_STRIP );
 				qglVertex3fv( tess.xyz[ i ] );
@@ -172,15 +174,12 @@ void R_RenderShadowEdges( void ) {
 		o3 = tess.indexes[ i*3 + 2 ];
 
 		#ifdef HAVE_GLES
-		GLfloat vtx[3*6];
-		memcpy(vtx, tess.xyz[o1], sizeof(GLfloat)*3);
-		memcpy(vtx+3, tess.xyz[o2], sizeof(GLfloat)*3);
-		memcpy(vtx+6, tess.xyz[o3], sizeof(GLfloat)*3);
-		memcpy(vtx+9, tess.xyz[o3 +  + tess.numVertexes], sizeof(GLfloat)*3);
-		memcpy(vtx+12, tess.xyz[o2 +  + tess.numVertexes], sizeof(GLfloat)*3);
-		memcpy(vtx+15, tess.xyz[o1 +  + tess.numVertexes], sizeof(GLfloat)*3);
-		qglVertexPointer (3, GL_FLOAT, 0, vtx);
-		qglDrawArrays(GL_TRIANGLES, 0, 6);				
+		indexes[idx++]=o1;
+		indexes[idx++]=o2;
+		indexes[idx++]=o3;
+		indexes[idx++]=o3 + tess.numVertexes;
+		indexes[idx++]=o2 + tess.numVertexes;
+		indexes[idx++]=o1 + tess.numVertexes;
 		#else
 		qglBegin(GL_TRIANGLES);
 			qglVertex3fv(tess.xyz[o1]);
@@ -195,10 +194,7 @@ void R_RenderShadowEdges( void ) {
 		#endif
 	}
 	#ifdef HAVE_GLES
-	if (text)
-		qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
-	if (glcol)
-		qglEnableClientState( GL_COLOR_ARRAY );
+	qglDrawElements(GL_TRIANGLES, idx, GL_UNSIGNED_SHORT, indexes);
 	#endif
 
 #endif
@@ -274,6 +270,7 @@ void RB_ShadowTessEnd( void )
 	RB_DoShadowTessEnd(NULL);
 #endif
 #endif // VV_LIGHTING && _XBOX
+
 }
 
 void RB_DoShadowTessEnd( vec3_t lightPos )
@@ -389,7 +386,7 @@ void RB_DoShadowTessEnd( vec3_t lightPos )
 	}
 
 	GL_Bind( tr.whiteImage );
-	//qglEnable( GL_CULL_FACE );
+	//qglEnable( GL_CULL_FACE );/*SEB*/
 	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
 
 #ifndef _DEBUG_STENCIL_SHADOWS
@@ -406,6 +403,16 @@ void RB_DoShadowTessEnd( vec3_t lightPos )
 	//qglDisable(GL_DEPTH_TEST);
 #endif
 
+	#ifdef HAVE_GLES
+	GLboolean text = qglIsEnabled(GL_TEXTURE_COORD_ARRAY);
+	GLboolean glcol = qglIsEnabled(GL_COLOR_ARRAY);
+	if (text)
+		qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	if (glcol)
+		qglDisableClientState( GL_COLOR_ARRAY );
+	qglVertexPointer (3, GL_FLOAT, 16, tess.xyz);
+	#endif
+
 #ifdef _STENCIL_REVERSE
 	qglDepthFunc(GL_LESS);
 
@@ -421,7 +428,11 @@ void RB_DoShadowTessEnd( vec3_t lightPos )
 		GL_Cull(CT_FRONT_SIDED);
 		qglStencilOp( GL_KEEP, GL_DECR, GL_KEEP );
 
+		#ifdef HAVE_GLES
+		qglDrawElements(GL_TRIANGLES, idx, GL_UNSIGNED_SHORT, indexes);
+		#else
 		R_RenderShadowEdges();
+		#endif
 	} else {
 		//qglCullFace( GL_FRONT );
 		GL_Cull(CT_FRONT_SIDED);
@@ -433,7 +444,11 @@ void RB_DoShadowTessEnd( vec3_t lightPos )
 		GL_Cull(CT_BACK_SIDED);
 		qglStencilOp( GL_KEEP, GL_DECR, GL_KEEP );
 
+		#ifdef HAVE_GLES
+		qglDrawElements(GL_TRIANGLES, idx, GL_UNSIGNED_SHORT, indexes);
+		#else
 		R_RenderShadowEdges();
+		#endif
 	}
 
 	qglDepthFunc(GL_LEQUAL);
@@ -448,7 +463,11 @@ void RB_DoShadowTessEnd( vec3_t lightPos )
 		qglCullFace( GL_BACK );
 		qglStencilOp( GL_KEEP, GL_KEEP, GL_DECR );
 
+		#ifdef HAVE_GLES
+		qglDrawElements(GL_TRIANGLES, idx, GL_UNSIGNED_SHORT, indexes);
+		#else
 		R_RenderShadowEdges();
+		#endif
 	} else {
 		qglCullFace( GL_BACK );
 		qglStencilOp( GL_KEEP, GL_KEEP, GL_INCR );
@@ -458,12 +477,23 @@ void RB_DoShadowTessEnd( vec3_t lightPos )
 		qglCullFace( GL_FRONT );
 		qglStencilOp( GL_KEEP, GL_KEEP, GL_DECR );
 
+		#ifdef HAVE_GLES
+		qglDrawElements(GL_TRIANGLES, idx, GL_UNSIGNED_SHORT, indexes);
+		#else
 		R_RenderShadowEdges();
+		#endif
 	}
 #endif
 
 	// reenable writing to the color buffer
 	qglColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
+
+	#ifdef HAVE_GLES
+	if (text)
+		qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	if (glcol)
+		qglEnableClientState( GL_COLOR_ARRAY );
+	#endif
 
 #ifdef _DEBUG_STENCIL_SHADOWS
 	qglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -527,18 +557,18 @@ void RB_ShadowFinish( void ) {
 	GL_State( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
 
 	#ifdef HAVE_GLES
-	GLboolean text = qglIsEnabled(GL_TEXTURE_COORD_ARRAY);
-	GLboolean glcol = qglIsEnabled(GL_COLOR_ARRAY);
-	if (text)
-		qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
-	if (glcol)
-		qglDisableClientState( GL_COLOR_ARRAY );
 	GLfloat vtx[] = {
 	 -100,  100, -10,
 	  100,  100, -10,
 	  100, -100, -10,
 	 -100, -100, -10
 	};
+	GLboolean text = qglIsEnabled(GL_TEXTURE_COORD_ARRAY);
+	GLboolean glcol = qglIsEnabled(GL_COLOR_ARRAY);
+	if (text)
+		qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	if (glcol)
+		qglDisableClientState( GL_COLOR_ARRAY );
 	qglVertexPointer  ( 3, GL_FLOAT, 0, vtx );
 	qglDrawArrays( GL_TRIANGLE_FAN, 0, 4 );
 	if (text)
@@ -828,10 +858,10 @@ void RB_DistortionFill(void)
 	qglTexCoordPointer( 2, GL_FLOAT, 0, tex );
 	qglVertexPointer  ( 2, GL_FLOAT, 0, vtx );
 	qglDrawArrays( GL_TRIANGLE_FAN, 0, 4 );
-	if (glcol)
+/*	if (glcol)
 		qglEnableClientState( GL_COLOR_ARRAY );
 	if (!text)
-		qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
+		qglDisableClientState( GL_TEXTURE_COORD_ARRAY );*/
 #else
 #ifdef _XBOX
 	qglBeginEXT(GL_QUADS, 4, 0, 0, 4, 0);
@@ -882,12 +912,12 @@ void RB_DistortionFill(void)
 
 #ifdef HAVE_GLES
 		qglColor4f(1.0f, 1.0f, 1.0f, alpha);
-		GLboolean text = qglIsEnabled(GL_TEXTURE_COORD_ARRAY);
+/*		GLboolean text = qglIsEnabled(GL_TEXTURE_COORD_ARRAY);
 		GLboolean glcol = qglIsEnabled(GL_COLOR_ARRAY);
 		if (!text)
 			qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
 		if (glcol)
-			qglDisableClientState( GL_COLOR_ARRAY );
+			qglDisableClientState( GL_COLOR_ARRAY );*/
 		GLfloat tex[] = {
 			0+spost2, 1-spost,
 			0+spost2, 0+spost,
@@ -903,10 +933,6 @@ void RB_DistortionFill(void)
 		qglTexCoordPointer( 2, GL_FLOAT, 0, tex );
 		qglVertexPointer  ( 2, GL_FLOAT, 0, vtx );
 		qglDrawArrays( GL_TRIANGLE_FAN, 0, 4 );
-		if (glcol)
-			qglEnableClientState( GL_COLOR_ARRAY );
-		if (!text)
-			qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
 #else
 #ifdef _XBOX
 		qglBeginEXT(GL_QUADS, 4, 0, 0, 4, 0);
@@ -928,7 +954,12 @@ void RB_DistortionFill(void)
 		qglEnd();
 #endif
 	}
-
+#ifdef HAVE_GLES
+	if (glcol)
+		qglEnableClientState( GL_COLOR_ARRAY );
+	if (!text)
+		qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
+#endif
 	//pop the view matrices back
 	qglMatrixMode(GL_PROJECTION);
 	qglPopMatrix();

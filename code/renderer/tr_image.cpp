@@ -647,6 +647,43 @@ byte * gles_convertRGB5(byte * data, int width, int height)
 	}
 	return temp;
 }
+byte * gles_convertLuminance(byte * data, int width, int height)
+{
+	byte * temp = (byte *) Z_Malloc (width*height, TAG_TEMP_WORKSPACE, qfalse);
+	byte *src = data;
+	byte *dst = temp;
+	byte r,g,b;
+	int i;
+	
+    unsigned int * input = ( unsigned int *)(data);
+    byte* output = (byte*)(temp);
+    for (i = 0; i < width*height; i++) {
+        unsigned int pixel = input[i];
+        // Unpack the source data as 8 bit values
+        unsigned int r = pixel & 0xff;
+        output[i] = r;
+	}
+	return temp;
+}
+byte * gles_convertLuminanceAlpha(byte * data, int width, int height)
+{
+	byte * temp = (byte *) Z_Malloc (width*height*2, TAG_TEMP_WORKSPACE, qfalse);
+	byte *src = data;
+	byte *dst = temp;
+	byte r,g,b;
+	int i;
+	
+    unsigned int * input = ( unsigned int *)(data);
+    unsigned short* output = (unsigned short*)(temp);
+    for (i = 0; i < width*height; i++) {
+        unsigned int pixel = input[i];
+        // Unpack the source data as 8 bit values
+        unsigned int r = pixel & 0xff;
+        unsigned int a = (pixel >> 24) & 0xff;
+        output[i] = r | a<<8;
+	}
+	return temp;
+}
 #endif
 /*
 ===============
@@ -1018,9 +1055,20 @@ static void Upload32( unsigned *data,
 			qglTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, temp);
 			Z_Free(temp);
 			break;
+		 case 3:
 		 case GL_RGB:
 			temp = gles_convertRGB((byte*)data, width, height);
 			qglTexImage2D (GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, temp);
+			Z_Free(temp);
+			break;
+		 case 1:
+			temp = gles_convertLuminance((byte*)data, width, height);
+			qglTexImage2D (GL_TEXTURE_2D, 0, GL_LUMINANCE, width, height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, temp);
+			Z_Free(temp);
+			break;
+		 case 2:
+			temp = gles_convertLuminanceAlpha((byte*)data, width, height);
+			qglTexImage2D (GL_TEXTURE_2D, 0, GL_LUMINANCE_ALPHA, width, height, 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, temp);
 			Z_Free(temp);
 			break;
 		 default:
