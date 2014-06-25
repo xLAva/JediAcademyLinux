@@ -10,7 +10,7 @@
 
 cmake_minimum_required(VERSION 2.6)
 
-project(jk2)
+project(jk3)
 
 set(CMAKE_BUILD_TYPE "RELEASE")
 # set(CMAKE_BUILD_TYPE "DEBUG")
