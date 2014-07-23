@@ -211,7 +211,7 @@ float erandom( float mean ) {
 	float	r;
 
 	do {
-		r = random();
+		r = randomLava();
 	} while ( r == 0.0 );
 
 	return -mean * log( r );
