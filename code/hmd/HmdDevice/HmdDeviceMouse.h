@@ -10,7 +10,7 @@ public:
     HmdDeviceMouse();
     virtual ~HmdDeviceMouse();
 
-    virtual bool Init();
+    virtual bool Init(bool allowDummyDevice = false);
     virtual void Shutdown();
 
     virtual std::string GetInfo();

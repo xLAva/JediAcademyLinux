@@ -428,8 +428,13 @@ static void InitOpenGL( void )
         // try to create a hmd device
         ClientHmd::Get()->SetDevice(NULL);
         ClientHmd::Get()->SetRenderer(NULL);    
-        
-        pHmdDevice = FactoryHmdDevice::CreateHmdDevice();
+
+        bool allowDummyDevice = false;
+#ifdef HMD_ALLOW_DUMMY_DEVICE
+        allowDummyDevice = true;
+#endif
+
+        pHmdDevice = FactoryHmdDevice::CreateHmdDevice(allowDummyDevice);
         if (pHmdDevice)
         {
             VID_Printf(PRINT_ALL, "HMD Device found: %s\n", pHmdDevice->GetInfo().c_str());

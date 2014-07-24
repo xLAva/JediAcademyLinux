@@ -16,7 +16,7 @@ HmdDeviceMouse::~HmdDeviceMouse()
 
 }
 
-bool HmdDeviceMouse::Init()
+bool HmdDeviceMouse::Init(bool allowDummyDevice)
 {
     return true;
 }

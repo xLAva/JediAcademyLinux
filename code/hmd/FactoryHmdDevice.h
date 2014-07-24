@@ -8,7 +8,7 @@ class FactoryHmdDevice
 {
 public:
 
-    static IHmdDevice* CreateHmdDevice();
+    static IHmdDevice* CreateHmdDevice(bool allowDummyDevice);
     static IHmdRenderer* CreateRendererForDevice(IHmdDevice* pDevice); 
     
 private:

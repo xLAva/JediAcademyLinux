@@ -17,7 +17,7 @@
 
 using namespace std;
 
-IHmdDevice* FactoryHmdDevice::CreateHmdDevice()
+IHmdDevice* FactoryHmdDevice::CreateHmdDevice(bool allowDummyDevice)
 {
     vector<IHmdDevice*> devices;
 
@@ -39,7 +39,7 @@ IHmdDevice* FactoryHmdDevice::CreateHmdDevice()
     {
         if (pSelectedDevice == NULL)
         {
-            bool worked = devices[i]->Init();
+            bool worked = devices[i]->Init(allowDummyDevice);
             if (worked)
             {
                 pSelectedDevice = devices[i];

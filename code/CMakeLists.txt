@@ -14,6 +14,7 @@ project(jk3)
 
 set(USE_OCULUS_SDK 0)
 set(USE_OPENHMD 1)
+set(HMD_ALLOW_DUMMY_DEVICE 0)
 
 #set(CMAKE_BUILD_TYPE "RELEASE")
 set(CMAKE_BUILD_TYPE "DEBUG")
@@ -424,13 +425,18 @@ if(USE_OPENHMD)
     )
 
     set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DUSE_OPENHMD")
-    include_directories(/home/jochen/Documents/Libs/OpenHMD/include)
-    include_directories(/home/jochen/Documents/Libs/OpenHMD/src)
+    include_directories(../3rdparty/OpenHMD/include)
+    include_directories(../3rdparty/OpenHMD/src)
 
-    set(EXTRA_LIBS ${EXTRA_LIBS} /home/jochen/Documents/Libs/OpenHMD/libopenhmd.a)
+    add_library(imp_openhmd STATIC IMPORTED)
+    set_property(TARGET imp_openhmd PROPERTY IMPORTED_LOCATION ../../3rdparty/OpenHMD/libopenhmd.a)
+
+    set(EXTRA_LIBS ${EXTRA_LIBS} imp_openhmd)
     set(EXTRA_LIBS ${EXTRA_LIBS} hidapi-libusb)
-    #set(EXTRA_LIBS ${EXTRA_LIBS} Xinerama)
+endif()
 
+if(HMD_ALLOW_DUMMY_DEVICE)
+    set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DHMD_ALLOW_DUMMY_DEVICE")
 endif()
 
 

@@ -7,7 +7,7 @@ class IHmdDevice
 {
 public:
 
-    virtual bool Init() = 0;
+    virtual bool Init(bool allowDummyDevice = false) = 0;
     virtual void Shutdown() = 0;
     
     virtual std::string GetInfo() = 0;

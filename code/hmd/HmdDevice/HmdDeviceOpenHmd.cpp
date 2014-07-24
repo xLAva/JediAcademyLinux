@@ -23,7 +23,7 @@ HmdDeviceOpenHmd::~HmdDeviceOpenHmd()
 
 }
 
-bool HmdDeviceOpenHmd::Init()
+bool HmdDeviceOpenHmd::Init(bool allowDummyDevice)
 {
     mpCtx = ohmd_ctx_create();
     int num_devices = ohmd_ctx_probe(mpCtx);
@@ -33,7 +33,30 @@ bool HmdDeviceOpenHmd::Init()
         return false;
     }
 
-    mpHmd = ohmd_list_open_device(mpCtx, 0);
+    int deviceCount = ohmd_ctx_probe(mpCtx);
+
+    int foundDevice = -1;
+    for (int i=0; i<deviceCount; i++)
+    {
+        const char* product = ohmd_list_gets(mpCtx, i, OHMD_PRODUCT);
+        if (allowDummyDevice || strcmp(product, "Dummy Device") != 0)
+        {
+            if (foundDevice < 0)
+            {
+                foundDevice = i;
+            }
+            printf("Found devices: %s.\n", product);
+        }
+    }
+
+    if (foundDevice < 0)
+    {
+        printf("No hmd device found.\n");
+        return false;
+    }
+
+
+    mpHmd = ohmd_list_open_device(mpCtx, foundDevice);
 
     if (!mpHmd)
     {
