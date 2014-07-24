@@ -14,13 +14,14 @@ public:
     virtual std::string GetInfo() = 0;
     
     virtual bool HandlesSwap() = 0;
-    
     virtual bool GetRenderResolution(int& rWidth, int&rHeight) = 0;
     
     virtual void BindFramebuffer(bool leftEye) = 0;
     virtual void EndFrame() = 0;
+    
     virtual bool GetCustomProjectionMatrix(float* rProjectionMatrix, float zNear, float zFar) = 0;
     virtual bool GetCustomViewMatrix(float* rViewMatrix, float xPos, float yPos, float zPos, float bodyYaw) = 0;
+    
     virtual int GetViewportXOffset() = 0;
     virtual bool Get2DViewport(int& rX, int& rY, int& rW, int& rH) = 0;
     

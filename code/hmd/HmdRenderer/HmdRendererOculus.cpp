@@ -4,6 +4,13 @@
 
 #include <math.h>
 
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
+
 
 HmdRendererOculus::HmdRendererOculus()
     :mIsInitialized(false)
@@ -138,10 +145,9 @@ bool HmdRendererOculus::GetCustomProjectionMatrix(float *rProjectionMatrix, floa
 	float hScreenSize = 0.14976f;
 	float eyeToScreenDist = 0.041f;
 	float lensSeparationDistance = 0.063500f;
-	float interpupillaryDistance = 0.064f;
 
 	float aspect = hResolution/(2*vResolution);
-	float fovD = 2*atan(vScreenSize / (2*eyeToScreenDist));
+	float fovD = DEG2RAD(125.0f);//2*atan(vScreenSize / (2*eyeToScreenDist));
 	
 //	 eye distance: 0.064000, eye to screen: 0.041000, distortionScale: 1.714606, yfov: 125.870984, 
 	
@@ -152,30 +158,13 @@ bool HmdRendererOculus::GetCustomProjectionMatrix(float *rProjectionMatrix, floa
 	if (mCurrentFbo == 1)
 	{
 		projectionCenterOffset *= -1;
-	}
-	
-	float meterToGame = (3.2808f * 2.0f); // meter to feet * game factor 2
-	
-
-	rProjectionMatrix[0] = 1.0f/(aspect*tan(fovD/2.0f));
-	rProjectionMatrix[4] = 0;
-	rProjectionMatrix[8] = 0;
-	rProjectionMatrix[12] = projectionCenterOffset;
-
-	rProjectionMatrix[1] = 0;
-	rProjectionMatrix[5] = 1.0f/(tan(fovD/2.0f));
-	rProjectionMatrix[9] = 0;
-	rProjectionMatrix[13] = 0;
-
-	rProjectionMatrix[2] = 0;
-	rProjectionMatrix[6] = 0;
-	rProjectionMatrix[10] = zFar/(zNear - zFar);
-	rProjectionMatrix[14] = (zFar*zNear)/(zNear - zFar);
-
-	rProjectionMatrix[3] = 0;
-	rProjectionMatrix[7] = 0;
-	rProjectionMatrix[11] = -1;
-	rProjectionMatrix[15] = 0;
+	}    
+    
+    glm::mat4 perspMat = glm::perspective(fovD, aspect, zNear, zFar);
+    glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(projectionCenterOffset, 0, 0));
+    perspMat = translate * perspMat;
+    
+    memcpy(rProjectionMatrix, &perspMat[0][0], sizeof(float)*16);
     
     return true;
 }

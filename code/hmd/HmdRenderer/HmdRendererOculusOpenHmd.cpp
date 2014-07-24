@@ -47,6 +47,7 @@ bool HmdRendererOculusOpenHmd::Init(int windowWidth, int windowHeight, PlatformI
     mWindowWidth = windowWidth;
     mWindowHeight = windowHeight;
     
+    // use higher render resolution for a better result
     mRenderWidth = 1122; //mWindowWidth / 2;
     mRenderHeight = 1553; //mWindowHeight;
 

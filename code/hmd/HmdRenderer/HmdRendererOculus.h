@@ -21,15 +21,14 @@ public:
     
     virtual void BindFramebuffer(bool leftEye);
     virtual void EndFrame();
+    
     virtual bool GetCustomProjectionMatrix(float* rProjectionMatrix, float zNear, float zFar);
     virtual bool GetCustomViewMatrix(float* rViewMatrix, float xPos, float yPos, float zPos, float bodyYaw);
+    
     virtual int GetViewportXOffset();
     virtual bool Get2DViewport(int& rX, int& rY, int& rW, int& rH);
     
 private:
-
-
-    
     const char* GetVertexShader();
     const char* GetPixelShader();
     

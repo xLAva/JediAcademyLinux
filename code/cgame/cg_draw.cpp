@@ -2349,7 +2349,7 @@ static void CG_PlaceCrosshairInWorld(vec3_t worldPoint, float crosshairEntDist, 
     //float zProj = atof(rendererinfos);
 
     float xmax = tan(cg.refdef.fov_x * M_PI / 360.0f);
-    printf("xmax=%.2f fov_x=%.2f dist=%.2f\n", xmax, cg.refdef.fov_x, crosshairEntDist);
+    //printf("xmax=%.2f fov_x=%.2f dist=%.2f\n", xmax, cg.refdef.fov_x, crosshairEntDist);
     
     refEntity_t ent;
 
