@@ -113,7 +113,7 @@ bool HmdRendererOculusOpenHmd::GetRenderResolution(int &rWidth, int &rHeight)
 }
 
 
-void HmdRendererOculusOpenHmd::BindFramebuffer(bool leftEye)
+void HmdRendererOculusOpenHmd::BeginRenderingForEye(bool leftEye)
 {
     if (!mIsInitialized)
     {
@@ -222,9 +222,10 @@ bool HmdRendererOculusOpenHmd::GetCustomViewMatrix(float *rViewMatrix, float xPo
     // create view matrix
     glm::mat4 viewMatrix = hmdRotationMat * glm::mat4_cast(bodyYawRotation) * bodyPosition;
     
-    
+    //meter to game unit (game unit = feet*2)
+    float meterToGame = 3.28084f*2.0f;
     // apply ipd    
-    float halfIPD = mInterpupillaryDistance * 0.5f * mCurrentFbo == 0 ? 1.0f : -1.0f;
+    float halfIPD = mInterpupillaryDistance * 0.5f * meterToGame * (mCurrentFbo == 0 ? 1.0f : -1.0f);
     
     glm::mat4 translateIpd = glm::translate(glm::mat4(1.0f), glm::vec3(halfIPD, 0, 0));
     viewMatrix = translateIpd * viewMatrix;
@@ -233,11 +234,6 @@ bool HmdRendererOculusOpenHmd::GetCustomViewMatrix(float *rViewMatrix, float xPo
 
 
     return true;
-}
-
-int HmdRendererOculusOpenHmd::GetViewportXOffset()
-{
-    return 0;
 }
 
 bool HmdRendererOculusOpenHmd::Get2DViewport(int &rX, int &rY, int &rW, int &rH)
@@ -252,10 +248,11 @@ bool HmdRendererOculusOpenHmd::Get2DViewport(int &rX, int &rY, int &rW, int &rH)
     rX = (mRenderWidth - rW)/2.0f;
     int xOff = mRenderWidth/10.0f;
     xOff *= mCurrentFbo == 0 ? 1 : -1;
-    xOff += GetViewportXOffset();
     rX += xOff; 
     
     rY = (mRenderHeight - rH)/2;
+
+	return true;
 }
 
 

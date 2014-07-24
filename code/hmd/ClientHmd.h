@@ -1,3 +1,9 @@
+/**
+ * HMD extension for JediAcademy
+ *
+ *  Copyright 2014 by Jochen Leopold <jochen.leopold@model-view.com>
+ */
+
 #ifndef CLIENTHMD_H
 #define CLIENTHMD_H
 

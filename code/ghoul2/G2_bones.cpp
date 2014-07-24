@@ -26,6 +26,8 @@
 #include "ghoul2_gore.h"
 //rww - RAGDOLL_END
 
+using namespace std;
+
 extern	cvar_t	*r_Ghoul2BlendMultiplier;
 
 void G2_Bone_Not_Found(const char *boneName,const char *modName);

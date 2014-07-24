@@ -11,7 +11,7 @@
 #include <list>
 #pragma warning (pop)
 
-using namespace std;
+//using namespace std;
 
 #if !defined(GENERICPARSER2_H_INC)
 #include "../game/genericparser2.h"

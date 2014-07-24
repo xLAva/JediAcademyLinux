@@ -13,6 +13,8 @@
 #include <limits.h>
 #endif
 
+using namespace std;
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // This file is shared in the single and multiplayer codebases, so be CAREFUL WHAT YOU ADD/CHANGE!!!!!

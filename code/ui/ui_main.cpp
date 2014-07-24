@@ -31,6 +31,8 @@ extern stringID_table_t animTable [MAX_ANIMATIONS+1];
 #define filepathlength 120
 #endif
 
+using namespace std;
+
 extern qboolean ItemParse_model_g2anim_go( itemDef_t *item, const char *animName );
 extern qboolean ItemParse_asset_model_go( itemDef_t *item, const char *name );
 extern qboolean ItemParse_model_g2skin_go( itemDef_t *item, const char *skinName );

@@ -3,6 +3,8 @@
 
 #include "../../game/q_shared.h"
 
+using namespace std;
+
 HmdDeviceMouse::HmdDeviceMouse()
     :mPitch(0)
     ,mYaw(0)
@@ -31,14 +33,14 @@ string HmdDeviceMouse::GetInfo()
     return "HmdDeviceMouse: (Simulated Device using mouse inputs)";
 }
 
+bool HmdDeviceMouse::HasDisplay()
+{
+    return false;
+}
+
 string HmdDeviceMouse::GetDisplayDeviceName()
 {
     return "";
-}
-
-int HmdDeviceMouse::GetDisplayId()
-{
-    return -1;
 }
 
 bool HmdDeviceMouse::GetDisplayPos(int &rX, int &rY)
@@ -52,10 +54,10 @@ bool HmdDeviceMouse::GetDeviceResolution(int &rWidth, int &rHeight)
 {
     return false;
     
-    rWidth = 1280;
-    rHeight = 800;
+//    rWidth = 1280;
+//    rHeight = 800;
     
-    return true;
+//    return true;
 }
 
 bool HmdDeviceMouse::GetOrientationRad(float &rPitch, float &rYaw, float &rRoll)

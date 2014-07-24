@@ -31,6 +31,8 @@
 #ifdef _G2_GORE
 #include "ghoul2_gore.h"
 
+using namespace std;
+
 #define GORE_TAG_UPPER (256)
 #define GORE_TAG_MASK (~255)
 

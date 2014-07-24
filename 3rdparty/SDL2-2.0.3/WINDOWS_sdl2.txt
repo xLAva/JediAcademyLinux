@@ -1,0 +1,14 @@
+WINDOWS:
+
+Get the sources here:
+https://www.libsdl.org/release/SDL2-2.0.3-win32-x86.zip
+
+Extract sdl2 into this folder. No building is required.
+
+
+LINUX:
+Just install the sdl2 library from the repository of your distribution.
+
+For example on Ubuntu:
+sudo apt-get install libsdl2-dev:i386
+

@@ -35,3 +35,23 @@ char *Sys_ConsoleInput( void ) {
 	return NULL;
 }
 
+#ifdef _WINDOWS
+void	Sys_CreateConsole() {
+
+}
+
+void	Sys_DestroyConsole() {
+
+}
+
+void Sys_SetErrorText(const char* msg)
+{
+	// open message box
+}
+
+void Conbuf_AppendText(char const*)
+{
+
+}
+
+#endif

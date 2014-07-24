@@ -69,8 +69,8 @@ public:
 	int GetVillageID(void) const { return(mVillageID); }
 };
 
-typedef list<CArea*>					areaList_t;
-typedef list<CArea*>::iterator			areaIter_t;
+typedef std::list<CArea*>					areaList_t;
+typedef std::list<CArea*>::iterator			areaIter_t;
 
 class CCMHeightDetails
 {
@@ -159,8 +159,8 @@ private:
 
 	unsigned long			holdrand;
 	
-	list<CArea *>			mAreas;										// List of flattened areas on this landscape
-	list<CArea *>::iterator	mAreasIt;
+	std::list<CArea *>			mAreas;										// List of flattened areas on this landscape
+	std::list<CArea *>::iterator	mAreasIt;
 
 	CCMHeightDetails		mHeightDetails[HEIGHT_RESOLUTION];			// Surfaceflags per height
 	vec3_t					*mCoords;									// Temp storage for real world coords

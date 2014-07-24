@@ -494,9 +494,9 @@ void S_Init( void ) {
 	cv = Cvar_Get("s_UseOpenAL" , "0",CVAR_ARCHIVE|CVAR_LATCH);
 	s_UseOpenAL = !!(cv->integer);
 	
-	#ifdef LINUX
+	//#ifdef LINUX
 	s_UseOpenAL = true;
-	#endif
+	//#endif
 
 
 	if (s_UseOpenAL)
@@ -504,7 +504,7 @@ void S_Init( void ) {
 		#ifdef __linux__
 		ALCDevice = alcOpenDevice(NULL); //LAvaPort
 		#else
-		ALCDevice = alcOpenDevice((ALubyte*)"DirectSound3D"); 
+		ALCDevice = alcOpenDevice("DirectSound3D"); 
 		#endif
 		if (!ALCDevice)
 			return;
@@ -550,6 +550,9 @@ void S_Init( void ) {
 		memset(s_channels, 0, sizeof(s_channels));
 
 		s_numChannels = 0;
+
+		// clear the error stack
+		alGetError();
 
 		// Create as many AL Sources (up to Max) as possible
 		for (i = 0; i < MAX_CHANNELS; i++)
@@ -5342,7 +5345,7 @@ void InitEAXManager()
 	s_bEALFileLoaded = false;
 
 	// Check for EAX 4.0 support
-	s_bEAX = alIsExtensionPresent((ALubyte*)"EAX4.0");
+	s_bEAX = alIsExtensionPresent("EAX4.0");
 	
 	if (s_bEAX)
 	{
@@ -5351,7 +5354,7 @@ void InitEAXManager()
 	else
 	{
 		// Support for EAXUnified (automatic translation of EAX 4.0 calls into EAX 3.0)
-		if ((alIsExtensionPresent((ALubyte*)"EAX3.0")) && (alIsExtensionPresent((ALubyte*)"EAX4.0Emulated")))
+		if ((alIsExtensionPresent("EAX3.0")) && (alIsExtensionPresent("EAX4.0Emulated")))
 		{
 			s_bEAX = AL_TRUE;
 			Com_Printf("Found EAX 4.0 EMULATION support\n");
@@ -5360,10 +5363,10 @@ void InitEAXManager()
 
 	if (s_bEAX)
 	{
-		s_eaxSet = (EAXSet)alGetProcAddress((ALubyte*)"EAXSet");
+		s_eaxSet = (EAXSet)alGetProcAddress("EAXSet");
 		if (s_eaxSet == NULL)
 			s_bEAX = false;
-		s_eaxGet = (EAXGet)alGetProcAddress((ALubyte*)"EAXGet");
+		s_eaxGet = (EAXGet)alGetProcAddress("EAXGet");
 		if (s_eaxGet == NULL)
 			s_bEAX = false;
 	}

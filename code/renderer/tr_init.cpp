@@ -13,7 +13,8 @@
 #include "tr_WorldEffects.h"
 
 #include "../hmd/ClientHmd.h"
-#include "../hmd/FactoryHmdDevice.h"
+#include "../hmd/HmdRenderer/IHmdRenderer.h"
+
 
 glconfig_t	glConfig;
 glstate_t	glState;
@@ -369,7 +370,7 @@ void R_Splash()
     {
         if (pHmdRenderer)
         {
-            pHmdRenderer->BindFramebuffer(i == 0);
+            pHmdRenderer->BeginRenderingForEye(i == 0);
         }        
      
         extern void	RB_SetGL2D (void);
@@ -424,31 +425,7 @@ static void InitOpenGL( void )
 	//
 
 	if ( glConfig.vidWidth == 0 )
-	{		
-        // try to create a hmd device
-        ClientHmd::Get()->SetDevice(NULL);
-        ClientHmd::Get()->SetRenderer(NULL);    
-
-        bool allowDummyDevice = false;
-#ifdef HMD_ALLOW_DUMMY_DEVICE
-        allowDummyDevice = true;
-#endif
-
-        pHmdDevice = FactoryHmdDevice::CreateHmdDevice(allowDummyDevice);
-        if (pHmdDevice)
-        {
-            VID_Printf(PRINT_ALL, "HMD Device found: %s\n", pHmdDevice->GetInfo().c_str());
-            ClientHmd::Get()->SetDevice(pHmdDevice);
-            
-            pHmdRenderer = FactoryHmdDevice::CreateRendererForDevice(pHmdDevice);
-            
-            if (pHmdRenderer)
-            {
-                VID_Printf(PRINT_ALL, "HMD Renderer created: %s\n", pHmdRenderer->GetInfo().c_str());
-                ClientHmd::Get()->SetRenderer(pHmdRenderer);
-            }
-        }        
-        
+	{		       
 		GLimp_Init();
 		// print info the first time only
 		// set default state
@@ -604,7 +581,7 @@ void R_TakeScreenshot( int x, int y, int width, int height, char *fileName ) {
 		// JPG saver expects to be fed RGBA data, though it presumably ignores 'A'...
 		//
 		buffer = (unsigned char *) Z_Malloc(glConfig.vidWidth*glConfig.vidHeight*4, TAG_TEMP_WORKSPACE, qfalse);
-		glPixelStorei(GL_PACK_ALIGNMENT,1);
+		qglPixelStorei(GL_PACK_ALIGNMENT,1);
 		qglReadPixels( x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer ); 
 
 		// gamma correct
@@ -627,7 +604,7 @@ void R_TakeScreenshot( int x, int y, int width, int height, char *fileName ) {
 		buffer[15] = height >> 8;
 		buffer[16] = 24;	// pixel size
 
-		glPixelStorei(GL_PACK_ALIGNMENT,1);
+		qglPixelStorei(GL_PACK_ALIGNMENT,1);
 		qglReadPixels( x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer+18 ); 
 
 		// swap rgb to bgr
@@ -707,7 +684,7 @@ void R_LevelShot( void ) {
 	buffer[15] = LEVELSHOTSIZE >> 8;
 	buffer[16] = 24;	// pixel size
 
-	glPixelStorei(GL_PACK_ALIGNMENT,1);
+	qglPixelStorei(GL_PACK_ALIGNMENT,1);
 	qglReadPixels( 0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_RGB, GL_UNSIGNED_BYTE, source ); 
 
 	// resample from source
@@ -1585,24 +1562,7 @@ void RE_Shutdown( qboolean destroyWindow ) {
 
 	// shut down platform specific OpenGL stuff
 	if ( destroyWindow ) {
-		GLimp_Shutdown();
-        
-        ClientHmd::Get()->SetDevice(NULL);
-        ClientHmd::Get()->SetRenderer(NULL);     
-        
-        if (pHmdRenderer != NULL)
-        {
-            delete pHmdRenderer;
-            pHmdRenderer = NULL;
-        }
-        
-        if (pHmdDevice != NULL)
-        {
-            pHmdDevice->Shutdown();
-            delete pHmdDevice;
-            pHmdDevice = NULL;
-        }
-        
+		GLimp_Shutdown();       
 	}
     
 

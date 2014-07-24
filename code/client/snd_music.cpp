@@ -21,6 +21,8 @@
 #include <string>
 #endif
 
+using namespace std;
+
 //
 #include "snd_music.h"
 

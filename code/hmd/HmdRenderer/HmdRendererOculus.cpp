@@ -97,7 +97,7 @@ bool HmdRendererOculus::GetRenderResolution(int &rWidth, int &rHeight)
 }
 
 
-void HmdRendererOculus::BindFramebuffer(bool leftEye)
+void HmdRendererOculus::BeginRenderingForEye(bool leftEye)
 {
     if (!mIsInitialized)
     {
@@ -174,11 +174,6 @@ bool HmdRendererOculus::GetCustomViewMatrix(float *rViewMatrix, float xPos, floa
     return false;
 }
 
-int HmdRendererOculus::GetViewportXOffset()
-{
-    return 0;
-}
-
 bool HmdRendererOculus::Get2DViewport(int &rX, int &rY, int &rW, int &rH)
 {   
     // shrink the gui for the HMD display
@@ -191,10 +186,11 @@ bool HmdRendererOculus::Get2DViewport(int &rX, int &rY, int &rW, int &rH)
     rX = (mRenderWidth - rW)/2.0f;
     int xOff = mRenderWidth/10.0f;
     xOff *= mCurrentFbo == 0 ? 1 : -1;
-    xOff += GetViewportXOffset();
     rX += xOff; 
     
     rY = (mRenderHeight - rH)/2;
+
+	return true;
 }
 
 

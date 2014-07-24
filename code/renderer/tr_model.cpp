@@ -8,6 +8,8 @@
 #include "matcomp.h"
 #include "../qcommon/sstring.h"
 
+using namespace std;
+
 #define	LL(x) x=LittleLong(x)
 
 void RE_LoadWorldMap_Actual( const char *name, world_t &worldData, int index ); //should only be called for sub-bsp instances

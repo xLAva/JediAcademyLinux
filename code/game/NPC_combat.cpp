@@ -11,6 +11,8 @@
 #include "wp_saber.h"
 #include "../game/g_functions.h"
 
+using namespace std;
+
 extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
 extern void G_SetEnemy( gentity_t *self, gentity_t *enemy );
 extern qboolean NPC_CheckLookTarget( gentity_t *self );

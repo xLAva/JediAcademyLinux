@@ -12,6 +12,8 @@
 #include "../cgame/cg_camera.h"
 #include "../qcommon/sstring.h"
 
+using namespace std;
+
 extern void OBJ_LoadTacticalInfo(void);
 
 extern void G_LoadSave_WriteMiscData(void);

@@ -1,3 +1,9 @@
+/**
+ * HMD extension for JediAcademy
+ *
+ *  Copyright 2014 by Jochen Leopold <jochen.leopold@model-view.com>
+ */
+
 #ifndef HMDDEVICEOPENHMD_H
 #define HMDDEVICEOPENHMD_H
 
@@ -16,8 +22,8 @@ public:
 
     virtual std::string GetInfo();
     
+    virtual bool HasDisplay();
     virtual std::string GetDisplayDeviceName();
-    virtual int GetDisplayId();
     virtual bool GetDisplayPos(int& rX, int&rY);
     
     virtual bool GetDeviceResolution(int& rWidth, int& rHeight);
@@ -27,6 +33,7 @@ public:
     
 protected:
     void ConvertQuatToEuler(const float* quat, float& rYaw, float& rPitch, float& rRoll);
+    void DetectDisplay();
     
 private:
     // disable copy constructor
@@ -40,6 +47,11 @@ private:
     std::string mInfo;
     int mDisplayWidth;
     int mDisplayHeight;
+    
+    int mDisplayId;
+    int mDisplayX;
+    int mDisplayY;
+    std::string mDisplayDeviceName;
 };
 
 #endif

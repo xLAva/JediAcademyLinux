@@ -503,7 +503,7 @@ void *Sys_GetGameAPI (void *parms)
 	char	name[MAX_OSPATH];
 	char	cwd[MAX_OSPATH];
 #ifdef __i386__
-	const char *gamename = "jagamex86.so";
+	const char *gamename = "jagamehmdx86.so";
 
 #ifdef NDEBUG
 	const char *debugdir = "Release";

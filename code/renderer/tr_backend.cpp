@@ -1433,7 +1433,7 @@ const void	*RB_DrawBuffer( const void *data ) {
     
         cmd = (const drawBufferCommand_t *)data;
     
-        pHmdRenderer->BindFramebuffer(cmd->buffer == GL_BACK_LEFT);
+        pHmdRenderer->BeginRenderingForEye(cmd->buffer == GL_BACK_LEFT);
     
         backEnd.projection2D = false;    
     }
@@ -1595,7 +1595,7 @@ const void	*RB_SwapBuffers( const void *data ) {
 		unsigned char *stencilReadback;
 
 		stencilReadback = (unsigned char *) Z_Malloc( glConfig.vidWidth * glConfig.vidHeight, TAG_TEMP_WORKSPACE, qfalse );
-		glPixelStorei(GL_PACK_ALIGNMENT,1);
+		qglPixelStorei(GL_PACK_ALIGNMENT,1);
 		qglReadPixels( 0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
 
 		for ( i = 0; i < glConfig.vidWidth * glConfig.vidHeight; i++ ) {

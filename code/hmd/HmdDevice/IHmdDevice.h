@@ -1,3 +1,9 @@
+/**
+ * HMD extension for JediAcademy
+ *
+ *  Copyright 2014 by Jochen Leopold <jochen.leopold@model-view.com>
+ */
+
 #ifndef IHMDDEVICE_H
 #define IHMDDEVICE_H
 
@@ -12,8 +18,8 @@ public:
     
     virtual std::string GetInfo() = 0;
     
+    virtual bool HasDisplay() = 0;
     virtual std::string GetDisplayDeviceName() = 0;
-    virtual int GetDisplayId() = 0;
     virtual bool GetDisplayPos(int& rX, int&rY) = 0;
 
     // return false if no display is used

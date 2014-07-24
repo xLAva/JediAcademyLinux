@@ -39,6 +39,7 @@
 
 static char		sys_cmdline[MAX_STRING_CHARS];
 
+WinVars_t	g_wv;
 
 /*
 ==================
@@ -92,7 +93,7 @@ qboolean Sys_FileOutOfDate( LPCSTR psFinalFileName /* dest */, LPCSTR psDataFile
 		// timer res only accurate to within 2 seconds on FAT, so can't do exact compare...
 		//
 		//LONG l = CompareFileTime( &ftFinalFile, &ftDataFile );
-		if (  (abs(ftFinalFile.dwLowDateTime - ftDataFile.dwLowDateTime) <= 20000000 ) &&
+		if ((abs((long long)ftFinalFile.dwLowDateTime - (long long)ftDataFile.dwLowDateTime) <= 20000000) &&
 				  ftFinalFile.dwHighDateTime == ftDataFile.dwHighDateTime				
 			)
 		{
@@ -486,7 +487,7 @@ void *Sys_GetGameAPI (void *parms)
 	char	name[MAX_OSPATH];
 	char	cwd[MAX_OSPATH];
 #if defined _M_IX86
-	const char *gamename = "jagamex86.dll";
+	const char *gamename = "jagamehmdx86.dll";
 
 #ifdef NDEBUG
 	const char *debugdir = "release";
@@ -1024,8 +1025,9 @@ void Sys_Init( void ) {
 
 	// save out a couple things in rom cvars for the renderer to access
 	Cvar_Get( "win_hinstance", va("%i", (int)g_wv.hInstance), CVAR_ROM );
+#ifndef USE_SDL2
 	Cvar_Get( "win_wndproc", va("%i", (int)MainWndProc), CVAR_ROM );
-
+#endif
 	//
 	// figure out our CPU
 	//
@@ -1228,6 +1230,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 
 		// make sure mouse and joystick are only called once a frame
 		IN_Frame();
+		
 
 		// run the game
 		Com_Frame();

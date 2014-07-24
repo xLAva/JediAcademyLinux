@@ -8,6 +8,8 @@
 #include "g_functions.h"
 #include "g_nav.h"
 
+using namespace std;
+
 extern int delayedShutDown;
 
 #define	TAG_GENERIC_NAME	"__WORLD__"	//If a designer chooses this name, cut a finger off as an example to the others

@@ -1,3 +1,9 @@
+/**
+ * HMD extension for JediAcademy
+ *
+ *  Copyright 2014 by Jochen Leopold <jochen.leopold@model-view.com>
+ */
+
 #ifndef HMDRENDEREROCULUS_H
 #define HMDRENDEREROCULUS_H
 
@@ -19,13 +25,12 @@ public:
     
     virtual bool GetRenderResolution(int& rWidth, int&rHeight);
     
-    virtual void BindFramebuffer(bool leftEye);
+    virtual void BeginRenderingForEye(bool leftEye);
     virtual void EndFrame();
     
     virtual bool GetCustomProjectionMatrix(float* rProjectionMatrix, float zNear, float zFar);
     virtual bool GetCustomViewMatrix(float* rViewMatrix, float xPos, float yPos, float zPos, float bodyYaw);
     
-    virtual int GetViewportXOffset();
     virtual bool Get2DViewport(int& rX, int& rY, int& rW, int& rH);
     
 private:

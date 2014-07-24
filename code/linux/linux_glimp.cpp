@@ -34,9 +34,11 @@
 #include "linux_glw.h"
 
 #include "../hmd/ClientHmd.h"
+#include "../hmd/FactoryHmdDevice.h"
 #include "../hmd/HmdDevice/IHmdDevice.h"
 #include "../hmd/HmdRenderer/IHmdRenderer.h"
 #include "../hmd/HmdRenderer/PlatformInfo.h"
+
 
 
 #include <X11/keysym.h>
@@ -1398,6 +1400,31 @@ void GLimp_Init( void )
 
 	InitSig();
 
+    
+    // try to create a hmd device
+    ClientHmd::Get()->SetDevice(NULL);
+    ClientHmd::Get()->SetRenderer(NULL);    
+
+    bool allowDummyDevice = false;
+#ifdef HMD_ALLOW_DUMMY_DEVICE
+    allowDummyDevice = true;
+#endif
+
+    IHmdDevice* pHmdDevice = FactoryHmdDevice::CreateHmdDevice(allowDummyDevice);
+    if (pHmdDevice)
+    {
+        VID_Printf(PRINT_ALL, "HMD Device found: %s\n", pHmdDevice->GetInfo().c_str());
+        ClientHmd::Get()->SetDevice(pHmdDevice);
+        
+        IHmdRenderer* pHmdRenderer = FactoryHmdDevice::CreateRendererForDevice(pHmdDevice);
+        
+        if (pHmdRenderer)
+        {
+            VID_Printf(PRINT_ALL, "HMD Renderer created: %s\n", pHmdRenderer->GetInfo().c_str());
+            ClientHmd::Get()->SetRenderer(pHmdRenderer);
+        }
+    }        
+
 
 
 	//r_allowSoftwareGL = ri.Cvar_Get( "r_allowSoftwareGL", "0", CVAR_LATCH );
@@ -1511,7 +1538,21 @@ void GLimp_Shutdown( void )
     IHmdRenderer* pHmdRenderer = ClientHmd::Get()->GetRenderer();
     if (pHmdRenderer != NULL)
     {
+        ClientHmd::Get()->SetRenderer(NULL);
+        
         pHmdRenderer->Shutdown();
+        delete pHmdRenderer;
+        pHmdRenderer = NULL;
+    }
+    
+    IHmdDevice* pHmdDevice = ClientHmd::Get()->GetDevice();
+    if (pHmdDevice != NULL)
+    {
+        ClientHmd::Get()->SetDevice(NULL);
+        
+        pHmdDevice->Shutdown();
+        delete pHmdDevice;
+        pHmdDevice = NULL;
     }
     
     

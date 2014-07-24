@@ -35,7 +35,7 @@ IHmdDevice* FactoryHmdDevice::CreateHmdDevice(bool allowDummyDevice)
     
     IHmdDevice* pSelectedDevice = NULL;
     
-    for (int i=0; i<devices.size(); i++)
+    for (unsigned int i=0; i<devices.size(); i++)
     {
         if (pSelectedDevice == NULL)
         {

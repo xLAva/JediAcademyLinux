@@ -18,6 +18,7 @@
 	#include "../game/q_shared.h"
 #endif
 
+using namespace std;
 
 CFxScheduler	theFxScheduler;
 

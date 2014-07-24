@@ -18,13 +18,22 @@
 #include "sdl_glw.h"
 
 #include "../hmd/ClientHmd.h"
+#include "../hmd/FactoryHmdDevice.h"
 #include "../hmd/HmdDevice/IHmdDevice.h"
 #include "../hmd/HmdRenderer/IHmdRenderer.h"
 #include "../hmd/HmdRenderer/PlatformInfo.h"
 
 
+#ifdef LINUX
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
+#else
+#include <SDL.h>
+#include <SDL_syswm.h>
+#include <algorithm>
+#endif
+
+using namespace std;
 
 typedef enum {
 	RSERR_OK,
@@ -40,6 +49,7 @@ glwstate_t glw_state;
 
 SDL_Window*   s_pSdlWindow = NULL;
 SDL_Renderer* s_pSdlRenderer = NULL;
+//SDL_GLContext sGlContext = NULL;
 
 
 static qboolean        mouse_avail;
@@ -119,7 +129,7 @@ int GLW_SetMode(int mode, qboolean fullscreen )
 	r_fakeFullscreen = Cvar_Get( "r_fakeFullscreen", "0", CVAR_ARCHIVE);
 
 	VID_Printf( PRINT_ALL, "Initializing OpenGL display\n");
-	VID_Printf (PRINT_ALL, "...setting mode %d:", mode );
+	VID_Printf (PRINT_ALL, "...setting mode %d:\n", mode );
 
 	if ( !R_GetModeInfo( &glConfig.vidWidth, &glConfig.vidHeight, mode ) )
 	{
@@ -139,13 +149,18 @@ int GLW_SetMode(int mode, qboolean fullscreen )
         }
     }
     
+	//glConfig.vidWidth = 640;
+	//glConfig.vidHeight = 480;
+	//fullscreen = false;
     
     actualWidth = glConfig.vidWidth;
 	actualHeight = glConfig.vidHeight;
     
     bool fixedDeviceResolution = false;
     bool fullscreenWindow = false;
+    bool fullscreenDesktopRes = false;
     
+    bool useWindowPosition = false;
     int xPos = 0;
     int yPos = 0;
     
@@ -154,35 +169,40 @@ int GLW_SetMode(int mode, qboolean fullscreen )
     if (pHmdDevice)
     {
         // found hmd device - test if device has a display
-        int deviceWidth = 0;
-        int deviceHeight = 0;
-        bool displayFound = pHmdDevice->GetDeviceResolution(deviceWidth, deviceHeight);
-        
+        bool displayFound = pHmdDevice->HasDisplay();
         if (displayFound)
         {
+            int deviceWidth = 0;
+            int deviceHeight = 0;
+            pHmdDevice->GetDeviceResolution(deviceWidth, deviceHeight);            
+            
             fixedDeviceResolution = true;
             actualWidth = deviceWidth;
             actualHeight = deviceHeight;
             
             glConfig.vidWidth = deviceWidth / 2;
             glConfig.vidHeight = deviceHeight;
+                        
+            useWindowPosition = pHmdDevice->GetDisplayPos(xPos, yPos);
+            //useWindowPosition = false;
             
-            fullscreenWindow = true;
-            fullscreen = false;
+            fullscreen = true;
+            //fullscreenWindow = true;            
+            //fullscreenDesktopRes = true;            
             
-            pHmdDevice->GetDisplayPos(xPos, yPos);
+            VID_Printf( PRINT_ALL, "hmd display: %s\n", pHmdDevice->GetDisplayDeviceName().c_str());    
             
             glConfig.stereoEnabled = qtrue; 
             r_stereo->integer = 1;
         }
     }
     
-    sVideoModeFullscreen = fullscreen || fullscreenWindow;
+    sVideoModeFullscreen = fullscreen || fullscreenWindow || fullscreenDesktopRes;
+    mx = 0;
+    my = 0;
     
 	VID_Printf( PRINT_ALL, " %d %d\n", glConfig.vidWidth, glConfig.vidHeight);    
     
-
-
 
 	if (!r_colorbits->value)
 		colorbits = 24;
@@ -218,21 +238,63 @@ int GLW_SetMode(int mode, qboolean fullscreen )
 
 
     int windowFlags = SDL_WINDOW_OPENGL;
-    if (fullscreen)
+    if (fullscreen || fullscreenDesktopRes)
     {
-        windowFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+        windowFlags |= (fullscreen ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_FULLSCREEN_DESKTOP);
         windowFlags |= SDL_WINDOW_INPUT_GRABBED;
     }
+    
+    if (fullscreenWindow)
+    {
+        windowFlags |= SDL_WINDOW_BORDERLESS;
+    }
 
-    int ret = SDL_CreateWindowAndRenderer(actualWidth, actualHeight, windowFlags,
-                                    &s_pSdlWindow, &s_pSdlRenderer);
-
-    if (ret < 0)
+    int displayPosX = useWindowPosition ? xPos : SDL_WINDOWPOS_UNDEFINED;
+    int displayPoxY = useWindowPosition ? yPos : SDL_WINDOWPOS_UNDEFINED;
+    
+    #ifdef LINUX
+    // fullscreen is ... ARRGG! Legacy worked better on Ubuntu Unity, but gamepad is not working with legacy :-(
+    //putenv("SDL_VIDEO_X11_LEGACY_FULLSCREEN=1");
+    #endif
+    
+    s_pSdlWindow = SDL_CreateWindow("Jasp HMD", displayPosX, displayPoxY, actualWidth, actualHeight, windowFlags);
+    
+    if (!s_pSdlWindow)
     {
         VID_Printf( PRINT_ALL, "CreateWindow failed: %s\n", SDL_GetError());
         return RSERR_UNKNOWN;
     }
     
+    sWindowHasFocus = true;
+    if (sVideoModeFullscreen)
+    {
+        SDL_SetRelativeMouseMode(SDL_TRUE);
+    }    
+    
+    int rendererFlags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
+    
+    int rendererCount = SDL_GetNumRenderDrivers();
+    for (int i=0; i<rendererCount; i++)
+    {
+        SDL_RendererInfo renderInfo;
+        int ret = SDL_GetRenderDriverInfo(i, &renderInfo);
+        if (ret == 0)
+        {
+            //VID_Printf( PRINT_ALL, "renderer found: %s\n", renderInfo.name);
+            if (strcmp(renderInfo.name, "opengl") == 0)
+            {
+                s_pSdlRenderer = SDL_CreateRenderer(s_pSdlWindow, i, rendererFlags);
+                break;
+            }
+        }
+    }
+    
+    if (!s_pSdlRenderer)
+    {
+        VID_Printf( PRINT_ALL, "CreateRenderer failed: %s\n", SDL_GetError());
+        return RSERR_UNKNOWN;
+    }
+       
 
     SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &redbits);
     SDL_GL_GetAttribute(SDL_GL_GREEN_SIZE, &greenbits);
@@ -259,15 +321,6 @@ int GLW_SetMode(int mode, qboolean fullscreen )
     if (fullscreenWindow)
     {
         SDL_SetWindowPosition(s_pSdlWindow, xPos, yPos);
-    }
-    else if (fullscreen)
-    {
-        SDL_Rect rect;
-        rect.x = 0;
-        rect.y = 0;
-        rect.w = actualWidth;
-        rect.h = actualHeight;
-        SDL_RenderSetViewport(s_pSdlRenderer, &rect);
     }
     
     WG_CheckHardwareGamma();
@@ -906,8 +959,9 @@ static void GLW_StartOpenGL( void )
 }
 
 SDL_Joystick* pSdlJoystick = NULL;
+SDL_GameController* pSdlGameController = NULL;
 
-void IN_StartupJoystick( void )
+void IN_StartupGameController( void )
 {
     int joystickCount = SDL_NumJoysticks();
     if (joystickCount <= 0)
@@ -915,32 +969,61 @@ void IN_StartupJoystick( void )
         return;
     }
     
-    pSdlJoystick = SDL_JoystickOpen(0);
-    if (!pSdlJoystick)
+    
+    int joystickIndex = 0;
+    pSdlGameController = NULL;
+    for (int i = 0; i < joystickCount; ++i) 
     {
-        return;
+        if (SDL_IsGameController(i)) 
+        {
+            pSdlGameController = SDL_GameControllerOpen(i);
+            if (pSdlGameController) 
+            {
+                joystickIndex = i;
+                break;
+            }
+        }
     }
     
-    VID_Printf (PRINT_ALL, "Opened Joystick 0\n");
-    VID_Printf (PRINT_ALL,"Name: %s\n", SDL_JoystickNameForIndex(0));
-    VID_Printf (PRINT_ALL,"Number of Axes: %d\n", SDL_JoystickNumAxes(pSdlJoystick));
-    VID_Printf (PRINT_ALL,"Number of Buttons: %d\n", SDL_JoystickNumButtons(pSdlJoystick));
-    VID_Printf (PRINT_ALL,"Number of Balls: %d\n", SDL_JoystickNumBalls(pSdlJoystick));
     
+    if (pSdlGameController == NULL)
+    {
+        pSdlJoystick = SDL_JoystickOpen(joystickIndex);
+        if (!pSdlJoystick)
+        {
+            return;
+        }
+    }
+
+    if (pSdlJoystick)
+    {
+        VID_Printf (PRINT_ALL, "Opened Joystick %d\n", joystickIndex);
+        VID_Printf (PRINT_ALL,"Number of Axes: %d\n", SDL_JoystickNumAxes(pSdlJoystick));
+        VID_Printf (PRINT_ALL,"Number of Buttons: %d\n", SDL_JoystickNumButtons(pSdlJoystick));
+        VID_Printf (PRINT_ALL,"Number of Balls: %d\n", SDL_JoystickNumBalls(pSdlJoystick));        
+    }
+    else
+    {
+        VID_Printf (PRINT_ALL, "Opened GameController %d\n", joystickIndex);
+    }
     
+    VID_Printf (PRINT_ALL,"Name: %s\n", SDL_JoystickNameForIndex(joystickIndex)); 
 }
 
 
-void IN_ShutdownJoystick( void )
+void IN_ShutdownGameController( void )
 {
-    if (!pSdlJoystick)
+    if (pSdlJoystick)
     {
-        return;
+        if (SDL_JoystickGetAttached(pSdlJoystick)) 
+        {
+            SDL_JoystickClose(pSdlJoystick);
+        }
     }
     
-    if (SDL_JoystickGetAttached(pSdlJoystick)) 
+    if (pSdlGameController)
     {
-        SDL_JoystickClose(pSdlJoystick);
+        SDL_GameControllerClose(pSdlGameController);
     }
     
 }
@@ -968,9 +1051,34 @@ void GLimp_Init( void )
 
 	InitSig();
 
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER);
 
-    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);
-    IN_StartupJoystick();
+    
+    // try to create a hmd device
+    ClientHmd::Get()->SetDevice(NULL);
+    ClientHmd::Get()->SetRenderer(NULL);    
+
+    bool allowDummyDevice = false;
+#ifdef HMD_ALLOW_DUMMY_DEVICE
+    allowDummyDevice = true;
+#endif
+
+    IHmdDevice* pHmdDevice = FactoryHmdDevice::CreateHmdDevice(allowDummyDevice);
+    if (pHmdDevice)
+    {
+        VID_Printf(PRINT_ALL, "HMD Device found: %s\n", pHmdDevice->GetInfo().c_str());
+        ClientHmd::Get()->SetDevice(pHmdDevice);
+        
+        IHmdRenderer* pHmdRenderer = FactoryHmdDevice::CreateRendererForDevice(pHmdDevice);
+        
+        if (pHmdRenderer)
+        {
+            VID_Printf(PRINT_ALL, "HMD Renderer created: %s\n", pHmdRenderer->GetInfo().c_str());
+            ClientHmd::Get()->SetRenderer(pHmdRenderer);
+        }
+    }        
+
+
 
 	//r_allowSoftwareGL = ri.Cvar_Get( "r_allowSoftwareGL", "0", CVAR_LATCH );
 
@@ -999,56 +1107,58 @@ void GLimp_Init( void )
 	//
 	// chipset specific configuration
 	//
-	strcpy( buf, glConfig.renderer_string );
-	strlwr( buf );
+	//strcpy( buf, glConfig.renderer_string );
+	//strlwr( buf );
 
+	////
+	//// NOTE: if changing cvars, do it within this block.  This allows them
+	//// to be overridden when testing driver fixes, etc. but only sets
+	//// them to their default state when the hardware is first installed/run.
+	////
+
+	//if ( Q_stricmp( lastValidRenderer->string, glConfig.renderer_string ) )
+	//{
+	//	//reset to defaults
+	//	Cvar_Set( "r_picmip", "1" );
+	//	
+	//	if ( strstr( buf, "matrox" )) {
+ //           Cvar_Set( "r_allowExtensions", "0");			
+	//	}
+
+
+	//	Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" );
+	//	
+	//	if ( strstr( buf, "intel" ) )
+	//	{
+	//		// disable dynamic glow as default
+	//		Cvar_Set( "r_DynamicGlow","0" );
+	//	}		
+
+	//	if ( strstr( buf, "kyro" ) )	
+	//	{
+	//		Cvar_Set( "r_ext_texture_filter_anisotropic", "0");	//KYROs have it avail, but suck at it!
+	//		Cvar_Set( "r_ext_preferred_tc_method", "1");			//(Use DXT1 instead of DXT5 - same quality but much better performance on KYRO)
+	//	}
+
+	//	GLW_InitExtensions();
+	//	
+	//	//this must be a really sucky card!
+	//	if ( (glConfig.textureCompression == TC_NONE) || (glConfig.maxActiveTextures < 2)  || (glConfig.maxTextureSize <= 512) )
+	//	{
+	//		Cvar_Set( "r_picmip", "2");
+	//		Cvar_Set( "r_colorbits", "16");
+	//		Cvar_Set( "r_texturebits", "16");
+	//		Cvar_Set( "r_mode", "3");	//force 640
+	//		Cmd_ExecuteString ("exec low.cfg\n");	//get the rest which can be pulled in after init
+	//	}
+	//}
 	//
-	// NOTE: if changing cvars, do it within this block.  This allows them
-	// to be overridden when testing driver fixes, etc. but only sets
-	// them to their default state when the hardware is first installed/run.
-	//
-
-	if ( Q_stricmp( lastValidRenderer->string, glConfig.renderer_string ) )
-	{
-		//reset to defaults
-		Cvar_Set( "r_picmip", "1" );
-		
-		if ( strstr( buf, "matrox" )) {
-            Cvar_Set( "r_allowExtensions", "0");			
-		}
-
-
-		Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" );
-		
-		if ( strstr( buf, "intel" ) )
-		{
-			// disable dynamic glow as default
-			Cvar_Set( "r_DynamicGlow","0" );
-		}		
-
-		if ( strstr( buf, "kyro" ) )	
-		{
-			Cvar_Set( "r_ext_texture_filter_anisotropic", "0");	//KYROs have it avail, but suck at it!
-			Cvar_Set( "r_ext_preferred_tc_method", "1");			//(Use DXT1 instead of DXT5 - same quality but much better performance on KYRO)
-		}
-
-		GLW_InitExtensions();
-		
-		//this must be a really sucky card!
-		if ( (glConfig.textureCompression == TC_NONE) || (glConfig.maxActiveTextures < 2)  || (glConfig.maxTextureSize <= 512) )
-		{
-			Cvar_Set( "r_picmip", "2");
-			Cvar_Set( "r_colorbits", "16");
-			Cvar_Set( "r_texturebits", "16");
-			Cvar_Set( "r_mode", "3");	//force 640
-			Cmd_ExecuteString ("exec low.cfg\n");	//get the rest which can be pulled in after init
-		}
-	}
-	
-	Cvar_Set( "r_lastValidRenderer", glConfig.renderer_string );
+	//Cvar_Set( "r_lastValidRenderer", glConfig.renderer_string );
 
 	GLW_InitExtensions();
 	InitSig();
+    
+    IN_StartupGameController();
 }
 
 
@@ -1080,16 +1190,13 @@ void GLimp_Shutdown( void )
 	// restore gamma.  We do this first because 3Dfx's extension needs a valid OGL subsystem
 	WG_RestoreGamma();
 
-    IHmdRenderer* pHmdRenderer = ClientHmd::Get()->GetRenderer();
-    if (pHmdRenderer != NULL)
-    {
-        pHmdRenderer->Shutdown();
-    }
-    
     
 	IN_DeactivateMouse();
 
+    SDL_SetRelativeMouseMode(SDL_FALSE);
+    
     SDL_DestroyRenderer(s_pSdlRenderer);
+    //SDL_GL_DeleteContext(sGlContext);
     SDL_DestroyWindow(s_pSdlWindow);
 
 	// close the r_logFile
@@ -1099,8 +1206,31 @@ void GLimp_Shutdown( void )
 		glw_state.log_fp = 0;
 	}
 
-    IN_ShutdownJoystick();
-    SDL_Quit();
+    IN_ShutdownGameController();
+    
+    IHmdRenderer* pHmdRenderer = ClientHmd::Get()->GetRenderer();
+    if (pHmdRenderer != NULL)
+    {
+        ClientHmd::Get()->SetRenderer(NULL);
+        
+        pHmdRenderer->Shutdown();
+        delete pHmdRenderer;
+        pHmdRenderer = NULL;
+    }
+    
+    IHmdDevice* pHmdDevice = ClientHmd::Get()->GetDevice();
+    if (pHmdDevice != NULL)
+    {
+        ClientHmd::Get()->SetDevice(NULL);
+        
+        pHmdDevice->Shutdown();
+        delete pHmdDevice;
+        pHmdDevice = NULL;
+    }
+    
+
+    SDL_Quit();    
+   
     
 	// shutdown QGL subsystem
 	QGL_Shutdown();
@@ -1247,18 +1377,23 @@ static char *XLateKey(const SDL_Keysym& keysym, int *key)
 }
 
 
-float JoyToF( int value ) {
+float JoyToF( int value, float threshold) {
 	float	fValue;
 
 	// convert range from -32768..32767 to -1..1 
 	fValue = (float)value / 32768.0;
-
-	if ( fValue < -1 ) {
-		fValue = -1;
-	}
-	if ( fValue > 1 ) {
-		fValue = 1;
-	}
+    float sign = fValue >= 0 ? 1.0f : -1.0f;
+    
+    // remove the threshold
+    fValue = fabs(fValue) - threshold;
+    fValue = max(fValue, 0.0f);
+    
+    // scale the value to the full range
+    fValue *= (1.0f / (1.0f - threshold));
+    fValue = min(fValue, 1.0f);
+    
+    fValue *= sign;
+    
 	return fValue;
 }
 
@@ -1277,32 +1412,34 @@ int joyDirectionKeys[16] = {
 
 
 
-void IN_JoyMove(SDL_JoyAxisEvent event) {
+void IN_GameControllerMove(int axis, int value) {
     float	fAxisValue;
     long	buttonstate, povstate;
     int		x, y;
 
-    int i = event.axis;
+    int i = axis;
     float threshold = 0.15f; //joy_threshold->value;
     
     // get the floating point zero-centered, potentially-inverted data for the current axis
-    fAxisValue = JoyToF(event.value);
+    fAxisValue = JoyToF(value, threshold);
     
     if (i == 0) {
-        if ( fAxisValue < -threshold || fAxisValue > threshold){
-            Sys_QueEvent( 0, SE_JOYSTICK_AXIS, AXIS_SIDE, (int) -(fAxisValue*127.0), 0, NULL );
-        }else{
-            Sys_QueEvent( 0, SE_JOYSTICK_AXIS, AXIS_SIDE, 0, 0, NULL );
-        }
+        Sys_QueEvent(0, SE_JOYSTICK_AXIS, AXIS_SIDE, (int) (fAxisValue*127.0), 0, NULL );
     }
     
     if (i == 1) {
-        if ( fAxisValue < -threshold || fAxisValue > threshold){
-            Sys_QueEvent(0, SE_JOYSTICK_AXIS, AXIS_FORWARD, (int) -(fAxisValue*127.0), 0, NULL );
-        }else{
-            Sys_QueEvent(0, SE_JOYSTICK_AXIS, AXIS_FORWARD, 0, 0, NULL );
-        }
+        Sys_QueEvent(0, SE_JOYSTICK_AXIS, AXIS_FORWARD, (int) -(fAxisValue*127.0), 0, NULL );
     }
+    
+    if (i == 2) {
+        Sys_QueEvent( 0, SE_JOYSTICK_AXIS, AXIS_YAW, (int) -(fAxisValue*127.0), 0, NULL );
+    }      
+    
+    if (i == 3) {
+        Sys_QueEvent( 0, SE_JOYSTICK_AXIS, AXIS_PITCH, (int) (fAxisValue*127.0), 0, NULL );
+    }       
+    
+  
     
 //    if ( fAxisValue < -threshold) {
 //        povstate |= (1<<(i*2));
@@ -1431,6 +1568,7 @@ static void HandleEvents(void)
             }
             else
             {
+                //VID_Printf (PRINT_ALL, "mxOld=%d myOld=%d mx=%d my=%d mwxOld=%d mwyOld=%d mwx=%d mwy=%d\n", mx, my, mx + event.motion.x -mwx, my + event.motion.y - mwy, mwx, mwy, event.motion.x, event.motion.y);
                 mx += (event.motion.x - mwx);
                 my += (event.motion.y - mwy);
                 mwx = event.motion.x;
@@ -1438,6 +1576,7 @@ static void HandleEvents(void)
 
                 if (mx || my)
                 {
+                    
                     dowarp = qtrue;
                 }
             }
@@ -1483,15 +1622,33 @@ static void HandleEvents(void)
 //            break;
         
         case SDL_JOYBUTTONDOWN:
-            Sys_QueEvent( 0, SE_KEY, A_JOY0 + event.jbutton.button, qtrue, 0, NULL );
+            if (pSdlJoystick)
+            {
+                Sys_QueEvent( 0, SE_KEY, A_JOY0 + event.jbutton.button, qtrue, 0, NULL );
+            }
             break;            
         case SDL_JOYBUTTONUP:
-            Sys_QueEvent( 0, SE_KEY, A_JOY0 + event.jbutton.button, qfalse, 0, NULL );
+            if (pSdlJoystick)
+            {
+                Sys_QueEvent( 0, SE_KEY, A_JOY0 + event.jbutton.button, qfalse, 0, NULL );
+            }
             break;
         case SDL_JOYAXISMOTION:
-            IN_JoyMove(event.jaxis);
-            
+            if (pSdlJoystick)
+            {
+                IN_GameControllerMove(event.jaxis.axis, event.jaxis.value);
+            }
             break;
+            
+        case SDL_CONTROLLERBUTTONDOWN:
+            Sys_QueEvent( 0, SE_KEY, A_JOY0 + event.cbutton.button, qtrue, 0, NULL );
+            break;            
+        case SDL_CONTROLLERBUTTONUP:
+            Sys_QueEvent( 0, SE_KEY, A_JOY0 + event.cbutton.button, qfalse, 0, NULL );
+            break;
+        case SDL_CONTROLLERAXISMOTION:
+            IN_GameControllerMove(event.caxis.axis, event.caxis.value);
+            break;            
             
         case SDL_WINDOWEVENT:
             switch (event.window.event)
@@ -1518,7 +1675,7 @@ static void HandleEvents(void)
         SDL_WarpMouseInWindow(s_pSdlWindow, (glConfig.vidWidth/2),(glConfig.vidHeight/2));
 	}
     
-    if (!sWindowHasFocus)
+    if (!sVideoModeFullscreen && !sWindowHasFocus)
     {
         mx = 0;
         my = 0;
@@ -1536,15 +1693,12 @@ void KBD_Close(void)
 
 void IN_ActivateMouse( void ) 
 {
-    if (sVideoModeFullscreen)
-    {
-        SDL_SetRelativeMouseMode(SDL_TRUE);
-    }
+
 }
 
 void IN_DeactivateMouse( void ) 
 {
-    SDL_SetRelativeMouseMode(SDL_FALSE);
+
 }
 
 
@@ -1587,6 +1741,9 @@ void IN_Frame (void)
 
 	// post events to the system que
 	IN_MouseMove();
+#ifdef _WINDOWS
+	HandleEvents();
+#endif
 }
 
 void IN_Activate(void)

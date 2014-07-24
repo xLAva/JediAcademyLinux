@@ -1,3 +1,9 @@
+/**
+ * HMD extension for JediAcademy
+ *
+ *  Copyright 2014 by Jochen Leopold <jochen.leopold@model-view.com>
+ */
+
 #ifndef HMDDEVICEMOUSE_H
 #define HMDDEVICEMOUSE_H
 
@@ -15,8 +21,8 @@ public:
 
     virtual std::string GetInfo();
     
+    virtual bool HasDisplay();
     virtual std::string GetDisplayDeviceName();
-    virtual int GetDisplayId();
     virtual bool GetDisplayPos(int& rX, int&rY);
     
     virtual bool GetDeviceResolution(int& rWidth, int& rHeight);

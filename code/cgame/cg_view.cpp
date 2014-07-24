@@ -745,22 +745,23 @@ static void CG_OffsetThirdPersonView( void )
 	}
 	else if ( cg.predicted_player_state.stats[STAT_HEALTH] <= 0 ) 
 	{// if dead, look at killer
-		if ( MatrixMode )
-		{
-			if ( cg.overrides.active & CG_OVERRIDE_3RD_PERSON_ANG )
-			{
-				cameraFocusAngles[YAW] += cg.overrides.thirdPersonAngle;
-			}
-			else
-			{
-				cameraFocusAngles[YAW] = cg.predicted_player_state.stats[STAT_DEAD_YAW];
-				cameraFocusAngles[YAW] += cg_thirdPersonAngle.value;
-			}
-		}
-		else
-		{
-			cameraFocusAngles[YAW] = cg.predicted_player_state.stats[STAT_DEAD_YAW];
-		}
+        //[LAva] don't do the kill cam movement in hmd mode
+//		if ( MatrixMode )
+//		{
+//			if ( cg.overrides.active & CG_OVERRIDE_3RD_PERSON_ANG )
+//			{
+//				cameraFocusAngles[YAW] += cg.overrides.thirdPersonAngle;
+//			}
+//			else
+//			{
+//				cameraFocusAngles[YAW] = cg.predicted_player_state.stats[STAT_DEAD_YAW];
+//				cameraFocusAngles[YAW] += cg_thirdPersonAngle.value;
+//			}
+//		}
+//		else
+//		{
+//			cameraFocusAngles[YAW] = cg.predicted_player_state.stats[STAT_DEAD_YAW];
+//		}
 	}
 	else
 	{	// Add in the third Person Angle.
@@ -1290,8 +1291,13 @@ qboolean CG_CalcFOVFromX( float fov_x )
 
 	// set it
 	
-	fov_x = 125;
-	fov_y = 125;
+    if (GameHmd::Get()->IsInitialized())
+    {
+        // [LAva] this is ugly -> get a proper value from the GameHmd
+        fov_x = 125;
+        fov_y = 125;
+    }
+    
 	cg.refdef.fov_x = fov_x;
 	cg.refdef.fov_y = fov_y;
 
@@ -1678,7 +1684,7 @@ static qboolean CG_CalcViewValues( void ) {
 			{
 				vec3_t dir;
 				CG_OffsetFirstPersonView( qtrue );
-				cg.refdef.vieworg[2] += 32;
+				cg.refdef.vieworg[2] += 36; //[LAva] hmd hack
 				AngleVectors( cg.refdefViewAngles, dir, NULL, NULL );
                 dir[2] = 0;
                 VectorNormalize(dir);
@@ -2190,8 +2196,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView ) {
 								|| (cg.snap->ps.stats[STAT_HEALTH] <= 0) 
 								|| (cg.snap->ps.eFlags&EF_HELD_BY_SAND_CREATURE)
 								|| (g_entities[0].client&&g_entities[0].client->NPC_class==CLASS_ATST
-								|| (/*cg.snap->ps.weapon == WP_SABER || */cg.snap->ps.weapon == WP_MELEE) );
-
+								/*|| (cg.snap->ps.weapon == WP_SABER || cg.snap->ps.weapon == WP_MELEE)*/ );
 	if ( cg.zoomMode )
 	{
 		// zoomed characters should never do third person stuff??

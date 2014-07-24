@@ -19,6 +19,7 @@
 #pragma warning (disable: 4214)
 #include <windows.h>
 #include <gl/gl.h>
+#include "../../3rdparty/opengl/glcorearb.h"
 
 #elif defined( __APPLE__ ) && defined( __MACH__ )
   

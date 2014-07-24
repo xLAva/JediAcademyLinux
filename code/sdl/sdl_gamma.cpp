@@ -10,7 +10,11 @@
 #include "sdl_local.h"
 #include <stdint.h>
 
+#ifdef LINUX
 #include <SDL2/SDL.h>
+#else
+#include <SDL.h>
+#endif
 
 #define HIBYTE(W)       (unsigned char)(((W) >> 8) & 0xFF)
 

@@ -33,6 +33,8 @@
 
 #define	LL(x) x=LittleLong(x)
 
+using namespace std;
+
 #ifdef G2_PERFORMANCE_ANALYSIS
 #include "../qcommon/timing.h"
 timing_c G2PerformanceTimer_RB_SurfaceGhoul;

@@ -9038,7 +9038,9 @@ static void PM_BeginWeaponChange( int weapon ) {
 	{
 		if ( pm->ps->clientNum < MAX_CLIENTS )
 		{
-			gi.cvar_set( "cg_thirdperson", "1" );
+            //[LAva] Hmd hack
+			//gi.cvar_set( "cg_thirdperson", "1" );
+            gi.cvar_set( "cg_thirdperson", "0" );
 		}
 	}
 	else if ( weapon == WP_SABER )
@@ -9148,7 +9150,9 @@ static void PM_FinishWeaponChange( void ) {
 			WP_SaberInitBladeData( pm->gent );
 			if ( (pm->ps->clientNum < MAX_CLIENTS||PM_ControlledByPlayer()) )
 			{
-				gi.cvar_set( "cg_thirdperson", "1" );
+                // [LAva] hmd hack
+                //gi.cvar_set( "cg_thirdperson", "1" );
+				gi.cvar_set( "cg_thirdperson", "0" );
 			}
 		}
 		if ( trueSwitch )

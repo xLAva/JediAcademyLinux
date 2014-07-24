@@ -397,8 +397,7 @@ void RE_RenderScene( const refdef_t *fd ) {
     if (pHmdRenderer)
     {
         bool leftEye = tr.refdef.stereoFrame == STEREO_LEFT;
-        pHmdRenderer->BindFramebuffer(leftEye);
-        parms.viewportX += pHmdRenderer->GetViewportXOffset();
+        pHmdRenderer->BeginRenderingForEye(leftEye);
         
         // calculate body yaw
         parms.bodyYaw = ClientHmd::Get()->GetYawDiff() + tr.refdef.delta_yaw;        

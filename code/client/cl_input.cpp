@@ -15,7 +15,7 @@
 #include "../hmd/ClientHmd.h"
 
 #ifdef OVR_SIM_MOUSE
-#include "../hmd/HmdDeviceMouse.h"
+#include "../hmd/HmdDevice/HmdDeviceMouse.h"
 #endif
 
 unsigned	frame_msec;
@@ -497,35 +497,44 @@ void CL_JoystickMove( usercmd_t *cmd ) {
 		anglespeed = 0.001 * cls.frametime;
 	}
 
-#ifndef _XBOX
-	if ( !in_strafe.active ) {
-		if ( cl_mYawOverride )
-		{
-			cl.viewangles[YAW] += 5.0f * cl_mYawOverride * cl.joystickAxis[AXIS_SIDE];
-		}
-		else
-		{
-			cl.viewangles[YAW] += anglespeed * (cl_yawspeed->value / 100.0f) * cl.joystickAxis[AXIS_SIDE];
-		}
-	} else
-#endif
-	{
-		cmd->rightmove = ClampChar( cmd->rightmove + cl.joystickAxis[AXIS_SIDE] );
-	}
 
+    // make yaw non-linear for better aiming but still fast rotation
+    float joyYaw = cl.joystickAxis[AXIS_YAW] / 127.0f;
+    float yawFactor = joyYaw >= 0 ? 127.0f : -127.0f;
+    if ( cl_mYawOverride )
+    {
+        cl.viewangles[YAW] += 5.0f * cl_mYawOverride * (joyYaw * joyYaw) * yawFactor;
+    }
+    else
+    {
+        cl.viewangles[YAW] += anglespeed * (cl_yawspeed->value / 100.0f) * (joyYaw * joyYaw) * yawFactor;
+    }
 
-	if ( in_mlooking ) {
-		if ( cl_mPitchOverride )
-		{
-			cl.viewangles[PITCH] += 5.0f * cl_mPitchOverride * cl.joystickAxis[AXIS_FORWARD];
-		}
-		else
-		{
-			cl.viewangles[PITCH] += anglespeed * (cl_pitchspeed->value / 100.0f) * cl.joystickAxis[AXIS_FORWARD];
-		}
-	} else {
-		cmd->forwardmove = ClampChar( cmd->forwardmove + cl.joystickAxis[AXIS_FORWARD] );
-	}
+    
+    // make side non-linear
+    float joySide = cl.joystickAxis[AXIS_SIDE] / 127.0f;
+    float sideFactor = joySide >= 0 ? 127.0f : -127.0f;    
+    cmd->rightmove = ClampChar( cmd->rightmove + joySide * joySide * sideFactor );
+	
+
+    // make pitch non-linear for better aiming but still fast rotation
+    float joyPitch = cl.joystickAxis[AXIS_PITCH] / 127.0f;
+    float pitchFactor = joyPitch >= 0 ? 127.0f : -127.0f;
+    if ( cl_mPitchOverride )
+    {
+        cl.viewangles[PITCH] += 5.0f * cl_mPitchOverride * (joyPitch * joyPitch) * 127;
+    }
+    else
+    {
+        cl.viewangles[PITCH] += anglespeed * (cl_pitchspeed->value / 100.0f) * (joyPitch * joyPitch) * pitchFactor;
+    }
+
+    
+    // make forward non-linear
+    float joyForward = cl.joystickAxis[AXIS_FORWARD] / 127.0f;
+    float forwardFactor = joyForward >= 0 ? 127.0f : -127.0f;    
+	cmd->forwardmove = ClampChar( cmd->forwardmove + joyForward * joyForward * forwardFactor );
+	
 
 	cmd->upmove = ClampChar( cmd->upmove + cl.joystickAxis[AXIS_UP] );
 }

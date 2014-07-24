@@ -12,6 +12,8 @@
 #include <string>
 #endif
 
+using namespace std;
+
 // Open AL
 void S_PreProcessLipSync(sfx_t *sfx);
 extern int s_UseOpenAL;

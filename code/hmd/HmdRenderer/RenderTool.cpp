@@ -2,6 +2,7 @@
 #include "../../renderer/tr_local.h"
 
 
+
 bool RenderTool::CreateFrameBuffer(FrameBufferInfo &rInfo, int width, int height)
 {
     qglGenTextures(1, &rInfo.DepthBuffer);
@@ -49,7 +50,7 @@ void RenderTool::ClearFBO(FrameBufferInfo info)
 }
 
 
-void RenderTool::DrawFbos(FrameBufferInfo* pFbos, int fboCount, int windowWidth, int windowHeight, uint shaderProg)
+void RenderTool::DrawFbos(FrameBufferInfo* pFbos, int fboCount, int windowWidth, int windowHeight, unsigned int shaderProg)
 {
     if (pFbos == NULL)
     {
@@ -166,8 +167,8 @@ GLhandleARB RenderTool::CreateShaderProgram(const char *pVertexShader, const cha
         return 0;
     }
     
-    GLhandleARB v = qglCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
-    GLhandleARB f = qglCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
+    GLhandleARB v = qglCreateShaderObjectARB(GL_VERTEX_SHADER);
+    GLhandleARB f = qglCreateShaderObjectARB(GL_FRAGMENT_SHADER);
 
 
     qglShaderSourceARB(v, 1, &pVertexShader, NULL);
@@ -217,46 +218,3 @@ GLhandleARB RenderTool::CreateShaderProgram(const char *pVertexShader, const cha
     return program;
 }
 
-void RenderTool::InitPerspectiveMatrix(float *rMatrix, float fovy_rad, float aspect, float znear, float zfar)
-{
-    if (rMatrix == NULL)
-    {
-        return;
-    }
-    
-    //OpenHMD omath.c omat4x4f_init_perspective
-    
-    float sine, cotangent, delta, half_fov;
-
-    half_fov = fovy_rad / 2.0f;
-    delta = zfar - znear;
-    sine = sinf(half_fov);
-
-    if ((delta == 0.0f) || (sine == 0.0f) || (aspect == 0.0f)) {
-        return;
-    }
-
-    cotangent = cosf(half_fov) / sine;
-    
-    
-    rMatrix[0] = cotangent / aspect;
-    rMatrix[4] = 0;
-    rMatrix[8] = 0;
-    rMatrix[12] = 0;
-
-    rMatrix[1] = 0;
-    rMatrix[5] = cotangent;
-    rMatrix[9] = 0;
-    rMatrix[13] = 0;
-
-    rMatrix[2] = 0;
-    rMatrix[6] = 0;
-    rMatrix[10] = -(zfar + znear) / delta;
-    rMatrix[14] = -2.0f * znear * zfar / delta;
-
-    rMatrix[3] = 0;
-    rMatrix[7] = 0;
-    rMatrix[11] = -1.0f;
-    rMatrix[15] = 0;  
-    
-}

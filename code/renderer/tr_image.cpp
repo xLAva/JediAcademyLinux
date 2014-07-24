@@ -17,6 +17,7 @@
 #include "../png/png.h"
 #include "../qcommon/sstring.h"
 
+using namespace std;
 
 static byte			 s_intensitytable[256];
 static unsigned char s_gammatable[256];

@@ -4,7 +4,8 @@
 #include "../game/q_shared.h"
 #include "../client/vmachine.h"
 
-#include <memory.h>
+#include <memory>
+#include <algorithm>
 
 ClientHmd* ClientHmd::sClientHmd = NULL;
 

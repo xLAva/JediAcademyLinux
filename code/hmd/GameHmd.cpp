@@ -1,11 +1,13 @@
 
 #include "GameHmd.h"
+#include <memory>
 #include <memory.h>
 
 GameHmd* GameHmd::sGameHmd = NULL;
 
 GameHmd::GameHmd()
-    :mPitch(0)
+    :mIsInitialized(false)
+    ,mPitch(0)
     ,mYaw(0)
     ,mRoll(0)
 {
@@ -35,6 +37,7 @@ void GameHmd::Destroy()
 
 void GameHmd::UpdateHmd(float* pitch, float* yaw, float* roll)
 {
+    mIsInitialized = true;
     mPitch = *pitch;
     mYaw = *yaw;
     mRoll = *roll;
@@ -42,6 +45,11 @@ void GameHmd::UpdateHmd(float* pitch, float* yaw, float* roll)
 
 bool GameHmd::GetOrientation(float &pitch, float &yaw, float &roll)
 {
+    if (!mIsInitialized)
+    {
+        return false;
+    }
+    
     pitch = mPitch;
     yaw = mYaw;
     roll = mRoll;

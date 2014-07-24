@@ -2,9 +2,18 @@
 
 #include "../../game/q_shared.h"
 
+#ifdef USE_SDL2
+#ifdef LINUX
+#include <SDL2/SDL.h>
+#else
+#include <SDL.h>
+#endif
+#endif
+
 #include <string.h>
 #include <iostream>
 #include <cstdio>
+#include <algorithm>
 
 using namespace std;
 
@@ -14,6 +23,9 @@ HmdDeviceOpenHmd::HmdDeviceOpenHmd()
     ,mpHmd(NULL)
     ,mDisplayWidth(0)
     ,mDisplayHeight(0)
+    ,mDisplayId(-1)
+    ,mDisplayX(0)
+    ,mDisplayY(0)  
 {
 
 }
@@ -83,6 +95,8 @@ bool HmdDeviceOpenHmd::Init(bool allowDummyDevice)
     ohmd_device_geti(mpHmd, OHMD_SCREEN_HORIZONTAL_RESOLUTION, &mDisplayWidth);
     ohmd_device_geti(mpHmd, OHMD_SCREEN_VERTICAL_RESOLUTION, &mDisplayHeight);
 
+    DetectDisplay(); 
+    
     mIsInitialized = true;
 
     return true;
@@ -108,14 +122,19 @@ string HmdDeviceOpenHmd::GetInfo()
     return mInfo;
 }
 
-string HmdDeviceOpenHmd::GetDisplayDeviceName()
+bool HmdDeviceOpenHmd::HasDisplay()
 {
-    return "";
+    if (!mIsInitialized)
+    {
+        return false;
+    }
+    
+    return true;
 }
 
-int HmdDeviceOpenHmd::GetDisplayId()
+string HmdDeviceOpenHmd::GetDisplayDeviceName()
 {
-    return -1;
+    return mDisplayDeviceName;
 }
 
 bool HmdDeviceOpenHmd::GetDisplayPos(int &rX, int &rY)
@@ -125,10 +144,9 @@ bool HmdDeviceOpenHmd::GetDisplayPos(int &rX, int &rY)
         return false;
     }
 
-
-    rX = 3200; //0;
-    rY = 0;
-    return false;
+    rX = mDisplayX;
+    rY = mDisplayY;
+    return true;
 }
 
 bool HmdDeviceOpenHmd::GetDeviceResolution(int &rWidth, int &rHeight)
@@ -209,4 +227,60 @@ void HmdDeviceOpenHmd::ConvertQuatToEuler(const float *quat, float &rYaw, float 
         test = min(test, 1.0f);
         rPitch = asin(test);
     }
+}
+
+void HmdDeviceOpenHmd::DetectDisplay()
+{
+#ifdef USE_SDL2
+
+    // we don't get any information about the display position from OpenHmd
+    // so let's try to find the display witch SDL2
+    
+    // if no display is found the rift has to be the main monitor
+    
+    int displayCount = SDL_GetNumVideoDisplays();
+    for (int i=0; i<displayCount; i++)
+    {
+        const char* displayName = SDL_GetDisplayName(i);
+        if (strcmp(displayName, "Rift DK 7\"") == 0)
+        {
+            mDisplayId = i;
+            mDisplayDeviceName = displayName;
+            break;
+        }
+        
+        SDL_Rect r;
+        int ret = SDL_GetDisplayBounds(i, &r);
+        if (ret == 0 && r.w == 1280 && r.h == 800)
+        {
+            // this is a fallback, if the display name is not correct
+            mDisplayId = i;
+            mDisplayDeviceName = displayName;
+        }
+		else if (ret != 0)
+		{
+			const char* error = SDL_GetError();
+			printf("SDL_GetDisplayBounds failed: %s\n", error);
+
+		}
+        
+        //printf("display name: %s\n", displayName);
+        //flush(std::cout);
+    }
+    
+    if (mDisplayId >= 0)
+    {
+        SDL_Rect r;
+        int ret = SDL_GetDisplayBounds(mDisplayId, &r);
+        if (ret == 0)
+        {
+            mDisplayX = r.x;
+            mDisplayY = r.y;
+            
+            //printf("display x=%d y=%d\n", r.x, r.y);
+            //flush(std::cout);
+        }
+    }
+
+#endif   
 }
