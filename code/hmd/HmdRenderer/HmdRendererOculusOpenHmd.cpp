@@ -148,7 +148,7 @@ void HmdRendererOculusOpenHmd::EndFrame()
 }
 
 
-bool HmdRendererOculusOpenHmd::GetCustomProjectionMatrix(float *rProjectionMatrix, float zNear, float zFar)
+bool HmdRendererOculusOpenHmd::GetCustomProjectionMatrix(float *rProjectionMatrix, float zNear, float zFar, float fov)
 {   
     if (!mIsInitialized || mpHmd == NULL)
     {
@@ -162,8 +162,8 @@ bool HmdRendererOculusOpenHmd::GetCustomProjectionMatrix(float *rProjectionMatri
     //ohmd_float_value type = stereoLeft ? OHMD_LEFT_EYE_GL_PROJECTION_MATRIX : OHMD_RIGHT_EYE_GL_PROJECTION_MATRIX;
     //ohmd_device_getf(mpHmd, type, rProjectionMatrix);
     
-    float fov_rad = 0;
-    ohmd_device_getf(mpHmd, mCurrentFbo == 0 ? OHMD_LEFT_EYE_FOV : OHMD_RIGHT_EYE_FOV, &fov_rad);  
+    float fov_rad = DEG2RAD(fov);
+    //ohmd_device_getf(mpHmd, mCurrentFbo == 0 ? OHMD_LEFT_EYE_FOV : OHMD_RIGHT_EYE_FOV, &fov_rad);  
     
     float aspect = 0;
     // can't use openhmd - bug -> returns fov instead of aspect
@@ -246,7 +246,7 @@ bool HmdRendererOculusOpenHmd::Get2DViewport(int &rX, int &rY, int &rW, int &rH)
     rH = mRenderWidth* scale * aspect;
     
     rX = (mRenderWidth - rW)/2.0f;
-    int xOff = mRenderWidth/10.0f;
+    int xOff = mRenderWidth/12.5f;
     xOff *= mCurrentFbo == 0 ? 1 : -1;
     rX += xOff; 
     

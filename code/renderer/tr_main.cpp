@@ -518,7 +518,7 @@ void R_SetupProjection( void ) {
     if (pHmdRenderer)
     {
         // check if the renderer handles the projection matrix creation
-        bool matrixCreated = pHmdRenderer->GetCustomProjectionMatrix(tr.viewParms.projectionMatrix, r_znear->value, tr.viewParms.zFar);
+        bool matrixCreated = pHmdRenderer->GetCustomProjectionMatrix(tr.viewParms.projectionMatrix, r_znear->value, tr.viewParms.zFar, tr.viewParms.fovX);
         if (matrixCreated)
         {
             return;

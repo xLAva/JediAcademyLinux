@@ -1241,6 +1241,8 @@ qboolean CG_CalcFOVFromX( float fov_x )
 	float	fov_y;
 	qboolean	inwater;
 
+    float fov_x_orig = fov_x;
+    
 	//LAvaPort
 	//better support for widescreen displays (don't cap top and bottom -> show more left and right)
 	float factor = 640.0f/480.0f;
@@ -1293,9 +1295,20 @@ qboolean CG_CalcFOVFromX( float fov_x )
 	
     if (GameHmd::Get()->IsInitialized())
     {
-        // [LAva] this is ugly -> get a proper value from the GameHmd
-        fov_x = 125;
-        fov_y = 125;
+        // [LAva] this is ugly -> get a proper value from the GameHmd        
+        float defaultFov = 125;
+        float hmdFov = defaultFov;
+        
+        float f = ( cg.time - cg.zoomTime ) / ZOOM_OUT_TIME;
+        if ( cg.zoomMode && cg.zoomMode < 3 || f < 1.0 )
+        {
+            hmdFov = fov_x_orig;
+        }
+    
+        
+
+        fov_x = hmdFov;
+        fov_y = hmdFov;
     }
     
 	cg.refdef.fov_x = fov_x;
@@ -1415,9 +1428,10 @@ static qboolean	CG_CalcFov( void ) {
 
 				// Clamp zoomFov
 				float actualFOV = (cg.overrides.active&CG_OVERRIDE_FOV) ? cg.overrides.fov : cg_fov.value;
-				if ( cg_zoomFov < MAX_ZOOM_FOV )
+                float maxZoomFov = GameHmd::Get()->IsInitialized() ? 12 : MAX_ZOOM_FOV;
+				if ( cg_zoomFov < maxZoomFov )
 				{
-					cg_zoomFov = MAX_ZOOM_FOV;
+					cg_zoomFov = maxZoomFov;
 				}
 				else if ( cg_zoomFov > actualFOV )
 				{
@@ -2194,7 +2208,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView ) {
 	// decide on third person view
 	cg.renderingThirdPerson = cg_thirdPerson.integer 
 								|| (cg.snap->ps.stats[STAT_HEALTH] <= 0) 
-								|| (cg.snap->ps.eFlags&EF_HELD_BY_SAND_CREATURE)
+								/*|| (cg.snap->ps.eFlags&EF_HELD_BY_SAND_CREATURE)*/
 								|| (g_entities[0].client&&g_entities[0].client->NPC_class==CLASS_ATST
 								/*|| (cg.snap->ps.weapon == WP_SABER || cg.snap->ps.weapon == WP_MELEE)*/ );
 	if ( cg.zoomMode )

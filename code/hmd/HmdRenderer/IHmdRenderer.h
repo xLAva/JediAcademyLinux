@@ -26,7 +26,7 @@ public:
     virtual void BeginRenderingForEye(bool leftEye) = 0;
     virtual void EndFrame() = 0;
     
-    virtual bool GetCustomProjectionMatrix(float* rProjectionMatrix, float zNear, float zFar) = 0;
+    virtual bool GetCustomProjectionMatrix(float* rProjectionMatrix, float zNear, float zFar, float fov) = 0;
     virtual bool GetCustomViewMatrix(float* rViewMatrix, float xPos, float yPos, float zPos, float bodyYaw) = 0;
     
     virtual bool Get2DViewport(int& rX, int& rY, int& rW, int& rH) = 0;

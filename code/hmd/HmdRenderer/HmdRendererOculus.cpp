@@ -132,7 +132,7 @@ void HmdRendererOculus::EndFrame()
 }
 
 
-bool HmdRendererOculus::GetCustomProjectionMatrix(float *rProjectionMatrix, float zNear, float zFar)
+bool HmdRendererOculus::GetCustomProjectionMatrix(float *rProjectionMatrix, float zNear, float zFar, float fov)
 {   
     if (!mIsInitialized)
     {
@@ -147,7 +147,7 @@ bool HmdRendererOculus::GetCustomProjectionMatrix(float *rProjectionMatrix, floa
 	float lensSeparationDistance = 0.063500f;
 
 	float aspect = hResolution/(2*vResolution);
-	float fovD = DEG2RAD(125.0f);//2*atan(vScreenSize / (2*eyeToScreenDist));
+	float fovD = DEG2RAD(fov); //DEG2RAD(125.0f);//2*atan(vScreenSize / (2*eyeToScreenDist));
 	
 //	 eye distance: 0.064000, eye to screen: 0.041000, distortionScale: 1.714606, yfov: 125.870984, 
 	
