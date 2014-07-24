@@ -2342,7 +2342,7 @@ CG_DrawCrosshair
 #ifdef _XBOX
 short cg_crossHairStatus = 0;
 #endif
-static void CG_DrawCrosshair( vec3_t worldPoint ) 
+static void CG_DrawCrosshair( vec3_t worldPoint, float crosshairEntDist)
 {
 	float		w, h;
 	qhandle_t	hShader;
@@ -2350,6 +2350,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint )
 	vec4_t		ecolor;
 	float		f;
 	float		x, y;
+
 
 	if ( !cg_drawCrosshair.integer ) 
 	{
@@ -2580,11 +2581,38 @@ static void CG_DrawCrosshair( vec3_t worldPoint )
 	}
 	else 
 	{
+
+
 		hShader = cgs.media.crosshairShader[ cg_drawCrosshair.integer % NUM_CROSSHAIRS ];
 
-		cgi_R_DrawStretchPic( x + cg.refdef.x + 0.5 * (640 - w), 
-			y + cg.refdef.y + 0.5 * (480 - h), 
-			w, h, 0, 0, 1, 1, hShader );	
+		//char rendererinfos[128];
+		//trap_Cvar_VariableStringBuffer("r_zProj", rendererinfos, sizeof(rendererinfos));
+		//float zProj = atof(rendererinfos);
+
+		float xmax = tan(cg.refdef.fov_x * M_PI / 360.0f);
+
+		refEntity_t ent;
+
+		memset(&ent, 0, sizeof(ent));
+		ent.reType = RT_SPRITE;
+		ent.renderfx = RF_DEPTHHACK;
+
+		VectorCopy(worldPoint, ent.origin);
+
+		// scale the crosshair so it appears the same size for all distances
+		ent.radius = w / 640 * xmax * crosshairEntDist;
+		ent.customShader = hShader;
+		ent.shaderRGBA[0] = ecolor[0]*255;
+		ent.shaderRGBA[1] = ecolor[1]*255;
+		ent.shaderRGBA[2] = ecolor[2]*255;
+		ent.shaderRGBA[3] = ecolor[3]*255;
+
+		cgi_R_AddRefEntityToScene(&ent);
+
+
+		//cgi_R_DrawStretchPic( x + cg.refdef.x + 0.5 * (640 - w),
+		//	y + cg.refdef.y + 0.5 * (480 - h),
+		//	w, h, 0, 0, 1, 1, hShader );
 	}
 
 	if ( cg.forceCrosshairStartTime && cg_crosshairForceHint.integer ) // drawing extra bits
@@ -2928,7 +2956,7 @@ static void CG_ScanForCrosshairEntity( qboolean scanAll )
 	//CROSSHAIR is now always drawn from this trace so it's 100% accurate
 	if ( 1 )	//(cg_dynamicCrosshair.integer )
 	{//draw crosshair at endpoint
-		CG_DrawCrosshair( trace.endpos );
+		CG_DrawCrosshair( trace.endpos, g_crosshairEntDist);
 	}
 
 	g_crosshairEntNum = trace.entityNum;
@@ -3846,7 +3874,7 @@ static void CG_Draw2D( void )
 		//}
 
 
-		CG_DrawCrosshairNames();
+		//CG_DrawCrosshairNames();
 
 		CG_RunRocketLocking();
 
@@ -4088,10 +4116,10 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 		separation = 0;
 		break;
 	case STEREO_LEFT:
-		separation = -cg_stereoSeparation.value / 2;
+		separation = 0;//-cg_stereoSeparation.value / 2;
 		break;
 	case STEREO_RIGHT:
-		separation = cg_stereoSeparation.value / 2;
+		separation = 0;//cg_stereoSeparation.value / 2;
 		break;
 	default:
 		separation = 0;
@@ -4119,8 +4147,11 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 	}
 
 	cg.refdef.rdflags |= RDF_DRAWSKYBOX;
-
+	cg.refdef.stereoFrame = stereoView;
 	// draw 3D view
+
+	CG_DrawCrosshairNames();
+
 	cgi_R_RenderScene( &cg.refdef );
 
 	// restore original viewpoint if running stereo
@@ -4130,6 +4161,8 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 
 	// draw status bar and other floating elements
 	CG_Draw2D();
+
+
 
 }
 

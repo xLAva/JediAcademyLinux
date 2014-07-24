@@ -12,6 +12,9 @@
 #include "../game/g_vehicles.h"
 #include "../game/g_local.h"
 #include "../game/g_functions.h"
+ 
+#include "../hmd/GameHmd.h"
+
 
 #define MASK_CAMERACLIP (MASK_SOLID)
 #define CAMERA_SIZE	4
@@ -1058,7 +1061,8 @@ static void CG_OffsetFirstPersonView( qboolean firstPersonSaber ) {
 		origin[2] += cg.predicted_player_state.viewheight;
 		return;
 	}
-
+	
+/*
 	if ( g_entities[0].client && PM_InKnockDown( &g_entities[0].client->ps ) )
 	{
 		float perc, animLen = (float)PM_AnimLength( g_entities[0].client->clientInfo.animFileIndex, (animNumber_t)g_entities[0].client->ps.legsAnim );
@@ -1110,7 +1114,7 @@ static void CG_OffsetFirstPersonView( qboolean firstPersonSaber ) {
 			}
 		}
 	}
-
+*/
 	// add pitch based on fall kick
 #if 0
 	ratio = ( cg.time - cg.landTime) / FALL_TIME;
@@ -1118,7 +1122,7 @@ static void CG_OffsetFirstPersonView( qboolean firstPersonSaber ) {
 		ratio = 0;
 	angles[PITCH] += ratio * cg.fall_value;
 #endif
-
+/*
 	// add angles based on velocity
 	VectorCopy( cg.predicted_player_state.velocity, predictedVelocity );
 
@@ -1143,7 +1147,7 @@ static void CG_OffsetFirstPersonView( qboolean firstPersonSaber ) {
 	if (cg.bobcycle & 1)
 		delta = -delta;
 	angles[ROLL] += delta;
-
+*/
 //===================================
 
 	if ( !firstPersonSaber )//First person saber
@@ -1174,6 +1178,7 @@ static void CG_OffsetFirstPersonView( qboolean firstPersonSaber ) {
 		cg.refdef.vieworg[2] -= cg.duckChange * (DUCK_TIME - timeDelta) / DUCK_TIME;
 	}
 
+/*
 	// add bob height
 	bob = cg.bobfracsin * cg.xyspeed * cg_bobup.value;
 	if (bob > 6) {
@@ -1206,7 +1211,7 @@ static void CG_OffsetFirstPersonView( qboolean firstPersonSaber ) {
 		AngleVectors(cg.refdefViewAngles, NULL, right, NULL);
 		VectorMA(cg.refdef.vieworg, (float)cg.snap->ps.leanofs, right, cg.refdef.vieworg);
 	}
-
+*/
 	// pivot the eye based on a neck length
 #if 0
 	{
@@ -1284,6 +1289,9 @@ qboolean CG_CalcFOVFromX( float fov_x )
 	}
 
 	// set it
+	
+	fov_x = 125;
+	fov_y = 125;
 	cg.refdef.fov_x = fov_x;
 	cg.refdef.fov_y = fov_y;
 
@@ -1569,6 +1577,7 @@ CG_CalcViewValues
 Sets cg.refdef view values
 ===============
 */
+
 static qboolean CG_CalcViewValues( void ) {
 	playerState_t	*ps;
 	qboolean		viewEntIsCam = qfalse;
@@ -1584,12 +1593,14 @@ static qboolean CG_CalcViewValues( void ) {
 	trap_Com_SetOrgAngles(ps->origin,ps->viewangles);
 #endif
 	// intermission view
+	/* OR LAVA
 	if ( ps->pm_type == PM_INTERMISSION ) {
 		VectorCopy( ps->origin, cg.refdef.vieworg );
 		VectorCopy( ps->viewangles, cg.refdefViewAngles );
 		AnglesToAxis( cg.refdefViewAngles, cg.refdef.viewaxis );
 		return CG_CalcFov();
 	}
+	*/
 
 	cg.bobcycle = ( ps->bobCycle & 128 ) >> 7;
 	cg.bobfracsin = fabs( sin( ( ps->bobCycle & 127 ) / 127.0 * M_PI ) );
@@ -1669,10 +1680,23 @@ static qboolean CG_CalcViewValues( void ) {
 				CG_OffsetFirstPersonView( qtrue );
 				cg.refdef.vieworg[2] += 32;
 				AngleVectors( cg.refdefViewAngles, dir, NULL, NULL );
-				VectorMA( cg.refdef.vieworg, -2, dir, cg.refdef.vieworg );
+                dir[2] = 0;
+                VectorNormalize(dir);
+                
+				VectorMA( cg.refdef.vieworg, 0, dir, cg.refdef.vieworg );
+
+                centity_t	*playerCent = &cg_entities[0];
+                if ( playerCent && playerCent->gent && playerCent->gent->client )
+                {
+                    VectorCopy( cg.refdef.vieworg, playerCent->gent->client->renderInfo.eyePoint );
+                    VectorCopy( cg.refdefViewAngles, playerCent->gent->client->renderInfo.eyeAngles );
+                }
 			}
 		}
-		CG_OffsetThirdPersonView();
+		else
+		{
+			CG_OffsetThirdPersonView();
+		}
 //		}
 	}  
 	else 
@@ -1725,6 +1749,17 @@ static qboolean CG_CalcViewValues( void ) {
 		cg.refdefViewAngles[ROLL] += ( sin( cg.time * 0.0004f )  * 7.0f * perc );
 		cg.refdefViewAngles[PITCH] += ( 26.0f * perc + sin( cg.time * 0.0011f ) * 3.0f * perc );
 	}
+
+    VectorCopy(cg.refdefViewAngles, cg.refdefViewAnglesWeapon);
+
+    cg.refdef.delta_yaw = SHORT2ANGLE(ps->delta_angles[YAW]);
+    float pitch, yaw, roll;
+    if (GameHmd::Get()->GetOrientation(pitch, yaw, roll))
+    {	
+        cg.refdefViewAngles[ROLL] = roll;
+        cg.refdefViewAngles[PITCH] = pitch;
+        cg.refdefViewAngles[YAW] = yaw + SHORT2ANGLE(ps->delta_angles[YAW]);
+    }
 
 	AnglesToAxis( cg.refdefViewAngles, cg.refdef.viewaxis );
 
@@ -1999,6 +2034,64 @@ static qboolean cg_rangedFogging = qfalse; //so we know if we should go back to 
 void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView ) {
 	qboolean	inwater = qfalse;
 
+	if (stereoView == STEREO_RIGHT) 
+    {
+        cg.refdef.stereoFrame = stereoView;
+                
+        if ( cg.infoScreenText[0] != 0 ) {
+            CG_DrawInformation();
+            return;
+        }
+        
+        if ( !cg.snap ) {
+            //CG_DrawInformation();
+            return;
+        }        
+        
+        
+        //[LAva] TODO: check if we still need this
+        //theFxHelper.AdjustTime( 1 );             
+        
+        CG_DrawSkyBoxPortal();
+        
+        if ( !cg.renderingThirdPerson ) {
+            CG_DamageBlendBlob();		
+        }        
+        
+        // build the render lists
+        if ( !cg.hyperspace ) {
+            CG_AddPacketEntities(qfalse);			// adter calcViewValues, so predicted player state is correct
+            CG_AddMarks();
+            CG_AddLocalEntities();
+            CG_DrawMiscEnts();
+        }    
+        
+        // Don't draw the in-view weapon when in camera mode
+        if ( !in_camera 
+            && !cg_pano.integer 
+            && cg.snap->ps.weapon != WP_SABER
+            && ( cg.snap->ps.viewEntity == 0 || cg.snap->ps.viewEntity >= ENTITYNUM_WORLD ) )
+        {
+            CG_AddViewWeapon( &cg.predicted_player_state );
+        }
+   
+        
+        if ( !cg.hyperspace && fx_freeze.integer<2 ) 
+        {
+            //Add all effects
+            theFxScheduler.AddScheduledEffects( false );
+        }
+    
+        // finish up the rest of the refdef
+        if ( cg.testModelEntity.hModel ) {
+            CG_AddTestModel();
+        }        
+        
+        CG_DrawActive( stereoView );
+        
+		return;
+	}
+
 	cg.time = serverTime;
 
 	// update cvars
@@ -2097,7 +2190,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView ) {
 								|| (cg.snap->ps.stats[STAT_HEALTH] <= 0) 
 								|| (cg.snap->ps.eFlags&EF_HELD_BY_SAND_CREATURE)
 								|| (g_entities[0].client&&g_entities[0].client->NPC_class==CLASS_ATST
-								|| (cg.snap->ps.weapon == WP_SABER || cg.snap->ps.weapon == WP_MELEE) );
+								|| (/*cg.snap->ps.weapon == WP_SABER || */cg.snap->ps.weapon == WP_MELEE) );
 
 	if ( cg.zoomMode )
 	{
@@ -2118,6 +2211,9 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView ) {
 		inwater = CG_CalcViewValues();
 	}
 
+    // cg.refdef is 100% inisialized here -> set stereo flag
+    cg.refdef.stereoFrame = stereoView;
+    
 	if (cg.zoomMode)
 	{ //zooming with binoculars or sniper, set the fog range based on the zoom level -rww
 		cg_rangedFogging = qtrue;
@@ -2131,6 +2227,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView ) {
 	}
 
 	cg.refdef.time = cg.time;
+
 
 	CG_DrawSkyBoxPortal();
 

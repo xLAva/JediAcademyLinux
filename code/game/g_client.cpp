@@ -334,7 +334,7 @@ void SetClientViewAngle( gentity_t *ent, vec3_t angle ) {
 	// set the delta angle
 	for (i=0 ; i<3 ; i++) 
 	{
-		ent->client->ps.delta_angles[i] = (ANGLE2SHORT(angle[i]) - ent->client->pers.cmd_angles[i])&0xffff;
+        ent->client->ps.delta_angles[i] = (ANGLE2SHORT(angle[i]) - ent->client->pers.cmd_angles[i])&0xffff;
 	}
 	VectorCopy( angle, ent->s.angles );
 	VectorCopy (ent->s.angles, ent->client->ps.viewangles);

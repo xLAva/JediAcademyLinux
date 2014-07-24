@@ -1481,6 +1481,10 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 		{
 			//FIXME get this limit from the NPCs stats?
 			// don't let the player look up or down more than 90 degrees
+
+            // always take the real angle as basis for teh delta angle calculation
+            // this should remove the delta_angle if we are back in range
+            temp = cmd->angles[i];
 			if ( temp > pitchClampMax ) 
 			{
 				ps->delta_angles[i] = (pitchClampMax - cmd->angles[i]) & 0xffff;	//& clamp to short
@@ -1493,6 +1497,10 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 				temp = pitchClampMin;
 				clamped = qtrue;
 			}
+            else
+            {
+                ps->delta_angles[i] = 0;
+            }
 		}
 		/*
 		if ( i == ROLL && ps->vehicleIndex != VEHICLE_NONE ) 

@@ -4496,7 +4496,7 @@ qboolean CG_PlayerCanSeeCent( centity_t *cent )
 
 	dot += (0.99f-dot)*centDist/range;//the farther away they are, the more in front they have to be
 
-	AngleVectors( cg.refdefViewAngles, lookDir, NULL, NULL );
+    AngleVectors( cg.refdefViewAnglesWeapon, lookDir, NULL, NULL );
 	
 	if ( DotProduct( centDir, lookDir ) < dot )
 	{//not in force sight cone
@@ -6977,7 +6977,7 @@ Ghoul2 Insert Start
 			{//no viewentity
 				if ( cent->currentState.number == cg.snap->ps.clientNum )
 				{//I am the player
-					if ( cg.snap->ps.weapon != WP_SABER && cg.snap->ps.weapon != WP_MELEE )
+					if ( /*cg.snap->ps.weapon != WP_SABER &&*/ cg.snap->ps.weapon != WP_MELEE )
 					{//not using saber or fists
 						ent.renderfx = RF_THIRD_PERSON;			// only draw in mirrors
 					}
@@ -6985,7 +6985,7 @@ Ghoul2 Insert Start
 			}
 			else if ( cent->currentState.number == cg.snap->ps.viewEntity )
 			{//I am the view entity
-				if ( cg.snap->ps.weapon != WP_SABER && cg.snap->ps.weapon != WP_MELEE )
+				if ( /*cg.snap->ps.weapon != WP_SABER &&*/ cg.snap->ps.weapon != WP_MELEE )
 				{//not using first person saber test or, if so, not using saber
 					ent.renderfx = RF_THIRD_PERSON;			// only draw in mirrors
 				}
@@ -7327,7 +7327,7 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 		if ( cent->currentState.number != 0 
 			|| cg.renderingThirdPerson 
 			|| cg.snap->ps.stats[STAT_HEALTH] <= 0 
-			|| ( !cg.renderingThirdPerson && (cg.snap->ps.weapon == WP_SABER||cg.snap->ps.weapon == WP_MELEE) )//First person saber
+			|| ( !cg.renderingThirdPerson && (/*cg.snap->ps.weapon == WP_SABER||*/cg.snap->ps.weapon == WP_MELEE) )//First person saber
 			)
 		{//in some third person mode or NPC
 			//we don't override thes in pure 1st person because they will be set before this func
@@ -7557,7 +7557,7 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 		if ( cent->currentState.number != 0 
 			|| cg.renderingThirdPerson 
 			|| cg.snap->ps.stats[STAT_HEALTH] <= 0 
-			|| ( !cg.renderingThirdPerson && (cg.snap->ps.weapon == WP_SABER||cg.snap->ps.weapon == WP_MELEE) )//First person saber
+			|| ( !cg.renderingThirdPerson && (/*cg.snap->ps.weapon == WP_SABER||*/cg.snap->ps.weapon == WP_MELEE) )//First person saber
 			)
 		{//if NPC, third person, or dead, unless using saber
 			//Get eyePoint & eyeAngles
@@ -8087,7 +8087,7 @@ Ghoul2 Insert End
 		{//no viewentity
 			if ( cent->currentState.number == cg.snap->ps.clientNum )
 			{//I am the player
-				if ( cg.snap->ps.weapon != WP_SABER && cg.snap->ps.weapon != WP_MELEE )
+				if ( /*cg.snap->ps.weapon != WP_SABER &&*/ cg.snap->ps.weapon != WP_MELEE )
 				{//not using saber or fists
 					renderfx = RF_THIRD_PERSON;			// only draw in mirrors
 				}
@@ -8095,7 +8095,7 @@ Ghoul2 Insert End
 		}
 		else if ( cent->currentState.number == cg.snap->ps.viewEntity )
 		{//I am the view entity
-			if ( cg.snap->ps.weapon != WP_SABER && cg.snap->ps.weapon != WP_MELEE )
+			if ( /*cg.snap->ps.weapon != WP_SABER &&*/ cg.snap->ps.weapon != WP_MELEE )
 			{//not using saber or fists
 				renderfx = RF_THIRD_PERSON;			// only draw in mirrors
 			}

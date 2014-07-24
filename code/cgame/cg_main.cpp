@@ -10,6 +10,8 @@
 #include "cg_lights.h"
 #include "../game/g_local.h"
 
+#include "../hmd/GameHmd.h"
+
 #ifdef _IMMERSION
 #include "../ff/ff.h"
 #endif // _IMMERSION
@@ -99,6 +101,9 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int a
 	centity_t		*cent;
 
 	switch ( command ) {
+	case CG_HMD_UPDATE:
+        GameHmd::Get()->UpdateHmd((float*)arg0, (float*)arg1, (float*)arg2);
+		return 0;	
 	case CG_INIT:
 		CG_Init( arg0 );
 		return 0;

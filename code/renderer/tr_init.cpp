@@ -12,6 +12,9 @@
 #include "tr_font.h"
 #include "tr_WorldEffects.h"
 
+#include "../hmd/ClientHmd.h"
+#include "../hmd/FactoryHmdDevice.h"
+
 glconfig_t	glConfig;
 glstate_t	glState;
 
@@ -261,6 +264,41 @@ PFNGLGETPROGRAMSTRINGARBPROC qglGetProgramStringARB = NULL;
 PFNGLISPROGRAMARBPROC qglIsProgramARB = NULL;
 #endif
 
+PFNglIsRenderbufferPROC qglIsRenderbuffer = NULL;
+PFNglBindRenderbufferPROC qglBindRenderbuffer = NULL;
+PFNglDeleteRenderbuffersPROC qglDeleteRenderbuffers = NULL;
+PFNglGenRenderbuffersPROC qglGenRenderbuffers = NULL;
+PFNglRenderbufferStoragePROC qglRenderbufferStorage = NULL;
+PFNglRenderbufferStorageMultisamplePROC qglRenderbufferStorageMultisample = NULL;
+PFNglGetRenderbufferParameterivPROC qglGetRenderbufferParameteriv = NULL;
+PFNglIsFramebufferPROC qglIsFramebuffer = NULL;
+PFNglGenFramebuffersPROC qglGenFramebuffers = NULL;
+PFNglBindFramebufferPROC qglBindFramebuffer = NULL;
+PFNglDeleteFramebuffersPROC qglDeleteFramebuffers = NULL;
+PFNglCheckFramebufferStatusPROC qglCheckFramebufferStatus = NULL;
+PFNglFramebufferTexture1DPROC qglFramebufferTexture1D = NULL;
+PFNglFramebufferTexture2DPROC qglFramebufferTexture2D = NULL;
+PFNglFramebufferTexture3DPROC qglFramebufferTexture3D = NULL;
+PFNglFramebufferTextureLayerPROC qglFramebufferTextureLayer = NULL;
+PFNglFramebufferRenderbufferPROC qglFramebufferRenderbuffer = NULL;
+PFNglGetFramebufferAttachmentParameterivPROC qglGetFramebufferAttachmentParameteriv = NULL;
+PFNglBlitFramebufferPROC qglBlitFramebuffer = NULL;
+PFNglGenerateMipmapPROC qglGenerateMipmap = NULL;
+
+PFNglCreateShaderObjectARBPROC qglCreateShaderObjectARB = NULL;
+PFNglShaderSourceARBPROC qglShaderSourceARB = NULL;
+PFNglCompileShaderARBPROC qglCompileShaderARB = NULL;
+PFNglCreateProgramObjectARBPROC qglCreateProgramObjectARB = NULL;
+PFNglAttachObjectARBPROC qglAttachObjectARB = NULL;
+PFNglLinkProgramARBPROC qglLinkProgramARB = NULL;
+PFNglUseProgramObjectARBPROC qglUseProgramObjectARB = NULL;
+PFNglUniform2fARBPROC qglUniform2fARB = NULL;
+PFNglUniform2fvARBPROC qglUniform2fvARB = NULL;
+PFNglGetUniformLocationARBPROC qglGetUniformLocationARB = NULL;
+
+PFNglBindBufferPROC qglBindBuffer = NULL;
+PFNglBindVertexArrayPROC qglBindVertexArray = NULL;
+
 void RE_SetLightStyle(int style, int color);
 
 static void AssertCvarRange( cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral,  qboolean shouldBeMult2)
@@ -298,6 +336,7 @@ static void AssertCvarRange( cvar_t *cv, float minVal, float maxVal, qboolean sh
 	}
 }
 
+
 void R_Splash()
 {
 #ifndef _XBOX
@@ -315,34 +354,47 @@ void R_Splash()
 */
 	pImage = R_FindImageFile( "menu/splash", qfalse, qfalse, qfalse, GL_CLAMP);
 
-	extern void	RB_SetGL2D (void);
-	RB_SetGL2D();	
-	if (pImage )
-	{//invalid paths?
-		GL_Bind( pImage );
-	}
-	GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO);
+    IHmdRenderer* pHmdRenderer = ClientHmd::Get()->GetRenderer();    
+    int drawCount = pHmdRenderer != NULL ? 2 : 1;
+    
 
-	const int width = 640;
-	const int height = 480;
-	const float x1 = 320 - width / 2;
-	const float x2 = 320 + width / 2;
-	const float y1 = 240 - height / 2;
-	const float y2 = 240 + height / 2;
-
-
-	qglBegin (GL_TRIANGLE_STRIP);
-		qglTexCoord2f( 0,  0 );
-		qglVertex2f(x1, y1);
-		qglTexCoord2f( 1 ,  0 );
-		qglVertex2f(x2, y1);
-		qglTexCoord2f( 0, 1 );
-		qglVertex2f(x1, y2);
-		qglTexCoord2f( 1, 1 );
-		qglVertex2f(x2, y2);
-	qglEnd();
-
+    const int width = 640;
+    const int height = 480;
+    const float x1 = 320 - width / 2;
+    const float x2 = 320 + width / 2;
+    const float y1 = 240 - height / 2;
+    const float y2 = 240 + height / 2;    
+    
+    for (int i=0; i<drawCount; i++)
+    {
+        if (pHmdRenderer)
+        {
+            pHmdRenderer->BindFramebuffer(i == 0);
+        }        
+     
+        extern void	RB_SetGL2D (void);
+        
+        RB_SetGL2D();	
+        if (pImage )
+        {//invalid paths?
+            GL_Bind( pImage );
+        }
+        GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO);        
+        
+        qglBegin (GL_TRIANGLE_STRIP);
+            qglTexCoord2f( 0,  0 );
+            qglVertex2f(x1, y1);
+            qglTexCoord2f( 1 ,  0 );
+            qglVertex2f(x2, y1);
+            qglTexCoord2f( 0, 1 );
+            qglVertex2f(x1, y2);
+            qglTexCoord2f( 1, 1 );
+            qglVertex2f(x2, y2);
+        qglEnd();
+    }
+    
 	GLimp_EndFrame();
+	
 #endif
 }
 
@@ -354,6 +406,10 @@ void R_Splash()
 ** setting variables, checking GL constants, and reporting the gfx system config
 ** to the user.
 */
+// [LAva] ugly as hell
+static IHmdDevice* pHmdDevice = NULL;
+static IHmdRenderer* pHmdRenderer = NULL;
+
 static void InitOpenGL( void )
 {
 	//
@@ -369,6 +425,25 @@ static void InitOpenGL( void )
 
 	if ( glConfig.vidWidth == 0 )
 	{		
+        // try to create a hmd device
+        ClientHmd::Get()->SetDevice(NULL);
+        ClientHmd::Get()->SetRenderer(NULL);    
+        
+        pHmdDevice = FactoryHmdDevice::CreateHmdDevice();
+        if (pHmdDevice)
+        {
+            VID_Printf(PRINT_ALL, "HMD Device found: %s\n", pHmdDevice->GetInfo().c_str());
+            ClientHmd::Get()->SetDevice(pHmdDevice);
+            
+            pHmdRenderer = FactoryHmdDevice::CreateRendererForDevice(pHmdDevice);
+            
+            if (pHmdRenderer)
+            {
+                VID_Printf(PRINT_ALL, "HMD Renderer created: %s\n", pHmdRenderer->GetInfo().c_str());
+                ClientHmd::Get()->SetRenderer(pHmdRenderer);
+            }
+        }        
+        
 		GLimp_Init();
 		// print info the first time only
 		// set default state
@@ -1316,6 +1391,9 @@ void R_ClearStuffToStopGhoul2CrashingThings(void)
 R_Init
 ===============
 */
+
+
+
 extern void R_InitWorldEffects();
 void R_Init( void ) {	
 	int	err;
@@ -1503,7 +1581,26 @@ void RE_Shutdown( qboolean destroyWindow ) {
 	// shut down platform specific OpenGL stuff
 	if ( destroyWindow ) {
 		GLimp_Shutdown();
+        
+        ClientHmd::Get()->SetDevice(NULL);
+        ClientHmd::Get()->SetRenderer(NULL);     
+        
+        if (pHmdRenderer != NULL)
+        {
+            delete pHmdRenderer;
+            pHmdRenderer = NULL;
+        }
+        
+        if (pHmdDevice != NULL)
+        {
+            pHmdDevice->Shutdown();
+            delete pHmdDevice;
+            pHmdDevice = NULL;
+        }
+        
 	}
+    
+
 	tr.registered = qfalse;
 }
 

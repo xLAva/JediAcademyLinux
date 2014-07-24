@@ -13,6 +13,9 @@
 #include "../win32/win_highdynamicrange.h"
 #endif
 
+#include "../hmd/ClientHmd.h"
+#include "../hmd/HmdRenderer/IHmdRenderer.h"
+
 backEndData_t	*backEndData;
 backEndState_t	backEnd;
 
@@ -425,7 +428,7 @@ static void RB_Hyperspace( void ) {
 
 void SetViewportAndScissor( void ) {
 	qglMatrixMode(GL_PROJECTION);
-	qglLoadMatrixf( backEnd.viewParms.projectionMatrix );
+    qglLoadMatrixf( backEnd.viewParms.projectionMatrix );
 	qglMatrixMode(GL_MODELVIEW);
 
 	// set the window clipping
@@ -1026,8 +1029,26 @@ void	RB_SetGL2D (void) {
 	backEnd.projection2D = qtrue;
 
 	// set 2D virtual screen size
-	qglViewport( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
-	qglScissor( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
+    IHmdRenderer* pHmdRenderer = ClientHmd::Get()->GetRenderer();
+    
+	if (pHmdRenderer)
+	{
+        int x = 0;
+        int y = 0;
+        int w = glConfig.vidWidth;
+        int h = glConfig.vidHeight;
+        
+        pHmdRenderer->Get2DViewport(x, y, w, h);
+
+
+		qglViewport(x, y, w, h);
+		qglScissor(x, y, w, h);
+	}
+	else
+	{
+		qglViewport( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
+		qglScissor( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
+	}
 	qglMatrixMode(GL_PROJECTION);
     qglLoadIdentity ();
 #ifdef _XBOX
@@ -1402,10 +1423,26 @@ RB_DrawBuffer
 const void	*RB_DrawBuffer( const void *data ) {
 	const drawBufferCommand_t	*cmd;
 
-	cmd = (const drawBufferCommand_t *)data;
-
-	qglDrawBuffer( cmd->buffer );
-
+    IHmdRenderer* pHmdRenderer = ClientHmd::Get()->GetRenderer();
+    if (pHmdRenderer)
+    {
+        if ( tess.numIndexes ) 
+        {
+            RB_EndSurface();	//this might change culling and other states
+        }
+    
+        cmd = (const drawBufferCommand_t *)data;
+    
+        pHmdRenderer->BindFramebuffer(cmd->buffer == GL_BACK_LEFT);
+    
+        backEnd.projection2D = false;    
+    }
+    else
+    {
+        cmd = (const drawBufferCommand_t *)data;
+        qglDrawBuffer( cmd->buffer );
+    }
+       
 		// clear screen for debugging
 	if (!( backEnd.refdef.rdflags & RDF_NOWORLDMODEL ) && tr.world && tr.refdef.rdflags & RDF_doLAGoggles)
 	{

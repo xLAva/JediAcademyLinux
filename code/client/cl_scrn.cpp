@@ -8,6 +8,8 @@
 #include "client.h"
 #include "client_ui.h"
 
+#include "../hmd/ClientHmd.h"
+
 extern console_t con;
 
 qboolean	scr_initialized;		// ready to draw
@@ -451,6 +453,8 @@ void SCR_UpdateScreen( void ) {
 		Com_Error( ERR_FATAL, "SCR_UpdateScreen: recursively called" );
 	}
 	recursive = qtrue;
+
+    ClientHmd::Get()->UpdateGame();
 
 	// if running in stereo, we need to draw the frame twice
 	if ( cls.glconfig.stereoEnabled ) {

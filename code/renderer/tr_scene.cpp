@@ -10,6 +10,9 @@
 #include "tr_lightmanager.h"
 #endif
 
+#include "../hmd/ClientHmd.h"
+#include "../hmd/HmdRenderer/IHmdRenderer.h"
+
 int			r_firstSceneDrawSurf;
 
 int			r_numdlights;
@@ -280,6 +283,8 @@ void RE_RenderScene( const refdef_t *fd ) {
 	tr.refdef.height = fd->height;
 	tr.refdef.fov_x = fd->fov_x;
 	tr.refdef.fov_y = fd->fov_y;
+	tr.refdef.stereoFrame = fd->stereoFrame;
+    tr.refdef.delta_yaw = fd->delta_yaw;
 
 	VectorCopy( fd->vieworg, tr.refdef.vieworg );
 	VectorCopy( fd->viewaxis[0], tr.refdef.viewaxis[0] );
@@ -388,6 +393,18 @@ void RE_RenderScene( const refdef_t *fd ) {
 
 	VectorCopy( fd->vieworg, parms.pvsOrigin );
 
+    IHmdRenderer* pHmdRenderer = ClientHmd::Get()->GetRenderer();
+    if (pHmdRenderer)
+    {
+        bool leftEye = tr.refdef.stereoFrame == STEREO_LEFT;
+        pHmdRenderer->BindFramebuffer(leftEye);
+        parms.viewportX += pHmdRenderer->GetViewportXOffset();
+        
+        // calculate body yaw
+        parms.bodyYaw = ClientHmd::Get()->GetYawDiff() + tr.refdef.delta_yaw;        
+    }    
+    
+    
 	recursivePortalCount = 0;
 	R_RenderView( &parms );
 

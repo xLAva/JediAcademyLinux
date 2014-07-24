@@ -12,14 +12,12 @@ cmake_minimum_required(VERSION 2.6)
 
 project(jk3)
 
-set(CMAKE_BUILD_TYPE "RELEASE")
-# set(CMAKE_BUILD_TYPE "DEBUG")
+set(USE_OCULUS_SDK 0)
+set(USE_OPENHMD 1)
 
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wno-write-strings -Wno-pointer-arith -Wno-multichar -Wno-int-to-pointer-cast -Wno-enum-compare -Wno-cpp -Wno-overflow -fexceptions -m32 -ffast-math -DLINUX -DNDEBUG")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-write-strings -Wno-conversion-null -Wno-pointer-arith -Wno-multichar -Wno-int-to-pointer-cast -Wno-enum-compare -Wno-cpp -Wno-overflow -fexceptions -m32 -ffast-math -fno-operator-names -DLINUX -DNDEBUG")
+#set(CMAKE_BUILD_TYPE "RELEASE")
+set(CMAKE_BUILD_TYPE "DEBUG")
 
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g -Wno-write-strings -Wno-pointer-arith -Wno-multichar -Wno-int-to-pointer-cast -Wno-enum-compare -Wno-cpp -Wno-overflow -g -fexceptions -m32 -ffast-math -DLINUX -DNDEBUG")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-write-strings -Wno-conversion-null -Wno-pointer-arith -Wno-multichar -Wno-int-to-pointer-cast -Wno-enum-compare -Wno-cpp -Wno-overflow -fexceptions -m32 -ffast-math -fno-operator-names -DLINUX -DNDEBUG")
 
 set(GAME_SOURCE_FILES
                 Ratl/ratl.cpp
@@ -57,6 +55,7 @@ set(GAME_SOURCE_FILES
                 cgame/cg_headers.cpp
                 cgame/cg_info.cpp
                 cgame/cg_lights.cpp
+                cgame/cg_local.h
                 cgame/cg_localents.cpp
                 cgame/cg_main.cpp
                 cgame/cg_marks.cpp
@@ -176,10 +175,11 @@ set(GAME_SOURCE_FILES
                 icarus/TaskManager.cpp
                 qcommon/tri_coll_test.cpp
                 ui/gameinfo.cpp
+                hmd/GameHmd.h
+                hmd/GameHmd.cpp
 )
 
-add_library(jagamex86 SHARED ${GAME_SOURCE_FILES})
-set_target_properties(jagamex86 PROPERTIES PREFIX "")
+
 
 set(STARWARS_SOURCE_FILES
 	RMG/RM_Area.cpp
@@ -194,6 +194,7 @@ set(STARWARS_SOURCE_FILES
 	RMG/RM_Objective.cpp
 	RMG/RM_Path.cpp
 	RMG/RM_Terrain.cpp
+    client/client.h
 	client/cl_cgame.cpp
 	client/cl_cin.cpp
 	client/cl_console.cpp
@@ -336,7 +337,7 @@ set(STARWARS_SOURCE_FILES
 	renderer/tr_mesh.cpp
 	renderer/tr_model.cpp
 	renderer/tr_noise.cpp
-	renderer/tr_quicksprite.cpp
+        renderer/tr_quicksprite.cpp
 	renderer/tr_scene.cpp
 	renderer/tr_shade.cpp
 	renderer/tr_shade_calc.cpp
@@ -348,6 +349,23 @@ set(STARWARS_SOURCE_FILES
 	renderer/tr_surfacesprites.cpp
 	renderer/tr_terrain.cpp
 	renderer/tr_world.cpp
+	renderer/glext_console.h
+	renderer/glext.h
+	renderer/matcomp.h
+	renderer/mdx_format.h
+	renderer/qgl_console.h
+	renderer/qgl.h
+	renderer/qgl_linked.h
+	renderer/tr_font.h
+	renderer/tr_jpeg_interface.h
+	renderer/tr_landscape.h
+	renderer/tr_local.h
+	renderer/tr_public.h
+	renderer/tr_quicksprite.h
+	renderer/tr_stl.h
+	renderer/tr_types.h
+	renderer/tr_WorldEffects.h
+
 	server/exe_headers.cpp
 	server/sv_ccmds.cpp
 	server/sv_client.cpp
@@ -363,7 +381,70 @@ set(STARWARS_SOURCE_FILES
 	ui/ui_saber.cpp
 	ui/ui_shared.cpp
 	ui/ui_syscalls.cpp
+	hmd/ClientHmd.h
+	hmd/ClientHmd.cpp
+	hmd/HmdDevice/IHmdDevice.h
+	hmd/HmdDevice/HmdDeviceMouse.h
+	hmd/HmdDevice/HmdDeviceMouse.cpp
+	hmd/FactoryHmdDevice.h
+	hmd/FactoryHmdDevice.cpp
+    hmd/HmdRenderer/IHmdRenderer.h
+    hmd/HmdRenderer/HmdRendererOculus.h
+    hmd/HmdRenderer/HmdRendererOculus.cpp
+    hmd/HmdRenderer/PlatformInfo.h
+    hmd/HmdRenderer/RenderTool.h
+    hmd/HmdRenderer/RenderTool.cpp
 )
+
+set(CUSTOM_COMPILE_FLAGS_ALL "")
+
+if(USE_OCULUS_SDK)
+    set(STARWARS_SOURCE_FILES ${STARWARS_SOURCE_FILES}
+        hmd/HmdDevice/HmdDeviceOculusSdk.h
+        hmd/HmdDevice/HmdDeviceOculusSdk.cpp
+        hmd/HmdRenderer/HmdRendererOculusSdk.h
+        hmd/HmdRenderer/HmdRendererOculusSdk.cpp
+    )
+
+    set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DUSE_OVR")
+    include_directories(/home/jochen/DocumentsSSD/Libs/OculusSDK/LibOVR/Src)
+
+    set(EXTRA_LIBS ${EXTRA_LIBS} /home/jochen/DocumentsSSD/Libs/OculusSDK/LibOVR/Lib/Linux/Debug/i386/libovr.a)
+    set(EXTRA_LIBS ${EXTRA_LIBS} udev)
+    set(EXTRA_LIBS ${EXTRA_LIBS} Xinerama)
+
+endif()
+
+if(USE_OPENHMD)
+    set(STARWARS_SOURCE_FILES ${STARWARS_SOURCE_FILES}
+        hmd/HmdDevice/HmdDeviceOpenHmd.h
+        hmd/HmdDevice/HmdDeviceOpenHmd.cpp
+        hmd/HmdRenderer/HmdRendererOculusOpenHmd.h
+        hmd/HmdRenderer/HmdRendererOculusOpenHmd.cpp
+    )
+
+    set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DUSE_OPENHMD")
+    include_directories(/home/jochen/Documents/Libs/OpenHMD/include)
+    include_directories(/home/jochen/Documents/Libs/OpenHMD/src)
+
+    set(EXTRA_LIBS ${EXTRA_LIBS} /home/jochen/Documents/Libs/OpenHMD/libopenhmd.a)
+    set(EXTRA_LIBS ${EXTRA_LIBS} hidapi-libusb)
+    #set(EXTRA_LIBS ${EXTRA_LIBS} Xinerama)
+
+endif()
+
+
+
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${CUSTOM_COMPILE_FLAGS_ALL} -Wno-write-strings -Wno-pointer-arith -Wno-multichar -Wno-int-to-pointer-cast -Wno-enum-compare -Wno-cpp -Wno-overflow -fexceptions -m32 -ffast-math -DLINUX -DNDEBUG")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${CUSTOM_COMPILE_FLAGS_ALL} -Wno-write-strings -Wno-conversion-null -Wno-pointer-arith -Wno-multichar -Wno-int-to-pointer-cast -Wno-enum-compare -Wno-cpp -Wno-overflow -fexceptions -m32 -ffast-math -fno-operator-names -DLINUX -DNDEBUG")
+
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${CUSTOM_COMPILE_FLAGS_ALL} -g -Wno-write-strings -Wno-pointer-arith -Wno-multichar -Wno-int-to-pointer-cast -Wno-enum-compare -Wno-cpp -Wno-overflow -fexceptions -m32 -ffast-math -DLINUX -DNDEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${CUSTOM_COMPILE_FLAGS_ALL} -g -Wno-write-strings -Wno-conversion-null -Wno-pointer-arith -Wno-multichar -Wno-int-to-pointer-cast -Wno-enum-compare -Wno-cpp -Wno-overflow -fexceptions -m32 -ffast-math -fno-operator-names -DLINUX -DNDEBUG")
+
+
+add_library(jagamex86 SHARED ${GAME_SOURCE_FILES})
+set_target_properties(jagamex86 PROPERTIES PREFIX "")
+
 
 set (EXTRA_LIBS ${EXTRA_LIBS} dl)
 set (EXTRA_LIBS ${EXTRA_LIBS} openal)

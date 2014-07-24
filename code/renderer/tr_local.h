@@ -102,6 +102,8 @@ typedef struct {
 	struct drawSurf_s	*drawSurfs;
 
 	int			fogIndex;	//what fog brush the vieworg is in
+	stereoFrame_t stereoFrame;
+    float       delta_yaw;
 
 } trRefdef_t;
 
@@ -568,6 +570,7 @@ typedef struct {
 	cplane_t	frustum[5];
 	vec3_t		visBounds[2];
 	float		zFar;
+    float       bodyYaw;
 } viewParms_t;
 
 
@@ -1592,6 +1595,7 @@ IMPLEMENTATION SPECIFIC FUNCTIONS
 
 void		GLimp_Init( void );
 void		GLimp_Shutdown( void );
+void		GLimp_DrawBuffer( int buffer );
 void		GLimp_EndFrame( void );
 
 void		GLimp_LogComment( char *comment );

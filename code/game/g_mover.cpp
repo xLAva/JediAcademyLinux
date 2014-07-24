@@ -169,7 +169,7 @@ qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, v
 	VectorAdd (check->s.pos.trBase, move, check->s.pos.trBase);
 	if (check->client) {
 		// make sure the client's view rotates when on a rotating mover
-		check->client->ps.delta_angles[YAW] += ANGLE2SHORT(amove[YAW]);
+        check->client->ps.delta_angles[YAW] += ANGLE2SHORT(amove[YAW]);
 	}
 
 	// figure movement due to the pusher's amove

@@ -12,6 +12,12 @@
 #include "cl_input_hotswap.h"
 #endif
 
+#include "../hmd/ClientHmd.h"
+
+#ifdef OVR_SIM_MOUSE
+#include "../hmd/HmdDeviceMouse.h"
+#endif
+
 unsigned	frame_msec;
 int			old_com_frameTime;
 float cl_mPitchOverride = 0.0f;
@@ -507,6 +513,7 @@ void CL_JoystickMove( usercmd_t *cmd ) {
 		cmd->rightmove = ClampChar( cmd->rightmove + cl.joystickAxis[AXIS_SIDE] );
 	}
 
+
 	if ( in_mlooking ) {
 		if ( cl_mPitchOverride )
 		{
@@ -777,11 +784,28 @@ usercmd_t CL_CreateCmd( void ) {
 	// get basic movement from keyboard
 	CL_KeyMove (&cmd);
 
+#ifdef OVR_SIM_MOUSE
+    HmdDeviceMouse* pDevice = dynamic_cast<HmdDeviceMouse*>(ClientHmd::Get()->GetDevice());
+    if (pDevice != NULL)
+    {
+        vec3_t tempAngles;
+        VectorCopy(cl.viewangles, tempAngles);
+        pDevice->GetOrientationDeg(cl.viewangles[PITCH], cl.viewangles[YAW], cl.viewangles[ROLL]);
+
+        CL_MouseMove(&cmd);
+
+        pDevice->SetOrientationDeg(cl.viewangles[PITCH], cl.viewangles[YAW], cl.viewangles[ROLL]);
+        VectorCopy(tempAngles, cl.viewangles);
+    }
+#else
 	// get basic movement from mouse
 	CL_MouseMove( &cmd );
-
+#endif
 	// get basic movement from joystick
 	CL_JoystickMove( &cmd );
+
+
+
 
 	// check to make sure the angles haven't wrapped
 	if ( cl.viewangles[PITCH] - oldAngles[PITCH] > 90 ) {
@@ -790,11 +814,15 @@ usercmd_t CL_CreateCmd( void ) {
 		cl.viewangles[PITCH] = oldAngles[PITCH] - 90;
 	} 
 
+    float yawDiff = cl.viewangles[YAW] - oldAngles[YAW];
+    ClientHmd::Get()->UpdateInputView(yawDiff, cl.viewangles[PITCH], cl.viewangles[YAW], cl.viewangles[ROLL]);
+
 	if ( cl_overrideAngles )
 	{
 		VectorCopy( cl_overriddenAngles, cl.viewangles );
 		cl_overrideAngles = qfalse;
 	}
+	
 	// store out the final values
 	CL_FinishMove( &cmd );
 

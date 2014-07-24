@@ -1,3 +1,8 @@
 /exe/
 /game/
 /base/
+/CMakeFiles/
+/cmake_install.cmake
+/cmake_install.cmake.user
+/CMakeCache.txt
+/Makefile

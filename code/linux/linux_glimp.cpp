@@ -25,11 +25,19 @@
 #include "../renderer/tr_local.h"
 #include "../client/client.h"
 
-#include "linux_glw.h"
+
 #include "linux_local.h"
 
 
 #include <GL/glx.h>
+
+#include "linux_glw.h"
+
+#include "../hmd/ClientHmd.h"
+#include "../hmd/HmdDevice/IHmdDevice.h"
+#include "../hmd/HmdRenderer/IHmdRenderer.h"
+#include "../hmd/HmdRenderer/PlatformInfo.h"
+
 
 #include <X11/keysym.h>
 #include <X11/cursorfont.h>
@@ -153,6 +161,7 @@ static void signal_handler(int sig)
 
 static void InitSig(void)
 {
+	return;
 	signal(SIGHUP, signal_handler);
 	signal(SIGQUIT, signal_handler);
 	signal(SIGILL, signal_handler);
@@ -172,8 +181,7 @@ static qboolean GLW_StartDriverAndSetMode( const char *drivername,
 										   qboolean fullscreen )
 {
 	rserr_t err;
-
-
+    
 	err = (rserr_t) GLW_SetMode( drivername, mode, fullscreen );
 
 	switch ( err )
@@ -208,28 +216,55 @@ static int CheckXRandR()
 }
 
 
-void GLW_SetModeXRandr(int* actualWidth, int* actualHeight, qboolean* fullscreen, bool usePrimaryRes)
+void GLW_SetModeXRandr(int& rActualWidth, int& rActualHeight, int& rX, int& rY, qboolean& fullscreen, bool usePrimaryRes, const char* displayName = NULL)
 {
+    rX = 0;
+    rY = 0;
+    
 	int primaryWidth = -1;
 	int primaryHeight = -1;
+    
+    int xPos = 0;
+    int yPos = 0;
+    
+    bool makeFullscreenWithoutModeChange = false;
 	
 	res = XRRGetScreenResources (dpy, root);
 	if (res)
 	{
 		XRRCrtcInfo* crtcInfo = NULL;
 		
-		RROutput primaryDisplay = XRRGetOutputPrimary(dpy, root);
-		if (primaryDisplay > 0)
+        if (displayName != NULL)
+        {
+            XRROutputInfo *output_info = NULL;
+            for (int i=0; i<res->noutput && !crtcInfo; i++)
+            {
+                output_info = XRRGetOutputInfo (dpy, res, res->outputs[i]);
+                if (output_info && output_info->crtc && output_info->connection != RR_Disconnected && strcmp(output_info->name, displayName) == 0)
+                {
+                    makeFullscreenWithoutModeChange = true;
+                    crtcInfo = XRRGetCrtcInfo (dpy, res, output_info->crtc);
+                }
+                
+                XRRFreeOutputInfo(output_info);
+            }
+        }
+        
+        if (!crtcInfo)
 		{
-			XRROutputInfo *output_info = XRRGetOutputInfo (dpy, res, primaryDisplay);
-			if (output_info && output_info->crtc && output_info->connection != RR_Disconnected)
-			{
-				// get info from the primary display
-				crtcInfo = XRRGetCrtcInfo (dpy, res, output_info->crtc);
-			}
-			XRRFreeOutputInfo(output_info);
-			
-		}
+            RROutput primaryDisplay = XRRGetOutputPrimary(dpy, root);
+            if (primaryDisplay > 0)
+            {
+                XRROutputInfo *output_info = XRRGetOutputInfo (dpy, res, primaryDisplay);
+                if (output_info && output_info->crtc && output_info->connection != RR_Disconnected)
+                {
+                    // get info from the primary display
+                    crtcInfo = XRRGetCrtcInfo (dpy, res, output_info->crtc);
+                }
+                XRRFreeOutputInfo(output_info);
+                
+            }
+        }
 		
 		if (!crtcInfo)
 		{
@@ -252,6 +287,9 @@ void GLW_SetModeXRandr(int* actualWidth, int* actualHeight, qboolean* fullscreen
 		{
 			primaryWidth = crtcInfo->width;
 			primaryHeight = crtcInfo->height;
+            
+            xPos = crtcInfo->x;
+            yPos = crtcInfo->y;
 
 			XRRFreeCrtcInfo(crtcInfo);
 		}
@@ -323,22 +361,33 @@ void GLW_SetModeXRandr(int* actualWidth, int* actualHeight, qboolean* fullscreen
 		}
 
 		if (best_fit != -1) {
-			(*actualWidth) = xrrs[best_fit].width;
-			(*actualHeight) = xrrs[best_fit].height;
+			rActualWidth = xrrs[best_fit].width;
+			rActualHeight = xrrs[best_fit].height;
 
-			printf("change res to %dx%d\n", xrrs[best_fit].width, xrrs[best_fit].height);
-
-			// change to the mode
-			XRRSetScreenConfig(dpy, conf, root, best_fit, original_rotation, CurrentTime);
-			vidmode_active = qtrue;
-			vidmode_xrandr = qtrue;
-
+            if (primaryWidth != xrrs[best_fit].width || primaryHeight != xrrs[best_fit].height)
+            {
+                makeFullscreenWithoutModeChange = false;
+                printf("change res to %dx%d\n", xrrs[best_fit].width, xrrs[best_fit].height);
+    
+                // change to the mode
+                XRRSetScreenConfig(dpy, conf, root, best_fit, original_rotation, CurrentTime);
+            }
+            else
+            {
+                rX = xPos;
+                rY = yPos;
+            }
+            
+            vidmode_active = qtrue;
+            vidmode_xrandr = qtrue;
+            
+            
 			// Move the viewport to top left
 			//XF86VidModeSetViewPort(dpy, scrnum, 0, 0);
 			
 			
 		} else{
-			(*fullscreen) = 0;
+			fullscreen = 0;
 			VID_Printf( PRINT_ALL, "...WARNING: fullscreen unavailable in this mode\n" );
 		}
 	}
@@ -387,8 +436,7 @@ int GLW_SetMode( const char *drivername, int mode, qboolean fullscreen )
 		Com_Error( PRINT_ALL, " invalid mode\n" );
 		return RSERR_INVALID_MODE;
 	}
-	VID_Printf( PRINT_ALL, " %d %d\n", glConfig.vidWidth, glConfig.vidHeight);
-
+    
 	if (!(dpy = XOpenDisplay(NULL))) {
 		fprintf(stderr, "Error couldn't open the X display\n");
 		return RSERR_INVALID_MODE;
@@ -399,9 +447,48 @@ int GLW_SetMode( const char *drivername, int mode, qboolean fullscreen )
 
 	scrnum = DefaultScreen(dpy);
 	root = RootWindow(dpy, scrnum);
-	
-	actualWidth = glConfig.vidWidth;
+
+    
+    actualWidth = glConfig.vidWidth;
 	actualHeight = glConfig.vidHeight;
+    
+    bool fixedDeviceResolution = false;
+    bool fullscreenWindow = false;
+    
+    int xPos = 0;
+    int yPos = 0;
+    
+    // check for hmd device
+    IHmdDevice* pHmdDevice = ClientHmd::Get()->GetDevice();
+    if (pHmdDevice)
+    {
+        // found hmd device - test if device has a display
+        int deviceWidth = 0;
+        int deviceHeight = 0;
+        bool displayFound = pHmdDevice->GetDeviceResolution(deviceWidth, deviceHeight);
+        
+        if (displayFound)
+        {
+            fixedDeviceResolution = true;
+            actualWidth = deviceWidth;
+            actualHeight = deviceHeight;
+            
+            glConfig.vidWidth = deviceWidth / 2;
+            glConfig.vidHeight = deviceHeight;
+            
+            //fullscreenWindow = true;
+            fullscreen = false;
+            
+            pHmdDevice->GetDisplayPos(xPos, yPos);
+            
+            glConfig.stereoEnabled = qtrue; 
+            r_stereo->integer = 1;
+        }
+    }
+    
+	VID_Printf( PRINT_ALL, " %d %d\n", glConfig.vidWidth, glConfig.vidHeight);    
+    
+
 	
 	// Are we going fullscreen?  If so, let's change video mode
 	if (fullscreen && !r_fakeFullscreen->integer) {
@@ -415,7 +502,8 @@ int GLW_SetMode( const char *drivername, int mode, qboolean fullscreen )
 				printf("use primary resolution\n");
 				usePrimary = true;
 			}
-			GLW_SetModeXRandr(&actualWidth, &actualHeight, &fullscreen, usePrimary);
+                        
+			GLW_SetModeXRandr(actualWidth, actualHeight, xPos, yPos, fullscreen, usePrimary);
 		}
 		else
 		{
@@ -488,9 +576,14 @@ int GLW_SetMode( const char *drivername, int mode, qboolean fullscreen )
 		}		
 	}
 
-	vidmode_fullscreen = fullscreen;
-	glConfig.vidWidth = actualWidth;
-	glConfig.vidHeight = actualHeight;
+	vidmode_fullscreen = fullscreen || fullscreenWindow;
+
+    if (!fixedDeviceResolution)
+    {
+        glConfig.vidWidth = actualWidth;
+        glConfig.vidHeight = actualHeight;
+    }
+
 
 	if (!r_colorbits->value)
 		colorbits = 24;
@@ -609,7 +702,7 @@ int GLW_SetMode( const char *drivername, int mode, qboolean fullscreen )
 	attr.border_pixel = 0;
 	attr.colormap = XCreateColormap(dpy, root, visinfo->visual, AllocNone);
 	attr.event_mask = X_MASK;
-	if (vidmode_active) {
+	if (vidmode_active || fullscreenWindow) {
 		mask = CWBackPixel | CWColormap | CWSaveUnder | CWBackingStore | 
 			CWEventMask | CWOverrideRedirect;
 		attr.override_redirect = True;
@@ -625,8 +718,8 @@ int GLW_SetMode( const char *drivername, int mode, qboolean fullscreen )
 			visinfo->visual, mask, &attr);
 	XMapWindow(dpy, win);
 
-	if (vidmode_active)
-		XMoveWindow(dpy, win, 0, 0);
+	if (vidmode_active || fullscreenWindow)
+		XMoveWindow(dpy, win, xPos, yPos);
 
 
 	XFlush(dpy);
@@ -1065,6 +1158,71 @@ static void GLW_InitExtensions( void )
 			Com_Printf ("...ignoring GL_ARB_fragment_program\n" );
 		}
 	}
+    
+
+
+    IHmdRenderer* pHmdRenderer = ClientHmd::Get()->GetRenderer();
+    if (pHmdRenderer != NULL)
+    {
+        // init needed extensions
+        
+        qglIsRenderbuffer = (PFNglIsRenderbufferPROC) dlsym( glw_state.OpenGLLib,"glIsRenderbuffer");
+        qglBindRenderbuffer = (PFNglBindRenderbufferPROC) dlsym( glw_state.OpenGLLib,"glBindRenderbuffer");
+        qglDeleteRenderbuffers = (PFNglDeleteRenderbuffersPROC) dlsym( glw_state.OpenGLLib,"glDeleteRenderbuffers");
+        qglGenRenderbuffers = (PFNglGenRenderbuffersPROC) dlsym( glw_state.OpenGLLib,"glGenRenderbuffers");
+        qglRenderbufferStorage = (PFNglRenderbufferStoragePROC) dlsym( glw_state.OpenGLLib,"glRenderbufferStorage");
+        qglRenderbufferStorageMultisample = (PFNglRenderbufferStorageMultisamplePROC) dlsym( glw_state.OpenGLLib,"glRenderbufferStorageMultisample");
+        qglGetRenderbufferParameteriv = (PFNglGetRenderbufferParameterivPROC) dlsym( glw_state.OpenGLLib,"glGetRenderbufferParameteriv");
+        qglIsFramebuffer = (PFNglIsFramebufferPROC) dlsym( glw_state.OpenGLLib,"glIsFramebuffer");
+        qglGenFramebuffers = (PFNglGenFramebuffersPROC) dlsym( glw_state.OpenGLLib,"glGenFramebuffers");
+        qglBindFramebuffer = (PFNglBindFramebufferPROC) dlsym( glw_state.OpenGLLib,"glBindFramebuffer");
+        qglDeleteFramebuffers = (PFNglDeleteFramebuffersPROC) dlsym( glw_state.OpenGLLib,"glDeleteFramebuffers");
+        qglCheckFramebufferStatus = (PFNglCheckFramebufferStatusPROC) dlsym( glw_state.OpenGLLib,"glCheckFramebufferStatus");
+        qglFramebufferTexture1D = (PFNglFramebufferTexture1DPROC) dlsym( glw_state.OpenGLLib,"glFramebufferTexture1D");
+        qglFramebufferTexture2D = (PFNglFramebufferTexture2DPROC) dlsym( glw_state.OpenGLLib, "glFramebufferTexture2D");
+        qglFramebufferTexture3D = (PFNglFramebufferTexture3DPROC) dlsym( glw_state.OpenGLLib,"glFramebufferTexture3D");
+        qglFramebufferTextureLayer = (PFNglFramebufferTextureLayerPROC) dlsym( glw_state.OpenGLLib,"glFramebufferTextureLayer");
+        qglFramebufferRenderbuffer = (PFNglFramebufferRenderbufferPROC) dlsym( glw_state.OpenGLLib, "glFramebufferRenderbuffer");
+        qglGetFramebufferAttachmentParameteriv = (PFNglGetFramebufferAttachmentParameterivPROC) dlsym( glw_state.OpenGLLib, "glGetFramebufferAttachmentParameteriv");
+        qglBlitFramebuffer = (PFNglBlitFramebufferPROC) dlsym( glw_state.OpenGLLib,"glBlitFramebuffer");
+        qglGenerateMipmap = (PFNglGenerateMipmapPROC) dlsym( glw_state.OpenGLLib,"glGenerateMipmap");
+        
+        qglCreateShaderObjectARB = (PFNglCreateShaderObjectARBPROC) dlsym( glw_state.OpenGLLib,"glCreateShaderObjectARB");
+        qglShaderSourceARB = (PFNglShaderSourceARBPROC) dlsym( glw_state.OpenGLLib,"glShaderSourceARB");
+        qglCompileShaderARB = (PFNglCompileShaderARBPROC) dlsym( glw_state.OpenGLLib,"glCompileShaderARB");
+        qglCreateProgramObjectARB = (PFNglCreateProgramObjectARBPROC) dlsym( glw_state.OpenGLLib,"glCreateProgramObjectARB");
+        qglAttachObjectARB = (PFNglAttachObjectARBPROC) dlsym( glw_state.OpenGLLib,"glAttachObjectARB");
+        qglLinkProgramARB = (PFNglLinkProgramARBPROC) dlsym( glw_state.OpenGLLib,"glLinkProgramARB");
+        qglUseProgramObjectARB = (PFNglUseProgramObjectARBPROC) dlsym( glw_state.OpenGLLib,"glUseProgramObjectARB");
+        qglUniform2fARB = (PFNglUniform2fARBPROC) dlsym( glw_state.OpenGLLib,"glUniform2fARB");
+        qglUniform2fvARB = (PFNglUniform2fvARBPROC) dlsym( glw_state.OpenGLLib,"glUniform2fvARB");
+        qglGetUniformLocationARB = (PFNglGetUniformLocationARBPROC) dlsym( glw_state.OpenGLLib,"glGetUniformLocationARB");
+        
+        qglBindBuffer = (PFNglBindBufferPROC) dlsym( glw_state.OpenGLLib,"glBindBuffer");
+        qglBindVertexArray = (PFNglBindVertexArrayPROC) dlsym( glw_state.OpenGLLib,"glBindVertexArray");        
+        
+        
+        // try to initialize hmd renderer
+        
+        PlatformInfo platformInfo;
+        platformInfo.WindowWidth = glConfig.vidWidth*2;
+        platformInfo.WindowHeight = glConfig.vidHeight;
+        platformInfo.pDisplay = dpy;
+        platformInfo.WindowId = win;
+        
+        bool worked = pHmdRenderer->Init(glConfig.vidWidth*2.0, glConfig.vidHeight, platformInfo);
+        if (worked)
+        {  
+            pHmdRenderer->GetRenderResolution(glConfig.vidWidth, glConfig.vidHeight);
+        }
+        else
+        {
+            // renderer could not be initialized -> set NULL
+            pHmdRenderer = NULL;
+            ClientHmd::Get()->SetRenderer(NULL);
+        }
+    }
+    
 
 	// Figure out which texture rectangle extension to use.
 	bool bTexRectSupported = false;
@@ -1147,6 +1305,25 @@ fail:
 }
 
 /*
+** GLimp_BeginFrame
+*/
+
+//void GLimp_DrawBuffer (int buffer)
+//{
+//    IHmdRenderer* pHmdRenderer = ClientHmd::Get()->GetRenderer();
+//    if (pHmdRenderer == NULL)
+//    {
+//        return;
+//    }
+    
+//    backEnd.stereoLeft = (buffer == 0);
+//    pHmdRenderer->BindFramebuffer2D(backEnd.stereoLeft);
+
+//}
+
+
+
+/*
 ** GLimp_EndFrame
 */
 void GLimp_EndFrame (void)
@@ -1164,13 +1341,24 @@ void GLimp_EndFrame (void)
 		}
 	}
 
+    bool doSwap = true;
+    
+    IHmdRenderer* pHmdRenderer = ClientHmd::Get()->GetRenderer();
+    if (pHmdRenderer != NULL)
+    {
+        pHmdRenderer->EndFrame();
+        doSwap = !pHmdRenderer->HandlesSwap();
+    }
 
-	// don't flip if drawing to front buffer
-	//if ( stricmp( r_drawBuffer->string, "GL_FRONT" ) != 0 )
-	{
-		qglXSwapBuffers(dpy, win);
-	}
-
+    if (doSwap)
+    {
+        // don't flip if drawing to front buffer
+        //if ( stricmp( r_drawBuffer->string, "GL_FRONT" ) != 0 )
+        {
+            qglXSwapBuffers(dpy, win);
+        }    
+    }
+    
 	// check logging
 	QGL_EnableLogging( r_logFile->integer );
 }
@@ -1320,7 +1508,13 @@ void GLimp_Shutdown( void )
 	// restore gamma.  We do this first because 3Dfx's extension needs a valid OGL subsystem
 	WG_RestoreGamma();
 
-
+    IHmdRenderer* pHmdRenderer = ClientHmd::Get()->GetRenderer();
+    if (pHmdRenderer != NULL)
+    {
+        pHmdRenderer->Shutdown();
+    }
+    
+    
 	if (!ctx || !dpy)
 		return;
 	IN_DeactivateMouse();

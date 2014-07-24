@@ -350,6 +350,7 @@ typedef struct {
 	// view rendering
 	refdef_t	refdef;
 	vec3_t		refdefViewAngles;		// will be converted to refdef.viewaxis
+    vec3_t      refdefViewAnglesWeapon;
 
 #ifdef _XBOX
 	qboolean	widescreen;
@@ -661,6 +662,8 @@ void CG_ZoomDown_f( void );
 void CG_ZoomUp_f( void );
 
 void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView );
+
+
 /*
 Ghoul2 Insert Start
 */
@@ -767,7 +770,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position );
 // cg_ents.c
 //
 vec3_t *CG_SetEntitySoundPosition( centity_t *cent );
-void CG_AddPacketEntities( qboolean isPortal );
+void CG_AddPacketEntities(qboolean isPortal);
 void CG_Beam( centity_t *cent, int color );
 void CG_Cylinder( vec3_t start, vec3_t end, float radius, vec3_t color );
 void CG_AdjustPositionForMover( const vec3_t in, int moverNum, int atTime, vec3_t out );

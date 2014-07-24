@@ -11,6 +11,9 @@
 	#include "../ghoul2/G2.h"
 #endif
 
+#include "../hmd/ClientHmd.h"
+#include "../hmd/HmdRenderer/IHmdRenderer.h"
+
 void R_AddTerrainSurfaces(void);
 
 trGlobals_t		tr;
@@ -380,7 +383,7 @@ Sets up the modelview matrix for a given viewParm
 =================
 */
 void R_RotateForViewer (void) 
-{
+{    
 	float	viewerMatrix[16];
 	vec3_t	origin;
 
@@ -393,6 +396,19 @@ void R_RotateForViewer (void)
 	// transform by the camera placement
 	VectorCopy( tr.viewParms.or.origin, origin );
 
+    IHmdRenderer* pHmdRenderer = ClientHmd::Get()->GetRenderer();
+    if (pHmdRenderer)
+    {             
+        // check if the renderer handles the view matrix creation
+        bool matrixCreated = pHmdRenderer->GetCustomViewMatrix(tr.or.modelMatrix, origin[0], origin[1], origin[2], tr.viewParms.bodyYaw);
+        if (matrixCreated)
+        {            
+            tr.viewParms.world = tr.or;
+            return;
+        }        
+    }    
+    
+    
 	viewerMatrix[0] = tr.viewParms.or.axis[0][0];
 	viewerMatrix[4] = tr.viewParms.or.axis[0][1];
 	viewerMatrix[8] = tr.viewParms.or.axis[0][2];
@@ -497,6 +513,18 @@ void R_SetupProjection( void ) {
 
 	// dynamically compute far clip plane distance
 	SetFarClip();
+
+    IHmdRenderer* pHmdRenderer = ClientHmd::Get()->GetRenderer();
+    if (pHmdRenderer)
+    {
+        // check if the renderer handles the projection matrix creation
+        bool matrixCreated = pHmdRenderer->GetCustomProjectionMatrix(tr.viewParms.projectionMatrix, r_znear->value, tr.viewParms.zFar);
+        if (matrixCreated)
+        {
+            return;
+        }
+    }
+    
 
 	//
 	// set up projection matrix

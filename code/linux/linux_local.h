@@ -8,9 +8,11 @@
 #include <pthread.h>
 #include <semaphore.h>
 
-#include "linux_glw.h"
 
 #include <GL/glx.h>
+
+#include "linux_glw.h"
+
 
 #include <X11/keysym.h>
 #include <X11/cursorfont.h>

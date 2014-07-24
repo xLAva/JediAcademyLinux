@@ -7,6 +7,8 @@
 
 #include "../game/g_roff.h"
 
+#include "../hmd/GameHmd.h"
+
 bool		in_camera = false;
 camera_t	client_camera={0};
 extern qboolean	player_locked;
@@ -181,7 +183,7 @@ void CGCam_Move( vec3_t dest, float duration )
 	CGCam_TrackDisable();
 	CGCam_DistanceDisable();
 
-	if ( !duration )
+	//if ( !duration )
 	{
 		client_camera.info_state &= ~CAMERA_MOVING;
 		CGCam_SetPosition( dest );
@@ -205,7 +207,8 @@ CGCam_SetAngles
 void CGCam_SetAngles( vec3_t ang )
 {
 	VectorCopy( ang, client_camera.angles );
-	VectorCopy(client_camera.angles, cg.refdefViewAngles );
+	VectorCopy( cg.predicted_player_state.viewangles, cg.refdefViewAngles );
+	//VectorCopy(client_camera.angles, cg.refdefViewAngles );
 }
 
 /*
@@ -223,7 +226,7 @@ void CGCam_Pan( vec3_t dest, vec3_t panDirection, float duration )
 	CGCam_FollowDisable();
 	CGCam_DistanceDisable();
 
-	if ( !duration )
+	//if ( !duration )
 	{
 		CGCam_SetAngles( dest );
 		client_camera.info_state &= ~CAMERA_PANNING;
@@ -315,7 +318,7 @@ CGCam_Roll
 
 void CGCam_Roll( float	dest, float duration )
 {
-	if ( !duration )
+	//if ( !duration )
 	{
 		CGCam_SetRoll( dest );
 		return;
@@ -350,7 +353,7 @@ CGCam_Zoom
 
 void CGCam_Zoom( float FOV, float duration )
 {
-	if ( !duration )
+	//if ( !duration )
 	{
 		CGCam_SetFOV( FOV );
 		return;
@@ -365,7 +368,7 @@ void CGCam_Zoom( float FOV, float duration )
 
 void CGCam_Zoom2( float FOV, float FOV2, float duration )
 {
-	if ( !duration )
+	//if ( !duration )
 	{
 		CGCam_SetFOV( FOV2 );
 		return;
@@ -381,7 +384,7 @@ void CGCam_Zoom2( float FOV, float FOV2, float duration )
 
 void CGCam_ZoomAccel( float initialFOV, float fovVelocity, float fovAccel, float duration)
 {
-	if ( !duration )
+	//if ( !duration )
 	{
 		return;
 	}
@@ -417,6 +420,7 @@ CGCam_Fade
 
 void CGCam_Fade( vec4_t source, vec4_t dest, float duration )
 {
+	return;
 	if ( !duration )
 	{
 		CGCam_SetFade( dest );
@@ -463,7 +467,7 @@ void CGCam_Follow( const char *cameraGroup, float speed, float initLerp )
 	//Clear any previous
 	CGCam_FollowDisable();
 
-	if(!cameraGroup || !cameraGroup[0])
+	//if(!cameraGroup || !cameraGroup[0])
 	{
 		return;
 	}
@@ -557,7 +561,7 @@ void CGCam_Track( const char *trackName, float speed, float initLerp )
 
 	CGCam_TrackDisable();
 
-	if(Q_stricmp("none", (char *)trackName) == 0)
+	//if(Q_stricmp("none", (char *)trackName) == 0)
 	{//turn off tracking
 		return;
 	}
@@ -1033,6 +1037,7 @@ CGCam_UpdateBarFade
 
 void CGCam_UpdateBarFade( void )
 {
+	return;
 	if ( client_camera.bar_time + BAR_DURATION < cg.time )
 	{
 		client_camera.bar_alpha = client_camera.bar_alpha_dest;
@@ -1296,6 +1301,24 @@ void CGCam_Update( void )
 	//Update shaking if there's any
 	//CGCam_UpdateSmooth( cg.refdef.vieworg, cg.refdefViewAngles );
 	CGCam_UpdateShake( cg.refdef.vieworg, cg.refdefViewAngles );
+
+	cg.refdefViewAngles[0] = cg.predicted_player_state.viewangles[0];
+	cg.refdefViewAngles[1] += cg.predicted_player_state.viewangles[1];
+	cg.refdefViewAngles[2] = cg.predicted_player_state.viewangles[2];
+
+	
+    VectorCopy(cg.refdefViewAngles, cg.refdefViewAnglesWeapon);
+
+    cg.refdef.delta_yaw = cg.refdefViewAngles[YAW];
+    
+    float pitch, yaw, roll;
+    if (GameHmd::Get()->GetOrientation(pitch, yaw, roll))
+    {
+        cg.refdefViewAngles[ROLL] = roll;
+        cg.refdefViewAngles[PITCH] = pitch;
+        cg.refdefViewAngles[YAW] += yaw;
+    }
+
 	AnglesToAxis( cg.refdefViewAngles, cg.refdef.viewaxis );
 }
 

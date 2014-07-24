@@ -167,6 +167,76 @@ extern PFNGLGETFINALCOMBINERINPUTPARAMETERFVNV	qglGetFinalCombinerInputParameter
 extern PFNGLGETFINALCOMBINERINPUTPARAMETERIVNV	qglGetFinalCombinerInputParameterivNV;
 
 
+typedef GLboolean ( APIENTRY * PFNglIsRenderbufferPROC) (GLuint renderbuffer);
+typedef void ( APIENTRY * PFNglBindRenderbufferPROC) (GLenum target, GLuint renderbuffer);
+typedef void ( APIENTRY * PFNglDeleteRenderbuffersPROC) (GLsizei n, const GLuint *renderbuffers);
+typedef void ( APIENTRY * PFNglGenRenderbuffersPROC) (GLsizei n, GLuint *renderbuffers);
+typedef void ( APIENTRY * PFNglRenderbufferStoragePROC) (GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
+typedef void ( APIENTRY * PFNglRenderbufferStorageMultisamplePROC) (GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height);
+typedef void ( APIENTRY * PFNglGetRenderbufferParameterivPROC) (GLenum target, GLenum pname, GLint *params);
+typedef GLboolean ( APIENTRY * PFNglIsFramebufferPROC) (GLuint framebuffer);
+typedef void ( APIENTRY * PFNglGenFramebuffersPROC) (GLsizei n, GLuint *framebuffers);
+typedef void ( APIENTRY * PFNglBindFramebufferPROC) (GLenum target, GLuint framebuffer);
+typedef void ( APIENTRY * PFNglDeleteFramebuffersPROC) (GLsizei n, const GLuint *framebuffers);
+typedef GLenum ( APIENTRY * PFNglCheckFramebufferStatusPROC) (GLenum target);
+typedef void ( APIENTRY * PFNglFramebufferTexture1DPROC) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+typedef void ( APIENTRY * PFNglFramebufferTexture2DPROC) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+typedef void ( APIENTRY * PFNglFramebufferTexture3DPROC) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint layer);
+typedef void ( APIENTRY * PFNglFramebufferTextureLayerPROC) (GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer);
+typedef void ( APIENTRY * PFNglFramebufferRenderbufferPROC) (GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
+typedef void ( APIENTRY * PFNglGetFramebufferAttachmentParameterivPROC) (GLenum target, GLenum attachment, GLenum pname, GLint *params);
+typedef void ( APIENTRY * PFNglBlitFramebufferPROC) (GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
+typedef void ( APIENTRY * PFNglGenerateMipmapPROC) (GLenum target);
+
+typedef GLhandleARB ( APIENTRY * PFNglCreateShaderObjectARBPROC) (GLenum shaderType);
+typedef void ( APIENTRY * PFNglShaderSourceARBPROC) (GLhandleARB shaderObj, GLsizei count, const GLcharARB* *string, const GLint *length);
+typedef void ( APIENTRY * PFNglCompileShaderARBPROC) (GLhandleARB shaderObj);
+typedef GLhandleARB ( APIENTRY * PFNglCreateProgramObjectARBPROC) (void);
+typedef void ( APIENTRY * PFNglAttachObjectARBPROC) (GLhandleARB containerObj, GLhandleARB obj);
+typedef void ( APIENTRY * PFNglLinkProgramARBPROC) (GLhandleARB programObj);
+typedef void ( APIENTRY * PFNglUseProgramObjectARBPROC) (GLhandleARB programObj);
+typedef void ( APIENTRY * PFNglUniform2fARBPROC) (GLint location, GLfloat v0, GLfloat v1);
+typedef void ( APIENTRY * PFNglUniform2fvARBPROC) (GLint location, GLsizei count, const GLfloat *value);
+typedef GLint ( APIENTRY * PFNglGetUniformLocationARBPROC) (GLhandleARB programObj, const GLcharARB *name);
+
+typedef void (APIENTRY * PFNglBindBufferPROC) (GLenum target, GLuint buffer);
+typedef void (APIENTRY * PFNglBindVertexArrayPROC) (GLuint array);
+
+extern PFNglIsRenderbufferPROC qglIsRenderbuffer;
+extern PFNglBindRenderbufferPROC qglBindRenderbuffer;
+extern PFNglDeleteRenderbuffersPROC qglDeleteRenderbuffers;
+extern PFNglGenRenderbuffersPROC qglGenRenderbuffers;
+extern PFNglRenderbufferStoragePROC qglRenderbufferStorage;
+extern PFNglRenderbufferStorageMultisamplePROC qglRenderbufferStorageMultisample;
+extern PFNglGetRenderbufferParameterivPROC qglGetRenderbufferParameteriv;
+extern PFNglIsFramebufferPROC qglIsFramebuffer;
+extern PFNglGenFramebuffersPROC qglGenFramebuffers;
+extern PFNglBindFramebufferPROC qglBindFramebuffer;
+extern PFNglDeleteFramebuffersPROC qglDeleteFramebuffers;
+extern PFNglCheckFramebufferStatusPROC qglCheckFramebufferStatus;
+extern PFNglFramebufferTexture1DPROC qglFramebufferTexture1D;
+extern PFNglFramebufferTexture2DPROC qglFramebufferTexture2D;
+extern PFNglFramebufferTexture3DPROC qglFramebufferTexture3D;
+extern PFNglFramebufferTextureLayerPROC qglFramebufferTextureLayer;
+extern PFNglFramebufferRenderbufferPROC qglFramebufferRenderbuffer;
+extern PFNglGetFramebufferAttachmentParameterivPROC qglGetFramebufferAttachmentParameteriv;
+extern PFNglBlitFramebufferPROC qglBlitFramebuffer;
+extern PFNglGenerateMipmapPROC qglGenerateMipmap;
+
+extern PFNglCreateShaderObjectARBPROC qglCreateShaderObjectARB;
+extern PFNglShaderSourceARBPROC qglShaderSourceARB;
+extern PFNglCompileShaderARBPROC qglCompileShaderARB;
+extern PFNglCreateProgramObjectARBPROC qglCreateProgramObjectARB;
+extern PFNglAttachObjectARBPROC qglAttachObjectARB;
+extern PFNglLinkProgramARBPROC qglLinkProgramARB;
+extern PFNglUseProgramObjectARBPROC qglUseProgramObjectARB;
+extern PFNglUniform2fARBPROC qglUniform2fARB;
+extern PFNglUniform2fvARBPROC qglUniform2fvARB;
+extern PFNglGetUniformLocationARBPROC qglGetUniformLocationARB;
+
+extern PFNglBindBufferPROC qglBindBuffer;
+extern PFNglBindVertexArrayPROC qglBindVertexArray;
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Pixel Format extension definitions. - AReis
 /***********************************************************************************************************/
@@ -707,6 +777,7 @@ extern  void ( APIENTRY * qglVertex4s )(GLshort x, GLshort y, GLshort z, GLshort
 extern  void ( APIENTRY * qglVertex4sv )(const GLshort *v);
 extern  void ( APIENTRY * qglVertexPointer )(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
 extern  void ( APIENTRY * qglViewport )(GLint x, GLint y, GLsizei width, GLsizei height);
+
 
 #if defined( _WIN32 )
 

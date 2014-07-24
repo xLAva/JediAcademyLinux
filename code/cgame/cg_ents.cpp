@@ -2458,6 +2458,7 @@ void CG_AddPacketEntities( qboolean isPortal ) {
 	// generate and add the entity from the playerstate
 	ps = &cg.predicted_player_state;
 	PlayerStateToEntityState( ps, &cg_entities[ ps->clientNum ].currentState );
+	
 //	cent = &cg_entities[ ps->clientNum ];	// not needed now that player is in the snap packet
 //	CG_AddCEntity( cent );					//
 

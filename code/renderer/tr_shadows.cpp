@@ -675,6 +675,7 @@ void RB_DistortionFill(void)
 	float spost = 0.0f;
 	float spost2 = 0.0f;
 
+
 	if ( glConfig.stencilBits < 4 )
 	{
 		return;

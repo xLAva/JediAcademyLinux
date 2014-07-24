@@ -156,6 +156,14 @@ Ghoul2 Insert End
 #define	MAX_RENDER_STRINGS			8
 #define	MAX_RENDER_STRING_LENGTH	32
 
+
+typedef enum {
+	STEREO_CENTER,
+	STEREO_LEFT,
+	STEREO_RIGHT
+} stereoFrame_t;
+
+
 typedef struct {
 	int			x, y, width, height;
 	float		fov_x, fov_y;
@@ -170,17 +178,13 @@ typedef struct {
 
 	// 1 bits will prevent the associated area from rendering at all
 	byte		areamask[MAX_MAP_AREA_BYTES];
+	stereoFrame_t stereoFrame;
+    float       delta_yaw;
 
 	// text messages for deform text shaders
 //	char		text[MAX_RENDER_STRINGS][MAX_RENDER_STRING_LENGTH];
 } refdef_t;
 
-
-typedef enum {
-	STEREO_CENTER,
-	STEREO_LEFT,
-	STEREO_RIGHT
-} stereoFrame_t;
 
 
 /*
