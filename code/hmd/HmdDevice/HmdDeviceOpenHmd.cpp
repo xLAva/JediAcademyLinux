@@ -6,10 +6,6 @@
 #include <iostream>
 #include <cstdio>
 
-
-
-
-
 using namespace std;
 
 HmdDeviceOpenHmd::HmdDeviceOpenHmd()
