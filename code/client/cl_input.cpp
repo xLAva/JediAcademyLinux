@@ -814,14 +814,15 @@ usercmd_t CL_CreateCmd( void ) {
 		cl.viewangles[PITCH] = oldAngles[PITCH] - 90;
 	} 
 
-    float yawDiff = cl.viewangles[YAW] - oldAngles[YAW];
-    ClientHmd::Get()->UpdateInputView(yawDiff, cl.viewangles[PITCH], cl.viewangles[YAW], cl.viewangles[ROLL]);
-
 	if ( cl_overrideAngles )
 	{
 		VectorCopy( cl_overriddenAngles, cl.viewangles );
 		cl_overrideAngles = qfalse;
 	}
+    
+    
+    float yawDiff = cl.viewangles[YAW] - oldAngles[YAW];
+    ClientHmd::Get()->UpdateInputView(yawDiff, cl.viewangles[PITCH], cl.viewangles[YAW], cl.viewangles[ROLL]);    
 	
 	// store out the final values
 	CL_FinishMove( &cmd );

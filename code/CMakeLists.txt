@@ -15,6 +15,9 @@ project(jk3)
 set(USE_OCULUS_SDK 0)
 set(USE_OPENHMD 1)
 set(HMD_ALLOW_DUMMY_DEVICE 0)
+set(HMD_SIM_MOUSE 0)
+
+set(USE_SDL2 1)
 
 #set(CMAKE_BUILD_TYPE "RELEASE")
 set(CMAKE_BUILD_TYPE "DEBUG")
@@ -268,13 +271,6 @@ set(STARWARS_SOURCE_FILES
 	jpeg-6/jmemmgr.cpp
 	jpeg-6/jmemnobs.cpp
 	jpeg-6/jutils.cpp
-	linux/linux_console.cpp
-	linux/linux_gamma.cpp
-	linux/linux_glimp.cpp
-	linux/linux_main.cpp
-	linux/linux_qgl.cpp
-	linux/linux_snddma.cpp
-	linux/xvidmode.cpp
 	mp3code/cdct.c
 	mp3code/csbt.c
 	mp3code/csbtb.c
@@ -429,7 +425,7 @@ if(USE_OPENHMD)
     include_directories(../3rdparty/OpenHMD/src)
 
     add_library(imp_openhmd STATIC IMPORTED)
-    set_property(TARGET imp_openhmd PROPERTY IMPORTED_LOCATION ../../3rdparty/OpenHMD/libopenhmd.a)
+    set_property(TARGET imp_openhmd PROPERTY IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OpenHMD/src/.libs/libopenhmd.a")
 
     set(EXTRA_LIBS ${EXTRA_LIBS} imp_openhmd)
     set(EXTRA_LIBS ${EXTRA_LIBS} hidapi-libusb)
@@ -439,6 +435,40 @@ if(HMD_ALLOW_DUMMY_DEVICE)
     set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DHMD_ALLOW_DUMMY_DEVICE")
 endif()
 
+if(HMD_SIM_MOUSE)
+    set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DOVR_SIM_MOUSE")
+endif()
+
+
+
+if(USE_SDL2)
+    set(STARWARS_SOURCE_FILES ${STARWARS_SOURCE_FILES}
+        sdl/sdl_local.h
+        sdl/sdl_glw.h
+        sdl/sdl_console.cpp
+        sdl/sdl_gamma.cpp
+        sdl/sdl_glimp.cpp
+        sdl/sdl_qgl.cpp
+        sdl/sdl_snddma.cpp
+        linux/linux_main.cpp
+    )
+
+    set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DUSE_SDL2")
+
+    set(EXTRA_LIBS ${EXTRA_LIBS} SDL2)
+else()
+    set(STARWARS_SOURCE_FILES ${STARWARS_SOURCE_FILES}
+        linux/linux_local.h
+        linux/linux_glw.h
+        linux/linux_console.cpp
+        linux/linux_gamma.cpp
+        linux/linux_glimp.cpp
+        linux/linux_main.cpp
+        linux/linux_qgl.cpp
+        linux/linux_snddma.cpp
+        linux/xvidmode.cpp
+    )
+endif()
 
 
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${CUSTOM_COMPILE_FLAGS_ALL} -Wno-write-strings -Wno-pointer-arith -Wno-multichar -Wno-int-to-pointer-cast -Wno-enum-compare -Wno-cpp -Wno-overflow -fexceptions -m32 -ffast-math -DLINUX -DNDEBUG")
