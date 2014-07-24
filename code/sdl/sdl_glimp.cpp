@@ -1548,6 +1548,10 @@ static void HandleEvents(void)
     {
         switch(event.type)
         {
+        case SDL_QUIT:
+            Com_Quit_f();
+            break;
+        
         case SDL_KEYDOWN:
             p = XLateKey(event.key.keysym, &key);
             if (key)

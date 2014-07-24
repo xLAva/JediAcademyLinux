@@ -402,7 +402,7 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_roffval3, "cg_roffval3", "0" },
 	{ &cg_roffval4, "cg_roffval4", "0" },
 #endif
-	{ &cg_thirdPerson, "cg_thirdPerson", "1", CVAR_SAVEGAME },
+	{ &cg_thirdPerson, "cg_thirdPerson", "0", CVAR_SAVEGAME }, // [LAva] changed to 0 for hmd
 	{ &cg_thirdPersonRange, "cg_thirdPersonRange", "80", 0 },
 	{ &cg_thirdPersonMaxRange, "cg_thirdPersonMaxRange", "150", 0 },
 	{ &cg_thirdPersonAngle, "cg_thirdPersonAngle", "0", 0 },

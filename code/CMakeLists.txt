@@ -2,10 +2,10 @@
 # Build procedure:
 #                $ mkdir some_build_dir
 #                $ cd some_build_dir
-#                $ cmake PATH_TO_JK2_SOURCE_DIR
+#                $ cmake PATH_TO_JK3_SOURCE_DIR
 #                $ make
 #
-# Make sure some_build_dir is different from PATH_TO_JK2_SOURCE_DIR
+# Make sure some_build_dir is different from PATH_TO_JK3_SOURCE_DIR
 #
 
 cmake_minimum_required(VERSION 2.6)
