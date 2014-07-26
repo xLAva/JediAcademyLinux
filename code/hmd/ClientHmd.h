@@ -19,24 +19,24 @@ public:
     static ClientHmd* Get();
     static void Destroy();
 
-    void UpdateInputView(float yawDiff, float &rPitch, float &rYaw, float &rRoll);
+    void UpdateInputView(float yawDiff, float& rPitch, float& rYaw, float& rRoll);
     void UpdateGame();
-    bool GetOrientation(float &rPitch, float &rYaw, float &rRoll);
+    bool GetOrientation(float& rPitch, float& rYaw, float& rRoll);
 
     IHmdDevice* GetDevice() { return mpDevice; }
     void SetDevice(IHmdDevice* pDevice) { mpDevice = pDevice; }
-    
+
     IHmdRenderer* GetRenderer() { return mpRenderer; }
     void SetRenderer(IHmdRenderer* pRenderer) { mpRenderer = pRenderer; }
-    
+
     float GetYawDiff() { return mViewangleDiff; }
-    
+
 private:
 
     // disable copy constructor
     ClientHmd(const ClientHmd&);
     ClientHmd& operator=(const ClientHmd&);
-    
+
     IHmdDevice* mpDevice;
     IHmdRenderer* mpRenderer;
     bool mIsInitialized;

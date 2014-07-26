@@ -20,11 +20,11 @@ public:
     virtual void Shutdown();
 
     virtual std::string GetInfo();
-    
+
     virtual bool HasDisplay();
     virtual std::string GetDisplayDeviceName();
-    virtual bool GetDisplayPos(int& rX, int&rY);
-    
+    virtual bool GetDisplayPos(int& rX, int& rY);
+
     virtual bool GetDeviceResolution(int& rWidth, int& rHeight);
     virtual bool GetOrientationRad(float& rPitch, float& rYaw, float& rRoll);
 
@@ -34,8 +34,8 @@ public:
 private:
     // disable copy constructor
     HmdDeviceMouse(const HmdDeviceMouse&);
-    HmdDeviceMouse& operator=(const HmdDeviceMouse&);    
-    
+    HmdDeviceMouse& operator=(const HmdDeviceMouse&);
+
     float mPitch;
     float mYaw;
     float mRoll;

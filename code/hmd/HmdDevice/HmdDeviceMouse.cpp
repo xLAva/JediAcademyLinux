@@ -25,7 +25,7 @@ bool HmdDeviceMouse::Init(bool allowDummyDevice)
 
 void HmdDeviceMouse::Shutdown()
 {
-    
+
 }
 
 string HmdDeviceMouse::GetInfo()
@@ -43,24 +43,24 @@ string HmdDeviceMouse::GetDisplayDeviceName()
     return "";
 }
 
-bool HmdDeviceMouse::GetDisplayPos(int &rX, int &rY)
+bool HmdDeviceMouse::GetDisplayPos(int& rX, int& rY)
 {
     rX = 0;
     rY = 0;
     return false;
 }
 
-bool HmdDeviceMouse::GetDeviceResolution(int &rWidth, int &rHeight)
+bool HmdDeviceMouse::GetDeviceResolution(int& rWidth, int& rHeight)
 {
     return false;
-    
-//    rWidth = 1280;
-//    rHeight = 800;
-    
-//    return true;
+
+    //    rWidth = 1280;
+    //    rHeight = 800;
+
+    //    return true;
 }
 
-bool HmdDeviceMouse::GetOrientationRad(float &rPitch, float &rYaw, float &rRoll)
+bool HmdDeviceMouse::GetOrientationRad(float& rPitch, float& rYaw, float& rRoll)
 {
     rPitch = DEG2RAD(-mPitch);
     rYaw = DEG2RAD(mYaw);
@@ -76,7 +76,7 @@ void HmdDeviceMouse::SetOrientationDeg(float pitch, float yaw, float roll)
     mRoll = roll;
 }
 
-void HmdDeviceMouse::GetOrientationDeg(float &rPitch, float &rYaw, float &rRoll)
+void HmdDeviceMouse::GetOrientationDeg(float& rPitch, float& rYaw, float& rRoll)
 {
     rPitch = mPitch;
     rYaw = mYaw;

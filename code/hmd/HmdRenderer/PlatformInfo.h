@@ -12,7 +12,7 @@ struct PlatformInfo
 public:
     int WindowWidth;
     int WindowHeight;
-    
+
 #ifdef LINUX
     Display* pDisplay;
     Window WindowId;

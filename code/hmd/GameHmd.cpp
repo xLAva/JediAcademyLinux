@@ -14,7 +14,7 @@ GameHmd::GameHmd()
 
 }
 
-GameHmd *GameHmd::Get()
+GameHmd* GameHmd::Get()
 {
     if (sGameHmd == NULL)
     {
@@ -43,13 +43,13 @@ void GameHmd::UpdateHmd(float* pitch, float* yaw, float* roll)
     mRoll = *roll;
 }
 
-bool GameHmd::GetOrientation(float &pitch, float &yaw, float &roll)
+bool GameHmd::GetOrientation(float& pitch, float& yaw, float& roll)
 {
     if (!mIsInitialized)
     {
         return false;
     }
-    
+
     pitch = mPitch;
     yaw = mYaw;
     roll = mRoll;

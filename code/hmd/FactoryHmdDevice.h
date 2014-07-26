@@ -15,8 +15,8 @@ class FactoryHmdDevice
 public:
 
     static IHmdDevice* CreateHmdDevice(bool allowDummyDevice);
-    static IHmdRenderer* CreateRendererForDevice(IHmdDevice* pDevice); 
-    
+    static IHmdRenderer* CreateRendererForDevice(IHmdDevice* pDevice);
+
 private:
     // disable copy constructor
     FactoryHmdDevice(const FactoryHmdDevice&);

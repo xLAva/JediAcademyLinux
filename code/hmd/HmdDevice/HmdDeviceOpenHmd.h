@@ -21,33 +21,33 @@ public:
     virtual void Shutdown();
 
     virtual std::string GetInfo();
-    
+
     virtual bool HasDisplay();
     virtual std::string GetDisplayDeviceName();
-    virtual bool GetDisplayPos(int& rX, int&rY);
-    
+    virtual bool GetDisplayPos(int& rX, int& rY);
+
     virtual bool GetDeviceResolution(int& rWidth, int& rHeight);
     virtual bool GetOrientationRad(float& rPitch, float& rYaw, float& rRoll);
 
     ohmd_device* GetHmd() { return mpHmd; }
-    
+
 protected:
     void ConvertQuatToEuler(const float* quat, float& rYaw, float& rPitch, float& rRoll);
     void DetectDisplay();
-    
+
 private:
     // disable copy constructor
     HmdDeviceOpenHmd(const HmdDeviceOpenHmd&);
-    HmdDeviceOpenHmd& operator=(const HmdDeviceOpenHmd&);    
-    
+    HmdDeviceOpenHmd& operator=(const HmdDeviceOpenHmd&);
+
     bool mIsInitialized;
     ohmd_context* mpCtx;
     ohmd_device* mpHmd;
-    
+
     std::string mInfo;
     int mDisplayWidth;
     int mDisplayHeight;
-    
+
     int mDisplayId;
     int mDisplayX;
     int mDisplayY;

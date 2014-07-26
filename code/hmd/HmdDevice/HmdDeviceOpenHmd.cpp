@@ -25,7 +25,7 @@ HmdDeviceOpenHmd::HmdDeviceOpenHmd()
     ,mDisplayHeight(0)
     ,mDisplayId(-1)
     ,mDisplayX(0)
-    ,mDisplayY(0)  
+    ,mDisplayY(0)
 {
 
 }
@@ -95,8 +95,8 @@ bool HmdDeviceOpenHmd::Init(bool allowDummyDevice)
     ohmd_device_geti(mpHmd, OHMD_SCREEN_HORIZONTAL_RESOLUTION, &mDisplayWidth);
     ohmd_device_geti(mpHmd, OHMD_SCREEN_VERTICAL_RESOLUTION, &mDisplayHeight);
 
-    DetectDisplay(); 
-    
+    DetectDisplay();
+
     mIsInitialized = true;
 
     return true;
@@ -128,7 +128,7 @@ bool HmdDeviceOpenHmd::HasDisplay()
     {
         return false;
     }
-    
+
     return true;
 }
 
@@ -137,7 +137,7 @@ string HmdDeviceOpenHmd::GetDisplayDeviceName()
     return mDisplayDeviceName;
 }
 
-bool HmdDeviceOpenHmd::GetDisplayPos(int &rX, int &rY)
+bool HmdDeviceOpenHmd::GetDisplayPos(int& rX, int& rY)
 {
     if (!mIsInitialized)
     {
@@ -149,7 +149,7 @@ bool HmdDeviceOpenHmd::GetDisplayPos(int &rX, int &rY)
     return true;
 }
 
-bool HmdDeviceOpenHmd::GetDeviceResolution(int &rWidth, int &rHeight)
+bool HmdDeviceOpenHmd::GetDeviceResolution(int& rWidth, int& rHeight)
 {
     if (!mIsInitialized || mDisplayWidth <= 0)
     {
@@ -163,7 +163,7 @@ bool HmdDeviceOpenHmd::GetDeviceResolution(int &rWidth, int &rHeight)
     return true;
 }
 
-bool HmdDeviceOpenHmd::GetOrientationRad(float &rPitch, float &rYaw, float &rRoll)
+bool HmdDeviceOpenHmd::GetOrientationRad(float& rPitch, float& rYaw, float& rRoll)
 {
     if (!mIsInitialized)
     {
@@ -174,18 +174,18 @@ bool HmdDeviceOpenHmd::GetOrientationRad(float &rPitch, float &rYaw, float &rRol
 
     float quat[4];
     ohmd_device_getf(mpHmd, OHMD_ROTATION_QUAT, &quat[0]);
-    ConvertQuatToEuler(&quat[0], rYaw, rPitch, rRoll); 
+    ConvertQuatToEuler(&quat[0], rYaw, rPitch, rRoll);
 
     //printf("pitch=%.2f yaw=%.2f roll=%.2f\n", RAD2DEG(rPitch), RAD2DEG(rYaw), RAD2DEG(rRoll));
 
     return true;
 }
 
-void HmdDeviceOpenHmd::ConvertQuatToEuler(const float *quat, float &rYaw, float &rPitch, float &rRoll)
+void HmdDeviceOpenHmd::ConvertQuatToEuler(const float* quat, float& rYaw, float& rPitch, float& rRoll)
 {
     //https://svn.code.sf.net/p/irrlicht/code/trunk/include/quaternion.h
     // modified to get yaw before pitch
-   
+
     float W = quat[3];
     float X = quat[1];
     float Y = quat[0];
@@ -194,8 +194,8 @@ void HmdDeviceOpenHmd::ConvertQuatToEuler(const float *quat, float &rYaw, float 
     float sqw = W*W;
     float sqx = X*X;
     float sqy = Y*Y;
-    float sqz = Z*Z;   
-    
+    float sqz = Z*Z;
+
     float test = 2.0f * (Y*W - X*Z);
 
     if (test > (1.0f - 0.000001f))
@@ -235,9 +235,9 @@ void HmdDeviceOpenHmd::DetectDisplay()
 
     // we don't get any information about the display position from OpenHmd
     // so let's try to find the display witch SDL2
-    
+
     // if no display is found the rift has to be the main monitor
-    
+
     int displayCount = SDL_GetNumVideoDisplays();
     for (int i=0; i<displayCount; i++)
     {
@@ -248,7 +248,7 @@ void HmdDeviceOpenHmd::DetectDisplay()
             mDisplayDeviceName = displayName;
             break;
         }
-        
+
         SDL_Rect r;
         int ret = SDL_GetDisplayBounds(i, &r);
         if (ret == 0 && r.w == 1280 && r.h == 800)
@@ -257,17 +257,17 @@ void HmdDeviceOpenHmd::DetectDisplay()
             mDisplayId = i;
             mDisplayDeviceName = displayName;
         }
-		else if (ret != 0)
-		{
-			const char* error = SDL_GetError();
-			printf("SDL_GetDisplayBounds failed: %s\n", error);
+        else if (ret != 0)
+        {
+            const char* error = SDL_GetError();
+            printf("SDL_GetDisplayBounds failed: %s\n", error);
 
-		}
-        
+        }
+
         //printf("display name: %s\n", displayName);
         //flush(std::cout);
     }
-    
+
     if (mDisplayId >= 0)
     {
         SDL_Rect r;
@@ -276,11 +276,11 @@ void HmdDeviceOpenHmd::DetectDisplay()
         {
             mDisplayX = r.x;
             mDisplayY = r.y;
-            
+
             //printf("display x=%d y=%d\n", r.x, r.y);
             //flush(std::cout);
         }
     }
 
-#endif   
+#endif
 }

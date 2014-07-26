@@ -3,7 +3,7 @@
 
 
 
-bool RenderTool::CreateFrameBuffer(FrameBufferInfo &rInfo, int width, int height)
+bool RenderTool::CreateFrameBuffer(FrameBufferInfo& rInfo, int width, int height)
 {
     qglGenTextures(1, &rInfo.DepthBuffer);
     qglBindTexture(GL_TEXTURE_2D, rInfo.DepthBuffer);
@@ -33,19 +33,19 @@ bool RenderTool::CreateFrameBuffer(FrameBufferInfo &rInfo, int width, int height
         printf("...framebuffer initialization failed\n");
         return false;
     }
-    
+
     rInfo.Width = width;
     rInfo.Height = height;
-    
+
     ClearFBO(rInfo);
-    
+
     return true;
 }
 
 void RenderTool::ClearFBO(FrameBufferInfo info)
 {
     qglViewport(0, 0, info.Width, info.Height);
-    qglScissor(0, 0, info.Width, info.Height);    
+    qglScissor(0, 0, info.Width, info.Height);
     qglClear(GL_COLOR_BUFFER_BIT);
 }
 
@@ -55,86 +55,86 @@ void RenderTool::DrawFbos(FrameBufferInfo* pFbos, int fboCount, int windowWidth,
     if (pFbos == NULL)
     {
         return;
-    }    
-    
+    }
+
     // backup the current state
     GLboolean depth_test = qglIsEnabled(GL_DEPTH_TEST);
     GLboolean blend = qglIsEnabled(GL_BLEND);
     GLboolean texture_2d = qglIsEnabled(GL_TEXTURE_2D);
-    GLboolean texture_coord_array = qglIsEnabled( GL_TEXTURE_COORD_ARRAY);
-    GLboolean color_array = qglIsEnabled( GL_COLOR_ARRAY);
+    GLboolean texture_coord_array = qglIsEnabled(GL_TEXTURE_COORD_ARRAY);
+    GLboolean color_array = qglIsEnabled(GL_COLOR_ARRAY);
     GLint viewport[4];
     GLint scissor[4];
     GLint texture;
     qglGetIntegerv(GL_VIEWPORT, viewport);
     qglGetIntegerv(GL_SCISSOR_BOX, scissor);
     qglGetIntegerv(GL_TEXTURE_BINDING_2D, &texture);
-    
+
     // set state
     qglBindFramebuffer(GL_FRAMEBUFFER, 0);
-    
+
     qglViewport(0,0, windowWidth, windowHeight);
     qglScissor(0,0, windowWidth, windowHeight);
-    
+
     qglDisable(GL_DEPTH_TEST);
     qglDisable(GL_BLEND);
     qglEnable(GL_TEXTURE_2D);
     qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
     qglDisableClientState(GL_COLOR_ARRAY);
-    
+
     qglUseProgramObjectARB(shaderProg);
-    
+
     qglMatrixMode(GL_PROJECTION);
     qglPushMatrix();
     qglLoadIdentity();
-    
+
     qglMatrixMode(GL_MODELVIEW);
     qglPushMatrix();
     qglLoadIdentity();
-    
+
     float verts[] =
     {
         -1.f, 1.f, 0.f, 1.f,
-         0.f, 1.f, 1.f, 1.f,
-         0.f,-1.f, 1.f, 0.f,
+        0.f, 1.f, 1.f, 1.f,
+        0.f,-1.f, 1.f, 0.f,
         -1.f,-1.f, 0.f, 0.f,
     };
-    
+
     if (fboCount == 1)
     {
         qglScalef(2.0f, 1.0f, 1.0f);
         qglTranslatef(0.5f, 0.f, 0.f);
     }
-    
-    
+
+
     qglBindTexture(GL_TEXTURE_2D, pFbos[0].ColorBuffer);
     qglColor4ub(255,255,255,255);
     qglTexCoordPointer(2, GL_FLOAT, 16, verts + 2);
-    qglVertexPointer (2, GL_FLOAT, 16, verts);
+    qglVertexPointer(2, GL_FLOAT, 16, verts);
     qglDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-    
+
     if (fboCount >= 2)
     {
         qglTranslatef(1.0f, 0.f, 0.f);
         qglBindTexture(GL_TEXTURE_2D, pFbos[1].ColorBuffer);
         qglColor4ub(255,255,255,255);
         qglTexCoordPointer(2, GL_FLOAT, 16, verts + 2);
-        qglVertexPointer (2, GL_FLOAT, 16, verts);
+        qglVertexPointer(2, GL_FLOAT, 16, verts);
         qglDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     }
-    
 
-    
+
+
     qglMatrixMode(GL_PROJECTION);
     qglPopMatrix();
-    
+
     qglMatrixMode(GL_MODELVIEW);
     qglPopMatrix();
-    
-    
+
+
     // restore the old state
     qglUseProgramObjectARB(0);
-    
+
     if (depth_test)
     {
         qglEnable(GL_DEPTH_TEST);
@@ -149,7 +149,7 @@ void RenderTool::DrawFbos(FrameBufferInfo* pFbos, int fboCount, int windowWidth,
     }
     if (!texture_coord_array)
     {
-        qglDisableClientState( GL_TEXTURE_COORD_ARRAY);
+        qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
     }
     if (color_array)
     {
@@ -160,13 +160,13 @@ void RenderTool::DrawFbos(FrameBufferInfo* pFbos, int fboCount, int windowWidth,
     qglBindTexture(GL_TEXTURE_2D, texture);
 }
 
-GLhandleARB RenderTool::CreateShaderProgram(const char *pVertexShader, const char *pFragmentShader)
+GLhandleARB RenderTool::CreateShaderProgram(const char* pVertexShader, const char* pFragmentShader)
 {
     if (pVertexShader == NULL || pFragmentShader == NULL)
     {
         return 0;
     }
-    
+
     GLhandleARB v = qglCreateShaderObjectARB(GL_VERTEX_SHADER);
     GLhandleARB f = qglCreateShaderObjectARB(GL_FRAGMENT_SHADER);
 
@@ -176,45 +176,45 @@ GLhandleARB RenderTool::CreateShaderProgram(const char *pVertexShader, const cha
 
     qglCompileShaderARB(v);
     // Check Vertex Shader
-//    int result;
-//    glGetShaderiv(v, GL_COMPILE_STATUS, &result);
-//    if (result == GL_FALSE)
-//    {
-//        glGetShaderiv(v, GL_INFO_LOG_LENGTH, &infoLogLength);
-//        std::vector<char> VertexShaderErrorMessage(infoLogLength);
-//        glGetShaderInfoLog(v, infoLogLength, NULL, &VertexShaderErrorMessage[0]);
-//        fprintf(stdout, "%s\n", &VertexShaderErrorMessage[0]);
-//    }    
-    
+    //    int result;
+    //    glGetShaderiv(v, GL_COMPILE_STATUS, &result);
+    //    if (result == GL_FALSE)
+    //    {
+    //        glGetShaderiv(v, GL_INFO_LOG_LENGTH, &infoLogLength);
+    //        std::vector<char> VertexShaderErrorMessage(infoLogLength);
+    //        glGetShaderInfoLog(v, infoLogLength, NULL, &VertexShaderErrorMessage[0]);
+    //        fprintf(stdout, "%s\n", &VertexShaderErrorMessage[0]);
+    //    }
+
     qglCompileShaderARB(f);
     // Check Fragment Shader
-//    glGetShaderiv(f, GL_COMPILE_STATUS, &result);
-//    if (result == GL_FALSE)
-//    {
-//        glGetShaderiv(f, GL_INFO_LOG_LENGTH, &infoLogLength);
-//        std::vector<char> fragmentShaderErrorMessage(infoLogLength);
-//        glGetShaderInfoLog(f, infoLogLength, NULL, &fragmentShaderErrorMessage[0]);
-//        fprintf(stdout, "%s\n", &fragmentShaderErrorMessage[0]);
-//    }
-    
-    
+    //    glGetShaderiv(f, GL_COMPILE_STATUS, &result);
+    //    if (result == GL_FALSE)
+    //    {
+    //        glGetShaderiv(f, GL_INFO_LOG_LENGTH, &infoLogLength);
+    //        std::vector<char> fragmentShaderErrorMessage(infoLogLength);
+    //        glGetShaderInfoLog(f, infoLogLength, NULL, &fragmentShaderErrorMessage[0]);
+    //        fprintf(stdout, "%s\n", &fragmentShaderErrorMessage[0]);
+    //    }
+
+
     GLhandleARB program = qglCreateProgramObjectARB();
     qglAttachObjectARB(program, f);
     qglAttachObjectARB(program, v);
 
     qglLinkProgramARB(program);
     // Check the program
-//    glGetProgramiv(mOculusProgram, GL_LINK_STATUS, &result);
-//    if (result == GL_FALSE)
-//    {
-//        glGetProgramiv(mOculusProgram, GL_INFO_LOG_LENGTH, &infoLogLength);
-//        std::vector<char> programErrorMessage( std::max(infoLogLength, int(1)) );
-//        glGetProgramInfoLog(mOculusProgram, infoLogLength, NULL, &programErrorMessage[0]);
-//        fprintf(stdout, "%s\n", &programErrorMessage[0]);
-//    }    
-    
-//    flush(stdout);
-    
+    //    glGetProgramiv(mOculusProgram, GL_LINK_STATUS, &result);
+    //    if (result == GL_FALSE)
+    //    {
+    //        glGetProgramiv(mOculusProgram, GL_INFO_LOG_LENGTH, &infoLogLength);
+    //        std::vector<char> programErrorMessage( std::max(infoLogLength, int(1)) );
+    //        glGetProgramInfoLog(mOculusProgram, infoLogLength, NULL, &programErrorMessage[0]);
+    //        fprintf(stdout, "%s\n", &programErrorMessage[0]);
+    //    }
+
+    //    flush(stdout);
+
     return program;
 }
 

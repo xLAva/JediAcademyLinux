@@ -23,7 +23,7 @@ ClientHmd::~ClientHmd()
 
 }
 
-ClientHmd *ClientHmd::Get()
+ClientHmd* ClientHmd::Get()
 {
     if (sClientHmd == NULL)
     {
@@ -44,7 +44,7 @@ void ClientHmd::Destroy()
     sClientHmd = NULL;
 }
 
-void ClientHmd::UpdateInputView(float yawDiff, float &rPitch, float &rYaw, float &rRoll)
+void ClientHmd::UpdateInputView(float yawDiff, float& rPitch, float& rYaw, float& rRoll)
 {
     if (mpDevice == NULL)
     {
@@ -59,7 +59,7 @@ void ClientHmd::UpdateInputView(float yawDiff, float &rPitch, float &rYaw, float
 
     mViewangleDiff += yawDiff;
     mViewangleDiff = fmod(mViewangleDiff, 360.0f);
-    
+
     mLastViewangleYaw = rYaw;
 
     float pitch = 0;
@@ -73,19 +73,7 @@ void ClientHmd::UpdateInputView(float yawDiff, float &rPitch, float &rYaw, float
         return;
     }
 
-    // check to make sure the angles haven't wrapped
-//    if (pitch - rPitch > 90)
-//    {
-//        rPitch = rPitch + 90;
-//    }
-//    else if (rPitch - pitch > 90)
-//    {
-//        rPitch = rPitch - 90;
-//    }
-//    else
-//    {
-        rPitch = pitch;
-//    }
+    rPitch = pitch;
 
     rPitch = std::max(rPitch, -80.0f);
     rPitch = std::min(rPitch, 80.0f);
@@ -113,14 +101,14 @@ void ClientHmd::UpdateGame()
     }
 
     //printf("pitch: %.2f yaw: %.2f roll: %.2f\n", pitch, yaw, roll);
-    
+
     yaw += mViewangleDiff;
 
     VM_Call(CG_HMD_UPDATE, &pitch, &yaw, &roll);
 }
 
 
-bool ClientHmd::GetOrientation(float &rPitch, float &rYaw, float &rRoll)
+bool ClientHmd::GetOrientation(float& rPitch, float& rYaw, float& rRoll)
 {
     if (mpDevice == NULL)
     {
