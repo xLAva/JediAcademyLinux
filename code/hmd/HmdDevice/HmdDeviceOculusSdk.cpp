@@ -177,7 +177,7 @@ bool HmdDeviceOculusSdk::GetOrientationRad(float& rPitch, float& rYaw, float& rR
 
     // Query the HMD for the sensor state at a given time.
     ovrTrackingState ss = ovrHmd_GetTrackingState(mpHmd, 0.0);
-    if ((ss.StatusFlags & (ovrStatus_OrientationTracked | ovrStatus_PositionTracked)))
+    if ((ss.StatusFlags & ovrStatus_PositionTracked))
     {
         OVR::Quatf orientation = OVR::Quatf(ss.HeadPose.ThePose.Orientation);
         orientation.GetEulerAngles<Axis_Y, Axis_X, Axis_Z>(&rYaw, &rPitch, &rRoll);
@@ -189,4 +189,29 @@ bool HmdDeviceOculusSdk::GetOrientationRad(float& rPitch, float& rYaw, float& rR
 
     return false;
 
+}
+
+
+bool HmdDeviceOculusSdk::GetPosition(float &rX, float &rY, float &rZ)
+{
+    if (!mIsInitialized || mpHmd == NULL || !mPositionTrackingEnabled)
+    {
+        return false;
+    }
+
+    // Query the HMD for the sensor state at a given time.
+    ovrTrackingState ss = ovrHmd_GetTrackingState(mpHmd, 0.0);
+    if ((ss.StatusFlags & ovrStatus_PositionTracked))
+    {
+        OVR::Vector3f pos = OVR::Vector3f(ss.HeadPose.ThePose.Position);
+        rX = pos.x;
+        rY = pos.y;
+        rZ = pos.z;
+
+        //printf("pitch: %.2f yaw: %.2f roll: %.2f\n", rPitch, rYaw, rRoll);
+
+        return true;
+    }
+
+    return false;
 }
