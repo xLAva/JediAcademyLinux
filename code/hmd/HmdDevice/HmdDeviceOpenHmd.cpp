@@ -242,7 +242,8 @@ void HmdDeviceOpenHmd::DetectDisplay()
     for (int i=0; i<displayCount; i++)
     {
         const char* displayName = SDL_GetDisplayName(i);
-        if (strcmp(displayName, "Rift DK 7\"") == 0)
+        if (strcmp(displayName, "Rift DK 7\"") == 0 ||
+            strcmp(displayName, "Rift DK2 6\"") == 0)
         {
             mDisplayId = i;
             mDisplayDeviceName = displayName;
@@ -251,7 +252,7 @@ void HmdDeviceOpenHmd::DetectDisplay()
 
         SDL_Rect r;
         int ret = SDL_GetDisplayBounds(i, &r);
-        if (ret == 0 && r.w == 1280 && r.h == 800)
+        if (ret == 0 && (r.w == 1280 && r.h == 800 || r.w == 1080 && r.h == 1920))
         {
             // this is a fallback, if the display name is not correct
             mDisplayId = i;

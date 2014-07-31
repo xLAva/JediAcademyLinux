@@ -48,10 +48,12 @@ bool HmdRendererOculusOpenHmd::Init(int windowWidth, int windowHeight, PlatformI
     mWindowHeight = windowHeight;
 
     // use higher render resolution for a better result
-    mRenderWidth = 1122; //mWindowWidth / 2;
-    mRenderHeight = 1553; //mWindowHeight;
+//    mRenderWidth = 1122; //mWindowWidth / 2;
+//    mRenderHeight = 1553; //mWindowHeight;
 
-
+    mRenderWidth = 1682; //mWindowWidth / 2;
+    mRenderHeight = 2096; //mWindowHeight;
+    
     for (int i=0; i<FBO_COUNT; i++)
     {
         bool worked = RenderTool::CreateFrameBuffer(mFboInfos[i], mRenderWidth, mRenderHeight);
@@ -301,10 +303,10 @@ const char* HmdRendererOculusOpenHmd::GetPixelShader()
         "            void main()\n"
         "            {\n"
         "                // The following two variables need to be set per eye\n"
-        "                vec2 LensCenter = gl_FragCoord.x < 640 ? LeftLensCenter : RightLensCenter;\n"
-        "                vec2 ScreenCenter = gl_FragCoord.x < 640 ? LeftScreenCenter : RightScreenCenter;\n"
+        "                vec2 LensCenter = gl_FragCoord.x < 960 ? LeftLensCenter : RightLensCenter;\n"
+        "                vec2 ScreenCenter = gl_FragCoord.x < 960 ? LeftScreenCenter : RightScreenCenter;\n"
         "            \n"
-        "                vec2 oTexCoord = gl_FragCoord.xy / vec2(1280, 800);\n"
+        "                vec2 oTexCoord = gl_FragCoord.xy / vec2(1920, 1080);\n"
         "            \n"
         "                vec2 tc = HmdWarp(oTexCoord, LensCenter);\n"
         "                if (any(bvec2(clamp(tc,ScreenCenter-vec2(0.25,0.5), ScreenCenter+vec2(0.25,0.5)) - tc)))\n"
@@ -313,7 +315,7 @@ const char* HmdRendererOculusOpenHmd::GetPixelShader()
         "                    return;\n"
         "                }\n"
         "            \n"
-        "                tc.x = gl_FragCoord.x < 640 ? (2.0 * tc.x) : (2.0 * (tc.x - 0.5));\n"
+        "                tc.x = gl_FragCoord.x < 960 ? (2.0 * tc.x) : (2.0 * (tc.x - 0.5));\n"
         "                gl_FragColor = texture2D(warpTexture, tc);\n"
         "            }";
 
