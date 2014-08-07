@@ -23,6 +23,8 @@ HmdRendererOculusSdk::HmdRendererOculusSdk(HmdDeviceOculusSdk* pHmdDeviceOculusS
     ,mWindowHeight(0)
     ,mRenderWidth(0)
     ,mRenderHeight(0)
+	,mGuiScale(1.0f)
+	,mGuiOffsetFactorX(0)
     ,mpDevice(pHmdDeviceOculusSdk)
     ,mpHmd(NULL)
 {
@@ -47,16 +49,28 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     mRenderWidth = windowWidth/2;
     mRenderHeight = windowHeight;
 
-
-
     mpHmd = mpDevice->GetHmd();
 
-    // Configure Stereo settings.
-    ovrSizei recommenedTex0Size = ovrHmd_GetFovTextureSize(mpHmd, ovrEye_Left, mpHmd->DefaultEyeFov[0], 1.0f);
-    ovrSizei recommenedTex1Size = ovrHmd_GetFovTextureSize(mpHmd, ovrEye_Right, mpHmd->DefaultEyeFov[1], 1.0f);
+	if (mpHmd->Type == ovrHmd_DK1)
+	{
+		mGuiScale = 0.3f;
+		mGuiOffsetFactorX = 5.0f;
+	}
+	else if (mpHmd->Type == ovrHmd_DK2)
+	{
+		mGuiScale = 0.45f;
+		mGuiOffsetFactorX = 0;
+	}
 
-    mRenderWidth = max(recommenedTex0Size.w, recommenedTex1Size.w);
-    mRenderHeight = max(recommenedTex0Size.h, recommenedTex1Size.h);
+	if (mpHmd->Type == ovrHmd_DK1)
+	{
+		// Configure Stereo settings.
+		ovrSizei recommenedTex0Size = ovrHmd_GetFovTextureSize(mpHmd, ovrEye_Left, mpHmd->DefaultEyeFov[0], 1.0f);
+		ovrSizei recommenedTex1Size = ovrHmd_GetFovTextureSize(mpHmd, ovrEye_Right, mpHmd->DefaultEyeFov[1], 1.0f);
+
+		mRenderWidth = max(recommenedTex0Size.w, recommenedTex1Size.w);
+		mRenderHeight = max(recommenedTex0Size.h, recommenedTex1Size.h);
+	}
 
     printf("HmdRendererOculusSdk: target texture size (%dx%d)\n", mRenderWidth, mRenderHeight);
     flush(std::cout);
@@ -73,6 +87,7 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
 
 
     ovrGLConfig cfg;
+	memset(&cfg, 0, sizeof(cfg));
     cfg.OGL.Header.API = ovrRenderAPI_OpenGL;
     cfg.OGL.Header.RTSize = mpHmd->Resolution;
     cfg.OGL.Header.Multisample = 1;
@@ -82,11 +97,16 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     cfg.OGL.Win = platformInfo.WindowId;
 #endif
 
+#ifdef _WINDOWS
+	cfg.OGL.Window = platformInfo.Window;
+	cfg.OGL.DC = platformInfo.DC;
+#endif
+
     ovrFovPort eyeFov[2];
     eyeFov[0] = mpHmd->DefaultEyeFov[0];
     eyeFov[1] = mpHmd->DefaultEyeFov[1];
 
-    unsigned distortionCaps = ovrDistortionCap_Chromatic;
+	unsigned distortionCaps = ovrDistortionCap_Chromatic | ovrDistortionCap_Vignette | ovrDistortionCap_TimeWarp | ovrDistortionCap_Overdrive;
 
     bool worked = ovrHmd_ConfigureRendering(mpHmd, &cfg.Config, distortionCaps, eyeFov, mEyeRenderDesc);
     if (!worked)
@@ -186,12 +206,15 @@ void HmdRendererOculusSdk::BeginRenderingForEye(bool leftEye)
             mEyes[i] = mpHmd->EyeRenderOrder[i];
             mEyePoses[i] = ovrHmd_GetEyePose(mpHmd, mEyes[i]);
             mCurrentOrientations[i] = Quatf(mEyePoses[i].Orientation);
+			mCurrentPosition[i] = Vector3f(mEyePoses[i].Position);
         }
 
         qglBindBuffer(GL_ARRAY_BUFFER, 0);
         qglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         qglBindVertexArray(0);
         qglUseProgramObjectARB(0);
+		qglDisable(GL_FRAMEBUFFER_SRGB);
+		qglFrontFace(GL_CCW);
     }
 
     // bind framebuffer
@@ -209,14 +232,90 @@ void HmdRendererOculusSdk::EndFrame()
 
     if (mStartedRendering)
     {
-        //render end
-        ovrHmd_EndFrame(mpHmd, mEyePoses, EyeTexture);
+  //      //render end
+		//qglBindBuffer(GL_ARRAY_BUFFER, 0);
+		//qglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		//qglBindVertexArray(0);
+		//qglUseProgramObjectARB(0);
+		//qglDisable(GL_FRAMEBUFFER_SRGB);
+		//qglFrontFace(GL_CCW);
 
-        // cleanup the OculusSdk state mess
-        qglBindBuffer(GL_ARRAY_BUFFER, 0);
-        qglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-        qglBindVertexArray(0);
-        qglUseProgramObjectARB(0);
+		//qglBindFramebuffer(GL_FRAMEBUFFER, 0);
+		//qglDisableClientState(GL_VERTEX_ARRAY);
+
+  //      ovrHmd_EndFrame(mpHmd, mEyePoses, EyeTexture);
+
+		//qglEnableClientState(GL_VERTEX_ARRAY);
+  //      // cleanup the OculusSdk state mess
+  //      qglBindBuffer(GL_ARRAY_BUFFER, 0);
+  //      qglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  //      qglBindVertexArray(0);
+  //      qglUseProgramObjectARB(0);
+		//qglDisable(GL_FRAMEBUFFER_SRGB);
+		//qglFrontFace(GL_CCW);
+		////qglDisable(GL_BLEND);
+
+
+		GLboolean depth_test = qglIsEnabled(GL_DEPTH_TEST);
+		GLboolean blend = qglIsEnabled(GL_BLEND);
+		GLboolean texture_2d = qglIsEnabled(GL_TEXTURE_2D);
+		GLboolean texture_coord_array = qglIsEnabled(GL_TEXTURE_COORD_ARRAY);
+		GLboolean color_array = qglIsEnabled(GL_COLOR_ARRAY);
+		GLint viewport[4];
+		GLint scissor[4];
+		GLint texture;
+		qglGetIntegerv(GL_VIEWPORT, viewport);
+		qglGetIntegerv(GL_SCISSOR_BOX, scissor);
+		qglGetIntegerv(GL_TEXTURE_BINDING_2D, &texture);
+
+		qglViewport(0, 0, mWindowWidth, mWindowHeight);
+		qglScissor(0, 0, mWindowWidth, mWindowHeight);
+
+		// set state
+		qglBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+		qglDisable(GL_DEPTH_TEST);
+		qglDisable(GL_BLEND);
+		qglEnable(GL_TEXTURE_2D);
+		qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		qglDisableClientState(GL_COLOR_ARRAY);
+		qglDisableClientState(GL_VERTEX_ARRAY);
+
+
+		ovrHmd_EndFrame(mpHmd, mEyePoses, EyeTexture);
+
+
+		// restore the old state
+		qglUseProgramObjectARB(0);
+
+		if (depth_test)
+		{
+			qglEnable(GL_DEPTH_TEST);
+		}
+		if (blend)
+		{
+			qglEnable(GL_BLEND);
+		}
+		if (!texture_2d)
+		{
+			qglDisable(GL_TEXTURE_2D);
+		}
+		if (!texture_coord_array)
+		{
+			qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		}
+		if (color_array)
+		{
+			qglEnableClientState(GL_COLOR_ARRAY);
+		}
+
+		qglEnableClientState(GL_VERTEX_ARRAY);
+
+		qglViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+		qglScissor(scissor[0], scissor[1], scissor[2], scissor[3]);
+		qglBindTexture(GL_TEXTURE_2D, texture);
+
 
         mStartedRendering = false;
 
@@ -257,12 +356,25 @@ bool HmdRendererOculusSdk::GetCustomViewMatrix(float* rViewMatrix, float xPos, f
 
     // convert body transform to matrix
     Matrix4f bodyYawRotation = Matrix4f::RotationZ(DEG2RAD(-bodyYaw));
-    Matrix4f bodyPosition = Matrix4f::Translation(-xPos, -yPos, -zPos);
 
-    mCurrentView = hmdRotation * bodyYawRotation * bodyPosition;
+
+	float meterToGame = 26.2464f;// (3.2808f * 8.0f); // meter to feet * game factor 8
+	Vector3f bodyPos = Vector3f(xPos, yPos, zPos);
+	bodyPos *= -1;
+
+	Vector3f hmdPos;
+	hmdPos.x = mCurrentPosition[mEyeId].z * meterToGame;
+	hmdPos.y = mCurrentPosition[mEyeId].x * meterToGame;
+	hmdPos.z = mCurrentPosition[mEyeId].y * -meterToGame;
+	
+
+	Matrix4f bodyPosition = Matrix4f::Translation(bodyPos);
+	Matrix4f hmdPosition = Matrix4f::Translation(hmdPos);
+
+	mCurrentView = hmdRotation * hmdPosition * bodyYawRotation * bodyPosition;
 
     // apply ipd
-    float meterToGame = (3.2808f * 2.0f); // meter to feet * game factor 2
+
     Vector3f viewAdjust = mEyeRenderDesc[mEyeId].ViewAdjust;
     viewAdjust *= meterToGame;
     mCurrentView = Matrix4f::Translation(viewAdjust) * mCurrentView;
@@ -275,18 +387,38 @@ bool HmdRendererOculusSdk::GetCustomViewMatrix(float* rViewMatrix, float xPos, f
 bool HmdRendererOculusSdk::Get2DViewport(int& rX, int& rY, int& rW, int& rH)
 {
     // shrink the gui for the HMD display
-    float scale = 0.3f;
     float aspect = 1.0f;
 
-    rW = mRenderWidth * scale;
-    rH = mRenderWidth* scale * aspect;
+    rW = mRenderWidth * mGuiScale;
+	rH = mRenderWidth* mGuiScale * aspect;
 
     rX = (mRenderWidth - rW)/2.0f;
-    int xOff = mRenderWidth/5.0f;
+	int xOff = mGuiOffsetFactorX > 0 ? (mRenderWidth / mGuiOffsetFactorX) : 0;
     xOff *= mEyeId == 0 ? 1 : -1;
     rX += xOff;
 
     rY = (mRenderHeight - rH)/2;
+
+	return true;
+}
+
+bool HmdRendererOculusSdk::AttachToWindow(void* pWindowHandle)
+{
+#ifdef _WINDOWS
+	if (mpDevice == NULL || mpDevice->GetHmd() == NULL)
+	{
+		return false;
+	}
+
+	if (!(mpDevice->GetHmd()->HmdCaps & ovrHmdCap_ExtendDesktop))
+	{
+		ovrHmd_AttachToWindow(mpDevice->GetHmd(), pWindowHandle, NULL, NULL);
+	}
+
+	return true;
+#else
+	return false;
+#endif
 }
 
 void HmdRendererOculusSdk::ConvertMatrix(const Matrix4f& from, float* rTo)

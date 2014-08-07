@@ -1798,6 +1798,14 @@ static qboolean CG_CalcViewValues( void ) {
         cg.refdefViewAngles[YAW] = yaw + SHORT2ANGLE(ps->delta_angles[YAW]);
     }
 
+	float x, y, z;
+	if (GameHmd::Get()->GetPosition(x, y, z))
+	{
+		cg.refdef.vieworg[0] += x;
+		cg.refdef.vieworg[1] += y;
+		cg.refdef.vieworg[2] += z;
+	}
+
 	AnglesToAxis( cg.refdefViewAngles, cg.refdef.viewaxis );
 
 	if ( cg.hyperspace ) 

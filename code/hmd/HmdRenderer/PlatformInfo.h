@@ -17,6 +17,11 @@ public:
     Display* pDisplay;
     Window WindowId;
 #endif
+
+#ifdef _WINDOWS
+	HWND Window;
+	HDC  DC;
+#endif
 };
 
 

@@ -40,6 +40,8 @@ public:
 
     virtual bool Get2DViewport(int& rX, int& rY, int& rW, int& rH);
 
+	bool AttachToWindow(void* pWindowHandle);
+
 protected:
     static void ConvertMatrix(const OVR::Matrix4f& from, float* rTo);
 
@@ -58,6 +60,9 @@ private:
     int mRenderWidth;
     int mRenderHeight;
 
+	float mGuiScale;
+	float mGuiOffsetFactorX;
+
     HmdDeviceOculusSdk* mpDevice;
     ovrHmd mpHmd;
     ovrEyeRenderDesc mEyeRenderDesc[2];
@@ -69,6 +74,7 @@ private:
     OVR::Matrix4f mCurrentProj;
     OVR::Matrix4f mCurrentView;
     OVR::Quatf mCurrentOrientations[2];
+	OVR::Vector3f mCurrentPosition[2];
 
 
 };

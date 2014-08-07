@@ -23,6 +23,9 @@
 #include "../hmd/HmdRenderer/IHmdRenderer.h"
 #include "../hmd/HmdRenderer/PlatformInfo.h"
 
+#ifdef USE_OVR
+#include "../hmd/HmdRenderer/HmdRendererOculusSdk.h"
+#endif
 
 #ifdef LINUX
 #include <SDL2/SDL.h>
@@ -49,7 +52,7 @@ glwstate_t glw_state;
 
 SDL_Window*   s_pSdlWindow = NULL;
 SDL_Renderer* s_pSdlRenderer = NULL;
-//SDL_GLContext sGlContext = NULL;
+SDL_GLContext sGlContext = NULL;
 
 
 static qboolean        mouse_avail;
@@ -186,10 +189,14 @@ int GLW_SetMode(int mode, qboolean fullscreen )
             useWindowPosition = pHmdDevice->GetDisplayPos(xPos, yPos);
             //useWindowPosition = false;
             
-            fullscreen = true;
-            //fullscreenWindow = true;            
-            //fullscreenDesktopRes = true;            
-            
+			#ifdef LINUX
+				fullscreen = true;
+			#else
+				fullscreen = false;
+				fullscreenWindow = true;            
+				//fullscreenDesktopRes = true;            
+			#endif
+
             VID_Printf( PRINT_ALL, "hmd display: %s\n", pHmdDevice->GetDisplayDeviceName().c_str());    
             
             glConfig.stereoEnabled = qtrue; 
@@ -260,41 +267,74 @@ int GLW_SetMode(int mode, qboolean fullscreen )
     
     s_pSdlWindow = SDL_CreateWindow("Jasp HMD", displayPosX, displayPoxY, actualWidth, actualHeight, windowFlags);
     
-    if (!s_pSdlWindow)
+
+	if (!s_pSdlWindow)
     {
         VID_Printf( PRINT_ALL, "CreateWindow failed: %s\n", SDL_GetError());
         return RSERR_UNKNOWN;
     }
-    
+
+#ifdef USE_OVR
+	HmdRendererOculusSdk* pHmdRenderer = dynamic_cast<HmdRendererOculusSdk*>(ClientHmd::Get()->GetRenderer());
+	if (pHmdRenderer)
+	{
+		SDL_SysWMinfo sysInfo;
+		SDL_VERSION(&sysInfo.version); // initialize info structure with SDL version info
+		SDL_GetWindowWMInfo(s_pSdlWindow, &sysInfo);
+
+		void* pWindowHandle = NULL;
+#ifdef LINUX
+		if (sysInfo.subsystem == SDL_SYSWM_X11)
+		{
+			pWindowHandle = sysInfo.info.x11.window;
+		}
+#endif
+
+#ifdef _WINDOWS
+		if (sysInfo.subsystem == SDL_VIDEO_DRIVER_WINDOWS)
+		{
+			pWindowHandle = sysInfo.info.win.window;
+		}
+#endif
+
+		if (pWindowHandle)
+		{
+			pHmdRenderer->AttachToWindow(pWindowHandle);
+		}
+	}
+#endif
+
     sWindowHasFocus = true;
     if (sVideoModeFullscreen)
     {
         SDL_SetRelativeMouseMode(SDL_TRUE);
     }    
     
-    int rendererFlags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
-    
-    int rendererCount = SDL_GetNumRenderDrivers();
-    for (int i=0; i<rendererCount; i++)
-    {
-        SDL_RendererInfo renderInfo;
-        int ret = SDL_GetRenderDriverInfo(i, &renderInfo);
-        if (ret == 0)
-        {
-            //VID_Printf( PRINT_ALL, "renderer found: %s\n", renderInfo.name);
-            if (strcmp(renderInfo.name, "opengl") == 0)
-            {
-                s_pSdlRenderer = SDL_CreateRenderer(s_pSdlWindow, i, rendererFlags);
-                break;
-            }
-        }
-    }
-    
-    if (!s_pSdlRenderer)
-    {
-        VID_Printf( PRINT_ALL, "CreateRenderer failed: %s\n", SDL_GetError());
-        return RSERR_UNKNOWN;
-    }
+	sGlContext = SDL_GL_CreateContext(s_pSdlWindow);
+
+    //int rendererFlags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
+    //
+    //int rendererCount = SDL_GetNumRenderDrivers();
+    //for (int i=0; i<rendererCount; i++)
+    //{
+    //    SDL_RendererInfo renderInfo;
+    //    int ret = SDL_GetRenderDriverInfo(i, &renderInfo);
+    //    if (ret == 0)
+    //    {
+    //        //VID_Printf( PRINT_ALL, "renderer found: %s\n", renderInfo.name);
+    //        if (strcmp(renderInfo.name, "opengl") == 0)
+    //        {
+    //            s_pSdlRenderer = SDL_CreateRenderer(s_pSdlWindow, i, rendererFlags);
+    //            break;
+    //        }
+    //    }
+    //}
+    //
+    //if (!s_pSdlRenderer)
+    //{
+    //    VID_Printf( PRINT_ALL, "CreateRenderer failed: %s\n", SDL_GetError());
+    //    return RSERR_UNKNOWN;
+    //}
        
 
     SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &redbits);
@@ -805,7 +845,7 @@ static void GLW_InitExtensions( void )
         PlatformInfo platformInfo;
         platformInfo.WindowWidth = glConfig.vidWidth*2;
         platformInfo.WindowHeight = glConfig.vidHeight;
-
+		
         SDL_SysWMinfo sysInfo;
         SDL_VERSION(&sysInfo.version); // initialize info structure with SDL version info
         SDL_GetWindowWMInfo(s_pSdlWindow, &sysInfo);
@@ -816,7 +856,15 @@ static void GLW_InitExtensions( void )
             platformInfo.WindowId = sysInfo.info.x11.window;
         }
 #endif
-        bool worked = pHmdRenderer->Init(glConfig.vidWidth*2.0, glConfig.vidHeight, platformInfo);
+
+#ifdef _WINDOWS
+		if (sysInfo.subsystem == SDL_VIDEO_DRIVER_WINDOWS)
+		{
+			platformInfo.Window = sysInfo.info.win.window;
+			platformInfo.DC = NULL;// GetDC(sysInfo.info.win.window);
+		}
+#endif
+		bool worked = pHmdRenderer->Init(glConfig.vidWidth*2.0, glConfig.vidHeight, platformInfo);
         if (worked)
         {  
             pHmdRenderer->GetRenderResolution(glConfig.vidWidth, glConfig.vidHeight);
@@ -1163,6 +1211,7 @@ void GLimp_Init( void )
 	InitSig();
     
     IN_StartupGameController();
+	SDL_StartTextInput();
 }
 
 
@@ -1199,8 +1248,8 @@ void GLimp_Shutdown( void )
 
     SDL_SetRelativeMouseMode(SDL_FALSE);
     
-    SDL_DestroyRenderer(s_pSdlRenderer);
-    //SDL_GL_DeleteContext(sGlContext);
+    //SDL_DestroyRenderer(s_pSdlRenderer);
+    SDL_GL_DeleteContext(sGlContext);
     SDL_DestroyWindow(s_pSdlWindow);
 
 	// close the r_logFile
@@ -1266,12 +1315,24 @@ void Input_GetState( void );
 
 static char *XLateKey(const SDL_Keysym& keysym, int *key)
 {
-	static char buf[64];
-
+	static char buf[1];
+	buf[0] = 0;
 	*key = 0;
 
-    const char* keyName = SDL_GetKeyName(keysym.sym);
-    strncpy(buf, keyName, 63);
+    //const char* keyName = SDL_GetKeyName(keysym.sym);
+	
+	if (keysym.sym < 0x40000000)
+	{
+		char keyName = keysym.sym;
+		//if (keysym.mod & KMOD_SHIFT && keyName >= 'a' && keyName <= 'z')
+		//{
+		//	keyName = keyName - 'a' + 'A';
+		//}
+
+		strncpy(buf, &keyName, 1);
+
+		//Com_Printf("key: %s (%d)\n", buf, *buf);
+	}
     
 	switch(keysym.scancode)
 	{
@@ -1376,6 +1437,11 @@ static char *XLateKey(const SDL_Keysym& keysym, int *key)
 				*key = *key - 'A' + 'a';
 			break;
 	} 
+
+	if (keysym.sym != '`' && keysym.sym > ' ')
+	{
+		buf[0] = 0;
+	}
 
 	return buf;
 }
@@ -1560,6 +1626,7 @@ static void HandleEvents(void)
             p = XLateKey(event.key.keysym, &key);
             if (key)
                 Sys_QueEvent( 0, SE_KEY, key, qtrue, 0, NULL );
+			//handle control chars
             while (*p)
                 Sys_QueEvent( 0, SE_CHAR, *p++, 0, 0, NULL );
             break;                
@@ -1568,6 +1635,15 @@ static void HandleEvents(void)
             
             Sys_QueEvent( 0, SE_KEY, key, qfalse, 0, NULL );
             break;
+
+		case SDL_TEXTINPUT:
+			p = event.text.text;
+			if (*p != '`' && *p != '^')
+			{
+				while (*p)
+					Sys_QueEvent(0, SE_CHAR, *p++, 0, 0, NULL);
+			}
+			break;
         case SDL_MOUSEMOTION:
             if (sVideoModeFullscreen)
             {

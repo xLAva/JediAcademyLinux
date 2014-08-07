@@ -1340,6 +1340,14 @@ void CGCam_Update( void )
         VectorCopy(cg.refdefViewAngles, cg.refdefViewAnglesWeapon);
     }
 
+	float x, y, z;
+	if (GameHmd::Get()->GetPosition(x, y, z))
+	{
+		cg.refdef.vieworg[0] += x;
+		cg.refdef.vieworg[1] += y;
+		cg.refdef.vieworg[2] += z;
+	}
+
 	AnglesToAxis( cg.refdefViewAngles, cg.refdef.viewaxis );
 }
 
