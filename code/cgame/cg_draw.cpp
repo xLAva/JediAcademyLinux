@@ -2585,30 +2585,41 @@ static void CG_DrawCrosshair( vec3_t worldPoint, float crosshairEntDist)
 		h *= ( 1 + f );
 	}
 
-//	if ( worldPoint && VectorLength( worldPoint ) )
-//	{
-//		if ( !CG_WorldCoordToScreenCoordFloat( worldPoint, &x, &y ) )
-//		{//off screen, don't draw it
-//			return;
-//		}
-//		x -= 320;//????
-//		y -= 240;//????
-//	}
-//	else
-//	{
-//		x = cg_crosshairX.integer;
-//		y = cg_crosshairY.integer;
-//	}
+    bool useInWorldCrosshair = cg_useHmd.integer;
+
+    if (!useInWorldCrosshair)
+    {
+        if ( worldPoint && VectorLength( worldPoint ) )
+        {
+            if ( !CG_WorldCoordToScreenCoordFloat( worldPoint, &x, &y ) )
+            {//off screen, don't draw it
+                return;
+            }
+            x -= 320;//????
+            y -= 240;//????
+        }
+        else
+        {
+            x = cg_crosshairX.integer;
+            y = cg_crosshairY.integer;
+        }
+    }
 
 	if ( cg.snap->ps.viewEntity > 0 && cg.snap->ps.viewEntity < ENTITYNUM_WORLD )
 	{
 		if ( !Q_stricmp( "misc_panel_turret", g_entities[cg.snap->ps.viewEntity].classname ))
 		{
 			// draws a custom crosshair that is twice as large as normal
-            CG_PlaceCrosshairInWorld(worldPoint, crosshairEntDist, w*2, cgs.media.turretCrossHairShader, ecolor);
-//			cgi_R_DrawStretchPic( x + cg.refdef.x + 320 - w, 
-//				y + cg.refdef.y + 240 - h, 
-//				w * 2, h * 2, 0, 0, 1, 1, cgs.media.turretCrossHairShader );	
+            if (useInWorldCrosshair)
+            {
+                CG_PlaceCrosshairInWorld(worldPoint, crosshairEntDist, w*2, cgs.media.turretCrossHairShader, ecolor);
+            }
+            else
+            {
+                cgi_R_DrawStretchPic( x + cg.refdef.x + 320 - w, 
+                    y + cg.refdef.y + 240 - h, 
+                    w * 2, h * 2, 0, 0, 1, 1, cgs.media.turretCrossHairShader );
+            }
 
 		}
 	}
@@ -2618,10 +2629,16 @@ static void CG_DrawCrosshair( vec3_t worldPoint, float crosshairEntDist)
 
 		hShader = cgs.media.crosshairShader[ cg_drawCrosshair.integer % NUM_CROSSHAIRS ];
 
-        CG_PlaceCrosshairInWorld(worldPoint, crosshairEntDist, w, hShader, ecolor);
-		//cgi_R_DrawStretchPic( x + cg.refdef.x + 0.5 * (640 - w),
-		//	y + cg.refdef.y + 0.5 * (480 - h),
-		//	w, h, 0, 0, 1, 1, hShader );
+        if (useInWorldCrosshair)
+        {
+            CG_PlaceCrosshairInWorld(worldPoint, crosshairEntDist, w, hShader, ecolor);
+        }
+        else
+        {
+            cgi_R_DrawStretchPic( x + cg.refdef.x + 0.5 * (640 - w),
+                y + cg.refdef.y + 0.5 * (480 - h),
+                w, h, 0, 0, 1, 1, hShader );
+        }
 	}
 
 	if ( cg.forceCrosshairStartTime && cg_crosshairForceHint.integer ) // drawing extra bits
@@ -2634,11 +2651,17 @@ static void CG_DrawCrosshair( vec3_t worldPoint, float crosshairEntDist)
 		w *= 2.0f;
 		h *= 2.0f;
 
-        CG_PlaceCrosshairInWorld(worldPoint, crosshairEntDist, w, cgs.media.forceCoronaShader, ecolor);        
-//		cgi_R_DrawStretchPic( x + cg.refdef.x + 0.5f * ( 640 - w ), y + cg.refdef.y + 0.5f * ( 480 - h ), 
-//								w, h, 
-//								0, 0, 1, 1, 
-//								cgs.media.forceCoronaShader ); 
+        if (useInWorldCrosshair)
+        {
+            CG_PlaceCrosshairInWorld(worldPoint, crosshairEntDist, w, cgs.media.forceCoronaShader, ecolor);        
+        }
+        else
+        {
+            cgi_R_DrawStretchPic( x + cg.refdef.x + 0.5f * ( 640 - w ), y + cg.refdef.y + 0.5f * ( 480 - h ), 
+                                    w, h, 
+                                    0, 0, 1, 1, 
+                                    cgs.media.forceCoronaShader ); 
+        }
 	}
 }
 
@@ -3886,7 +3909,11 @@ static void CG_Draw2D( void )
 		//}
 
 
-		//CG_DrawCrosshairNames();
+        // in hmd mode the crosshair is drawn in 3d instead of 2d space
+        if (!cg_useHmd.integer)
+        {
+            CG_DrawCrosshairNames();
+        }
 
 		CG_RunRocketLocking();
 
@@ -4162,7 +4189,11 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 	cg.refdef.stereoFrame = stereoView;
 	// draw 3D view
 
-	CG_DrawCrosshairNames();
+    // in hmd mode the crosshair is drawn in 3d instead of 2d space
+    if (cg_useHmd.integer)
+    {
+        CG_DrawCrosshairNames();
+    }
 
 	cgi_R_RenderScene( &cg.refdef );
 

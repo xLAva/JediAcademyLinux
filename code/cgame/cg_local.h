@@ -632,6 +632,8 @@ extern	vmCvar_t		cg_smoothPlayerPos;
 extern	vmCvar_t		cg_smoothPlayerPlat;
 extern	vmCvar_t		cg_smoothPlayerPlatAccel;
 
+extern  vmCvar_t        cg_useHmd;
+
 void CG_NewClientinfo( int clientNum );
 //
 // cg_main.c

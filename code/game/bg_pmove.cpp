@@ -9038,9 +9038,15 @@ static void PM_BeginWeaponChange( int weapon ) {
 	{
 		if ( pm->ps->clientNum < MAX_CLIENTS )
 		{
-            //[LAva] Hmd hack
-			//gi.cvar_set( "cg_thirdperson", "1" );
-            gi.cvar_set( "cg_thirdperson", "0" );
+            //[LAva] Hmd hack - stay first persion
+            if (cg_useHmd.integer)
+            {
+                gi.cvar_set( "cg_thirdperson", "0" );
+            }
+            else
+            {
+                gi.cvar_set( "cg_thirdperson", "1" );
+            }
 		}
 	}
 	else if ( weapon == WP_SABER )
@@ -9150,9 +9156,15 @@ static void PM_FinishWeaponChange( void ) {
 			WP_SaberInitBladeData( pm->gent );
 			if ( (pm->ps->clientNum < MAX_CLIENTS||PM_ControlledByPlayer()) )
 			{
-                // [LAva] hmd hack
-                //gi.cvar_set( "cg_thirdperson", "1" );
-				gi.cvar_set( "cg_thirdperson", "0" );
+                //[LAva] Hmd hack - stay first persion
+                if (cg_useHmd.integer)
+                {
+                    gi.cvar_set( "cg_thirdperson", "0" );
+                }
+                else
+                {
+                    gi.cvar_set( "cg_thirdperson", "1" );
+                }
 			}
 		}
 		if ( trueSwitch )

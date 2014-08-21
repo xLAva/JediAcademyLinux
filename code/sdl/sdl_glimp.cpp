@@ -193,7 +193,8 @@ int GLW_SetMode(int mode, qboolean fullscreen )
             VID_Printf( PRINT_ALL, "hmd display: %s\n", pHmdDevice->GetDisplayDeviceName().c_str());    
             
             glConfig.stereoEnabled = qtrue; 
-            r_stereo->integer = 1;
+            
+            Cvar_Set("r_stereo", "1");
         }
     }
     
@@ -1068,6 +1069,9 @@ void GLimp_Init( void )
     {
         VID_Printf(PRINT_ALL, "HMD Device found: %s\n", pHmdDevice->GetInfo().c_str());
         ClientHmd::Get()->SetDevice(pHmdDevice);
+        
+        Cvar_Set("cg_useHmd", "1");
+        Cvar_Set("cg_thirdPerson", "0");
         
         IHmdRenderer* pHmdRenderer = FactoryHmdDevice::CreateRendererForDevice(pHmdDevice);
         

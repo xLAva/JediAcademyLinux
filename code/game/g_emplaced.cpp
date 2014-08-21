@@ -1003,9 +1003,15 @@ extern void CG_ChangeWeapon( int num );
 		}
 		if ( ent->s.number < MAX_CLIENTS )
 		{
-            //[LAva] Hmd hack
-			//gi.cvar_set( "cg_thirdperson", "1" );
-            gi.cvar_set( "cg_thirdperson", "0" );
+            //[LAva] Hmd hack - stay first persion
+            if (cg_useHmd.integer)
+            {
+                gi.cvar_set( "cg_thirdperson", "0" );
+            }
+            else
+            {
+                gi.cvar_set( "cg_thirdperson", "1" );
+            }
         }
 	}
 	else
