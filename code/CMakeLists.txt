@@ -701,13 +701,17 @@ if(USE_OPENHMD)
     include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OpenHMD/src")
 
 
-	if(WIN32)
-        add_library(imp_openhmd STATIC IMPORTED)
-		set_property(TARGET imp_openhmd PROPERTY IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OpenHMD/msvc/Release/openhmd.lib")
+    if(WIN32)
+    add_library(imp_openhmd STATIC IMPORTED)
+        set_property(TARGET imp_openhmd PROPERTY IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OpenHMD/msvc/Release/openhmd.lib")
         set(EXTRA_LIBS ${EXTRA_LIBS} imp_openhmd)
-	else()
-        set(EXTRA_LIBS ${EXTRA_LIBS} "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OpenHMD/linux/release/i386/libopenhmd.a")
-	endif()
+    else()
+        if(CMAKE_BUILD_TYPE STREQUAL "DEBUG")
+            set(EXTRA_LIBS ${EXTRA_LIBS} "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OpenHMD/linux/debug/i386/libopenhmd.a")
+        else()
+            set(EXTRA_LIBS ${EXTRA_LIBS} "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OpenHMD/linux/release/i386/libopenhmd.a")
+        endif()
+    endif()
 
 
 	if(UNIX)
