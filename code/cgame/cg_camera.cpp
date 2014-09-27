@@ -1335,6 +1335,10 @@ void CGCam_Update( void )
             cg.refdefViewAngles[YAW] += yaw;
         }
     }
+    else
+    {
+        VectorCopy(cg.refdefViewAngles, cg.refdefViewAnglesWeapon);
+    }
 
 	AnglesToAxis( cg.refdefViewAngles, cg.refdef.viewaxis );
 }
