@@ -7,6 +7,14 @@
 #include <memory>
 #include <algorithm>
 
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
+
+
 ClientHmd* ClientHmd::sClientHmd = NULL;
 
 ClientHmd::ClientHmd()
@@ -147,6 +155,37 @@ bool ClientHmd::GetPosition(float& rX, float& rY, float& rZ)
     {
         return false;
     }
+
+
+	// convert body transform to matrix
+	//Matrix4f bodyYawRotation = Matrix4f::RotationZ(DEG2RAD(-bodyYaw));
+
+
+	float meterToGame = 26.2464f;// (3.2808f * 8.0f); // meter to feet * game factor 8
+	//Vector3f bodyPos = Vector3f(xPos, yPos, zPos);
+	//bodyPos *= -1;
+
+	//Vector3f hmdPos;
+	//hmdPos.x = mCurrentPosition[mEyeId].z * meterToGame;
+	//hmdPos.y = mCurrentPosition[mEyeId].x * meterToGame;
+	//hmdPos.z = mCurrentPosition[mEyeId].y * -meterToGame;
+
+
+	//Matrix4f bodyPosition = Matrix4f::Translation(bodyPos);
+	//Matrix4f hmdPosition = Matrix4f::Translation(hmdPos);
+
+	//mCurrentView = hmdRotation * hmdPosition * bodyYawRotation * bodyPosition;
+
+
+	glm::vec3 hmdPosition = glm::vec3(rZ * meterToGame, rX * meterToGame, -rY * meterToGame);
+	glm::quat bodyYawRotation = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), (float)(DEG2RAD(-mViewangleDiff)), glm::vec3(0.0f, 0.0f, 1.0f));
+
+	// create view matrix
+	glm::vec3 hmdPositionOffsetInGame = bodyYawRotation * hmdPosition;
+
+	rX = hmdPositionOffsetInGame.x;
+	rY = hmdPositionOffsetInGame.y;
+	rZ = hmdPositionOffsetInGame.z;
 
     return true;
 }
