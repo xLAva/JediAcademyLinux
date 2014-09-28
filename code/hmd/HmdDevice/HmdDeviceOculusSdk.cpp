@@ -155,7 +155,7 @@ bool HmdDeviceOculusSdk::GetDisplayPos(int& rX, int& rY)
     return true;
 }
 
-bool HmdDeviceOculusSdk::GetDeviceResolution(int& rWidth, int& rHeight)
+bool HmdDeviceOculusSdk::GetDeviceResolution(int& rWidth, int& rHeight, bool& rIsRotated)
 {
     if (!mIsInitialized || mpHmd->Resolution.w <= 0)
     {
@@ -164,6 +164,7 @@ bool HmdDeviceOculusSdk::GetDeviceResolution(int& rWidth, int& rHeight)
 
     rWidth = mpHmd->Resolution.w;
     rHeight = mpHmd->Resolution.h;
+	rIsRotated = false;
 
     return true;
 }

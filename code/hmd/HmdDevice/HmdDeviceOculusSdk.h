@@ -29,7 +29,7 @@ public:
     virtual std::string GetDisplayDeviceName();
     virtual bool GetDisplayPos(int& rX, int& rY);
 
-    virtual bool GetDeviceResolution(int& rWidth, int& rHeight);
+	virtual bool GetDeviceResolution(int& rWidth, int& rHeight, bool& rIsRotated);
     virtual bool GetOrientationRad(float& rPitch, float& rYaw, float& rRoll);
     virtual bool GetPosition(float& rX, float& rY, float& rZ);
 
