@@ -804,6 +804,16 @@ usercmd_t CL_CreateCmd( void ) {
         CL_MouseMove(&cmd);
 
         pDevice->SetOrientationDeg(cl.viewangles[PITCH], cl.viewangles[YAW], cl.viewangles[ROLL]);
+//        float x;
+//        float y;
+//        float z;
+//        pDevice->GetPosition(x, y, z);
+//        x += cl.viewangles[PITCH] - tempAngles[PITCH];
+//        y += cl.viewangles[YAW] - tempAngles[YAW];
+//        z += cl.viewangles[ROLL] - tempAngles[ROLL];
+
+//        pDevice->SetPosition(x, y, z);
+        pDevice->SetPosition(1, 0, 0);
         VectorCopy(tempAngles, cl.viewangles);
     }
 #else

@@ -25,12 +25,13 @@ public:
     virtual std::string GetDisplayDeviceName();
     virtual bool GetDisplayPos(int& rX, int& rY);
 
-    virtual bool GetDeviceResolution(int& rWidth, int& rHeight);
+    virtual bool GetDeviceResolution(int& rWidth, int& rHeight, bool &rIsRotated);
     virtual bool GetOrientationRad(float& rPitch, float& rYaw, float& rRoll);
     virtual bool GetPosition(float& rX, float& rY, float& rZ);
 
     void SetOrientationDeg(float pitch, float yaw, float roll);
     void GetOrientationDeg(float& rPitch, float& rYaw, float& rRoll);
+    void SetPosition(float x, float y, float z);
 
 private:
     // disable copy constructor
@@ -40,6 +41,11 @@ private:
     float mPitch;
     float mYaw;
     float mRoll;
+
+    bool mUsePosition;
+    float mX;
+    float mY;
+    float mZ;
 };
 
 #endif

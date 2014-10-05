@@ -9,6 +9,10 @@ HmdDeviceMouse::HmdDeviceMouse()
     :mPitch(0)
     ,mYaw(0)
     ,mRoll(0)
+    ,mUsePosition(false)
+    ,mX(0)
+    ,mY(0)
+    ,mZ(0)
 {
 
 }
@@ -50,7 +54,7 @@ bool HmdDeviceMouse::GetDisplayPos(int& rX, int& rY)
     return false;
 }
 
-bool HmdDeviceMouse::GetDeviceResolution(int& rWidth, int& rHeight)
+bool HmdDeviceMouse::GetDeviceResolution(int& rWidth, int& rHeight, bool &rIsRotated)
 {
     return false;
 
@@ -83,8 +87,26 @@ void HmdDeviceMouse::GetOrientationDeg(float& rPitch, float& rYaw, float& rRoll)
     rRoll = mRoll;
 }
 
+void HmdDeviceMouse::SetPosition(float x, float y, float z)
+{
+    mUsePosition = true;
+    mX = x;
+    mY = y;
+    mZ = z;
+}
+
 
 bool HmdDeviceMouse::GetPosition(float &rX, float &rY, float &rZ)
 {
-    return false;
+    if (!mUsePosition)
+    {
+        return false;
+    }
+
+    rX = mX;
+    rY = mY;
+    rZ = mZ;
+
+    return true;
 }
+

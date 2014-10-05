@@ -396,6 +396,9 @@ void R_RotateForViewer (void)
 	// transform by the camera placement
 	VectorCopy( tr.viewParms.or.origin, origin );
 
+
+    ///TODO: manipulate tr.or position so that the frustum calculation is correct
+
     IHmdRenderer* pHmdRenderer = ClientHmd::Get()->GetRenderer();
     if (pHmdRenderer)
     {             
