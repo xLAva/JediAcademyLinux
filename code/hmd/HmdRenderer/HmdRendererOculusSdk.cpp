@@ -342,7 +342,7 @@ bool HmdRendererOculusSdk::GetCustomProjectionMatrix(float* rProjectionMatrix, f
     return true;
 }
 
-bool HmdRendererOculusSdk::GetCustomViewMatrix(float* rViewMatrix, float xPos, float yPos, float zPos, float bodyYaw)
+bool HmdRendererOculusSdk::GetCustomViewMatrix(float* rViewMatrix, float& xPos, float& yPos, float& zPos, float bodyYaw)
 {
 
     if (!mIsInitialized)
@@ -380,6 +380,19 @@ bool HmdRendererOculusSdk::GetCustomViewMatrix(float* rViewMatrix, float xPos, f
     mCurrentView = Matrix4f::Translation(viewAdjust) * mCurrentView;
 
     ConvertMatrix(mCurrentView, rViewMatrix);
+
+
+    // add hmd offset to body pos
+
+    Matrix4f bodyYawRotationReverse = Matrix4f::RotationZ(DEG2RAD(bodyYaw));
+    Vector3f offsetPos = (bodyYawRotationReverse * Matrix4f::Translation(hmdPos)).GetTranslation();
+
+    /// TODO: do we need this?
+    offsetPos *= -1;
+
+    xPos += offsetPos.x;
+    yPos += offsetPos.y;
+    zPos += offsetPos.z;
 
     return true;
 }

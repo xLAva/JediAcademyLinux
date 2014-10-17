@@ -13,6 +13,7 @@
 
 #include "../hmd/ClientHmd.h"
 #include "../hmd/HmdRenderer/IHmdRenderer.h"
+#include "../hmd/Quake3/ViewParamsHmdUtility.h"
 
 void R_AddTerrainSurfaces(void);
 
@@ -396,20 +397,16 @@ void R_RotateForViewer (void)
 	// transform by the camera placement
 	VectorCopy( tr.viewParms.or.origin, origin );
 
+    bool rMatrixCreated = false;
+    ViewParamsHmdUtility::UpdateRenderParams(&tr, rMatrixCreated);
 
-    ///TODO: manipulate tr.or position so that the frustum calculation is correct
+    // check if the renderer handled the view matrix creation
+    if (rMatrixCreated)
+    {
+        tr.viewParms.world = tr.or;
+        return;
+    }
 
-    IHmdRenderer* pHmdRenderer = ClientHmd::Get()->GetRenderer();
-    if (pHmdRenderer)
-    {             
-        // check if the renderer handles the view matrix creation
-        bool matrixCreated = pHmdRenderer->GetCustomViewMatrix(tr.or.modelMatrix, origin[0], origin[1], origin[2], tr.viewParms.bodyYaw);
-        if (matrixCreated)
-        {            
-            tr.viewParms.world = tr.or;
-            return;
-        }        
-    }    
     
     
 	viewerMatrix[0] = tr.viewParms.or.axis[0][0];

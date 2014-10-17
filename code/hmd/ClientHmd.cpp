@@ -111,7 +111,7 @@ void ClientHmd::UpdateGame()
     angles[1] += mViewangleDiff;
 
     float position[3];
-    bool usePosition = GetPosition(position[0], position[1], position[2]);
+    bool usePosition = false; //GetPosition(position[0], position[1], position[2]);
     if (usePosition)
     {
         VM_Call(CG_HMD_UPDATE_ROT_POS, &angles[0], &position[0]);

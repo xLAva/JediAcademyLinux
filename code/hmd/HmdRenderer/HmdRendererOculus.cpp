@@ -169,7 +169,7 @@ bool HmdRendererOculus::GetCustomProjectionMatrix(float* rProjectionMatrix, floa
     return true;
 }
 
-bool HmdRendererOculus::GetCustomViewMatrix(float* rViewMatrix, float xPos, float yPos, float zPos, float bodyYaw)
+bool HmdRendererOculus::GetCustomViewMatrix(float* rViewMatrix, float& xPos, float& yPos, float& zPos, float bodyYaw)
 {
     return false;
 }

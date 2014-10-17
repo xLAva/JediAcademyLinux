@@ -292,7 +292,7 @@ int GLW_SetMode(int mode, qboolean fullscreen )
 #ifdef LINUX
 		if (sysInfo.subsystem == SDL_SYSWM_X11)
 		{
-			pWindowHandle = sysInfo.info.x11.window;
+            pWindowHandle = (void*)sysInfo.info.x11.window;
 		}
 #endif
 

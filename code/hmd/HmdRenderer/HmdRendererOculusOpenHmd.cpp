@@ -216,7 +216,7 @@ bool HmdRendererOculusOpenHmd::GetCustomProjectionMatrix(float* rProjectionMatri
     return true;
 }
 
-bool HmdRendererOculusOpenHmd::GetCustomViewMatrix(float* rViewMatrix, float xPos, float yPos, float zPos, float bodyYaw)
+bool HmdRendererOculusOpenHmd::GetCustomViewMatrix(float* rViewMatrix, float& xPos, float& yPos, float& zPos, float bodyYaw)
 {
     if (!mIsInitialized)
     {
