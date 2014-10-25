@@ -5545,6 +5545,8 @@ static bind_t g_bindings[] =
 	{"uimenu ingameloadmenu",	A_F10,		-1,		-1,		-1},
 	{"uimenu ingamesavemenu",	A_F11,		-1,		-1,		-1},
 	{"saberAttackCycle",-1,					-1,		-1,		-1},
+    {"hmdrecenter", A_JOY6,					-1,		-1,		-1},
+    
 };
 
 

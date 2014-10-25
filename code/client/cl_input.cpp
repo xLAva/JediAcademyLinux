@@ -13,6 +13,7 @@
 #endif
 
 #include "../hmd/ClientHmd.h"
+#include "../hmd/HmdDevice/IHmdDevice.h"
 
 #ifdef OVR_SIM_MOUSE
 #include "../hmd/HmdDevice/HmdDeviceMouse.h"
@@ -158,6 +159,17 @@ static void IN_UseGivenForce(void)
 	}
 }
 
+
+static void IN_HmdRecenter(void)
+{
+    IHmdDevice* pDevice = ClientHmd::Get()->GetDevice();
+    if (pDevice == NULL)
+    {
+        return;
+    }
+    
+    pDevice->Recenter();
+}
 
 void IN_MLookDown( void ) {
 	in_mlooking = qtrue;
@@ -1133,6 +1145,8 @@ void CL_InitInput( void ) {
 	Cmd_AddCommand ("+mlook", IN_MLookDown);
 	Cmd_AddCommand ("-mlook", IN_MLookUp);
 
+    Cmd_AddCommand ("hmdrecenter", IN_HmdRecenter);
+    
 	cl_nodelta = Cvar_Get ("cl_nodelta", "0", 0);
 	cl_debugMove = Cvar_Get ("cl_debugMove", "0", 0);
 }

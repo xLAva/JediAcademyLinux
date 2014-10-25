@@ -26,6 +26,8 @@ public:
     virtual bool GetDeviceResolution(int& rWidth, int& rHeight, bool& rIsRotated) = 0;
     virtual bool GetOrientationRad(float& rPitch, float& rYaw, float& rRoll) = 0;
     virtual bool GetPosition(float& rX, float& rY, float& rZ) = 0;
+    
+    virtual void Recenter() = 0;
 
 };
 

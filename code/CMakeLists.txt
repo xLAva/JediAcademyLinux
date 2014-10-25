@@ -667,6 +667,12 @@ set(SSF_HMD_RENDERER
     hmd/HmdRenderer/RenderTool.cpp
 )
 
+set(SSF_HMD_QUAKE3
+    hmd/Quake3/ViewParamsHmdUtility.h
+    hmd/Quake3/ViewParamsHmdUtility.cpp
+)
+
+
 if(USE_OCULUS_SDK)
     set(SSF_HMD_DEVICE ${SSF_HMD_DEVICE}
         hmd/HmdDevice/HmdDeviceOculusSdk.h
@@ -678,9 +684,11 @@ if(USE_OCULUS_SDK)
     )
 
     set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DUSE_OVR")
-    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/LibOVR/Src")
+
 
 	if(WIN32)
+        include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/LibOVR/Src")
+
 		link_directories("C:/WinDDK/7600.16385.1/lib/ATL/i386")
 		set(EXTRA_LIBS ${EXTRA_LIBS} wsock32 ws2_32)
 
@@ -688,10 +696,12 @@ if(USE_OCULUS_SDK)
 		set(EXTRA_LIBS ${EXTRA_LIBS} optimized ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/LibOVR/Lib/Win32/VS2013/libovr.lib)
 
 	else()
+        include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/ovr_sdk_linux_0.4.3/LibOVR/Src")
+
 		if(CMAKE_BUILD_TYPE STREQUAL "DEBUG")
-			set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/LibOVR/Lib/Linux/Debug/i386/libovr.a)
+			set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/ovr_sdk_linux_0.4.3/LibOVR/Lib/Linux/Debug/i386/libovr.a)
 		else()
-			set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/LibOVR/Lib/Linux/Release/i386/libovr.a)
+			set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/ovr_sdk_linux_0.4.3/LibOVR/Lib/Linux/Release/i386/libovr.a)
 		endif()
 
 		set(EXTRA_LIBS ${EXTRA_LIBS} udev)
@@ -781,6 +791,7 @@ set(STARWARS_SOURCE_FILES ${STARWARS_SOURCE_FILES}
     ${SSF_HMD}
     ${SSF_HMD_DEVICE}
     ${SSF_HMD_RENDERER}
+    ${SSF_HMD_QUAKE3}
 )
 
 

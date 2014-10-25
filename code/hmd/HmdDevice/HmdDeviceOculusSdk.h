@@ -32,6 +32,7 @@ public:
 	virtual bool GetDeviceResolution(int& rWidth, int& rHeight, bool& rIsRotated);
     virtual bool GetOrientationRad(float& rPitch, float& rYaw, float& rRoll);
     virtual bool GetPosition(float& rX, float& rY, float& rZ);
+    virtual void Recenter();
 
 
     ovrHmd GetHmd() { return mpHmd; }

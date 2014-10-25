@@ -7,6 +7,7 @@
 using namespace OVR::Util::Render;
 
 #include <OVR_CAPI_GL.h>
+#include <CAPI/CAPI_HSWDisplay.h>
 
 #include <math.h>
 #include <iostream>
@@ -106,7 +107,7 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     eyeFov[0] = mpHmd->DefaultEyeFov[0];
     eyeFov[1] = mpHmd->DefaultEyeFov[1];
 
-	unsigned distortionCaps = ovrDistortionCap_Chromatic | ovrDistortionCap_Vignette | ovrDistortionCap_TimeWarp | ovrDistortionCap_Overdrive;
+	unsigned distortionCaps = ovrDistortionCap_Chromatic | ovrDistortionCap_Vignette | ovrDistortionCap_TimeWarp | ovrDistortionCap_Overdrive/* | ovrDistortionCap_LinuxDevFullscreen*/;
 
     bool worked = ovrHmd_ConfigureRendering(mpHmd, &cfg.Config, distortionCaps, eyeFov, mEyeRenderDesc);
     if (!worked)
@@ -114,6 +115,8 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
         return false;
     }
 
+    ovrhmd_EnableHSWDisplaySDKRender(mpHmd, false);
+    
     qglBindBuffer(GL_ARRAY_BUFFER, 0);
     qglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -198,13 +201,15 @@ void HmdRendererOculusSdk::BeginRenderingForEye(bool leftEye)
         mStartedRendering = true;
         ovrFrameTiming hmdFrameTiming = ovrHmd_BeginFrame(mpHmd, 0);
 
+        ovrTrackingState hmdState;
+        ovrVector3f hmdToEyeViewOffset[2] = { mEyeRenderDesc[0].HmdToEyeViewOffset, mEyeRenderDesc[1].HmdToEyeViewOffset };
+        ovrHmd_GetEyePoses(mpHmd, 0, hmdToEyeViewOffset, mEyePoses, &hmdState);
+        
         for (int i=0; i<FBO_COUNT; i++)
         {
             qglBindFramebuffer(GL_FRAMEBUFFER, mFboInfos[i].Fbo);
             RenderTool::ClearFBO(mFboInfos[i]);
 
-            mEyes[i] = mpHmd->EyeRenderOrder[i];
-            mEyePoses[i] = ovrHmd_GetEyePose(mpHmd, mEyes[i]);
             mCurrentOrientations[i] = Quatf(mEyePoses[i].Orientation);
 			mCurrentPosition[i] = Vector3f(mEyePoses[i].Position);
         }
@@ -375,8 +380,8 @@ bool HmdRendererOculusSdk::GetCustomViewMatrix(float* rViewMatrix, float& xPos, 
 
     // apply ipd
 
-    Vector3f viewAdjust = mEyeRenderDesc[mEyeId].ViewAdjust;
-    viewAdjust *= meterToGame;
+    Vector3f viewAdjust = mEyeRenderDesc[mEyeId].HmdToEyeViewOffset;
+    //viewAdjust *= meterToGame;
     mCurrentView = Matrix4f::Translation(viewAdjust) * mCurrentView;
 
     ConvertMatrix(mCurrentView, rViewMatrix);

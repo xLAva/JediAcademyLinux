@@ -72,7 +72,7 @@ bool HmdDeviceOculusSdk::Init(bool allowDummyDevice)
     mPositionTrackingEnabled = (mpHmd->TrackingCaps & ovrTrackingCap_Position) ? true : false;
 
     // Start the sensor which provides the Rift’s pose and motion.
-    ovrHmd_ConfigureTracking(mpHmd, ovrTrackingCap_Orientation | ovrTrackingCap_MagYawCorrection | ovrTrackingCap_Position, ovrTrackingCap_Orientation);
+    ovrHmd_ConfigureTracking(mpHmd, ovrTrackingCap_Orientation | ovrTrackingCap_MagYawCorrection | ovrTrackingCap_Position , ovrTrackingCap_Orientation);
 
 
     if (debugPrint)
@@ -178,7 +178,7 @@ bool HmdDeviceOculusSdk::GetOrientationRad(float& rPitch, float& rYaw, float& rR
 
     // Query the HMD for the sensor state at a given time.
     ovrTrackingState ss = ovrHmd_GetTrackingState(mpHmd, 0.0);
-    if ((ss.StatusFlags & ovrStatus_PositionTracked))
+    if ((ss.StatusFlags & ovrStatus_OrientationTracked))
     {
         OVR::Quatf orientation = OVR::Quatf(ss.HeadPose.ThePose.Orientation);
         orientation.GetEulerAngles<Axis_Y, Axis_X, Axis_Z>(&rYaw, &rPitch, &rRoll);
@@ -215,4 +215,9 @@ bool HmdDeviceOculusSdk::GetPosition(float &rX, float &rY, float &rZ)
     }
 
     return false;
+}
+
+void HmdDeviceOculusSdk::Recenter()
+{
+    ovrHmd_RecenterPose(mpHmd);
 }
