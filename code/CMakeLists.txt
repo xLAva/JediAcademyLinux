@@ -308,6 +308,10 @@ set(GSF_HMD
     hmd/GameHmd.cpp
 )
 
+set(GSF_MAC
+    mac/mac_game_lib.cpp
+)
+
 # make folders in MSVC project
 source_group(Ratl FILES ${GSF_RATL})
 source_group(Ravl FILES ${GSF_RAVL})
@@ -318,6 +322,7 @@ source_group(icarus FILES ${GSF_ICARUS})
 source_group(qcommon FILES ${GSF_QCOMMON})
 source_group(ui FILES ${GSF_UI})
 source_group(hmd FILES ${GSF_HMD})
+source_group(mac FILES ${GSF_MAC})
 
 # combine all the client library source files
 set(GAME_SOURCE_FILES
@@ -332,6 +337,12 @@ set(GAME_SOURCE_FILES
     ${GSF_HMD}
 )
 
+if(PLATFORM_MACOS)
+    set(GAME_SOURCE_FILES
+        ${GAME_SOURCE_FILES}
+        ${GSF_MAC}
+    )
+endif()
 
 
 
@@ -859,7 +870,7 @@ if(USE_SDL2)
 
                 set(SSF_MACOS ${SSF_MACOS}
                         sdl/sdl_console.cpp
-                        mac/mac_main.cpp
+                        mac/mac_main_sdl.cpp
                 )
 
 
@@ -920,12 +931,12 @@ set(STARWARS_SOURCE_FILES ${STARWARS_SOURCE_FILES} ${SSF_WIN32} ${SSF_LINUX} ${S
 IF(APPLE)
    INCLUDE_DIRECTORIES ( /System/Library/Frameworks )
    FIND_LIBRARY(COCOA_LIBRARY Cocoa)
-   FIND_LIBRARY(GLUT_LIBRARY GLUT )
    FIND_LIBRARY(OpenGL_LIBRARY OpenGL )
+   find_library(OpenAL_LIBRARY OpenAL)
    MARK_AS_ADVANCED (COCOA_LIBRARY
-                     GLUT_LIBRARY
-                     OpenGL_LIBRARY)
-   SET(EXTRA_LIBS "${EXTRA_LIBS} ${COCOA_LIBRARY} ${GLUT_LIBRARY} ${OpenGL_LIBRARY}")
+                     OpenGL_LIBRARY
+                     OpenAL_LIBRARY)
+   SET(EXTRA_LIBS ${EXTRA_LIBS} ${COCOA_LIBRARY} ${OpenGL_LIBRARY} ${OpenAL_LIBRARY})
 ENDIF (APPLE)
 
 # finally set the compiler flags
@@ -987,12 +998,12 @@ else()
         set (EXTRA_LIBS ${EXTRA_LIBS} X11)
         set (EXTRA_LIBS ${EXTRA_LIBS} Xxf86vm)
         set (EXTRA_LIBS ${EXTRA_LIBS} Xrandr)
+        set (EXTRA_LIBS ${EXTRA_LIBS} openal)
+        set (EXTRA_LIBS ${EXTRA_LIBS} GL)
+        set (EXTRA_LIBS ${EXTRA_LIBS} rt)
     endif()
 
     set (EXTRA_LIBS ${EXTRA_LIBS} dl)
-    set (EXTRA_LIBS ${EXTRA_LIBS} openal)
-    set (EXTRA_LIBS ${EXTRA_LIBS} GL)
-    set (EXTRA_LIBS ${EXTRA_LIBS} rt)
     set (EXTRA_LIBS ${EXTRA_LIBS} pthread)
     set (EXTRA_LIBS ${EXTRA_LIBS} z)
     set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "-m32")

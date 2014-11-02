@@ -14,6 +14,8 @@ struct PlatformInfo;
 class IHmdRenderer
 {
 public:
+    virtual ~IHmdRenderer() {}
+
     virtual bool Init(int windowWidth, int windowHeight, PlatformInfo platformInfo) = 0;
     virtual void Shutdown() = 0;
 

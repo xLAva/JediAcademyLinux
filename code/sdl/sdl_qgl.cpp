@@ -4239,6 +4239,18 @@ void QGL_EnableLogging( qboolean enable )
 }
 
 
+#else
+qboolean QGL_Init( const char *dllname )
+{
+    return true;
+}
 
+void QGL_Shutdown( void )
+{
+}
+
+void QGL_EnableLogging( qboolean enable )
+{
+}
 
 #endif

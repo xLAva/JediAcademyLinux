@@ -12,6 +12,7 @@
 class IHmdDevice
 {
 public:
+    virtual ~IHmdDevice() {}
 
     virtual bool Init(bool allowDummyDevice = false) = 0;
     virtual void Shutdown() = 0;

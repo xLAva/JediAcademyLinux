@@ -1657,6 +1657,11 @@ static void HandleEvents(void)
 	qboolean dowarp = qfalse;
 	int mwx = glConfig.vidWidth/2;
 	int mwy = glConfig.vidHeight/2;
+
+    qboolean forceRelMouse = qfalse;
+#ifdef __APPLE__
+    forceRelMouse = qtrue;
+#endif
 	char *p;
    
     SDL_Event event;
@@ -1692,7 +1697,7 @@ static void HandleEvents(void)
 			}
 			break;
         case SDL_MOUSEMOTION:
-            if (sVideoModeFullscreen)
+            if (sVideoModeFullscreen || forceRelMouse)
             {
                 mx += event.motion.xrel;
                 my += event.motion.yrel;
@@ -1790,7 +1795,7 @@ static void HandleEvents(void)
                 SDL_ShowCursor(0);
                 break;
             case SDL_WINDOWEVENT_FOCUS_LOST:
-                //VID_Printf (PRINT_ALL, "SDL_WINDOWEVENT_FOCUS_LOST\n");                
+                //VID_Printf (PRINT_ALL, "SDL_WINDOWEVENT_FOCUS_LOST\n");
                 sWindowHasFocus = false;
                 SDL_ShowCursor(1);
                 break;
