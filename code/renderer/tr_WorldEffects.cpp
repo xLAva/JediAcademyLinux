@@ -1557,8 +1557,20 @@ public:
 			qglEnable(GL_POINT_SPRITE_NV);
 
 			qglPointSize(mWidth);
-            qglPointParameterfEXT( GL_POINT_SIZE_MIN_ARB, 4.0f );
-            qglPointParameterfEXT( GL_POINT_SIZE_MAX_ARB, 2047.0f );
+#ifdef WIN32
+			GLenum pointSizeMin = GL_POINT_SIZE_MIN_EXT;
+#else
+			GLenum pointSizeMin = GL_POINT_SIZE_MIN_ARB;
+#endif
+
+#ifdef WIN32
+			GLenum pointSizeMax = GL_POINT_SIZE_MAX_EXT;
+#else
+			GLenum pointSizeMax = GL_POINT_SIZE_MAX_ARB;
+#endif
+
+			qglPointParameterfEXT(pointSizeMin, 4.0f);
+			qglPointParameterfEXT(pointSizeMax, 2047.0f);
 
 			qglTexEnvi(GL_POINT_SPRITE_NV, GL_COORD_REPLACE_NV, GL_TRUE);
 		}
