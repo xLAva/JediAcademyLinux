@@ -13,7 +13,7 @@ cmake_minimum_required(VERSION 2.6)
 project(jk3)
 
 set(USE_OCULUS_SDK 1)
-set(USE_OPENHMD 0)
+set(USE_OPENHMD 1)
 set(HMD_ALLOW_DUMMY_DEVICE 0)
 set(HMD_SIM_MOUSE 0)
 
@@ -650,6 +650,8 @@ set(SSF_HMD
 	hmd/ClientHmd.cpp
 	hmd/FactoryHmdDevice.h
 	hmd/FactoryHmdDevice.cpp
+    hmd/SearchForDisplay.h
+    hmd/SearchForDisplay.cpp
 )
 
 set(SSF_HMD_DEVICE

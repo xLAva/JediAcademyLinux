@@ -1,4 +1,5 @@
 #include "HmdDeviceOculusSdk.h"
+#include "../SearchForDisplay.h"
 
 #include "Kernel/OVR_Math.h"
 
@@ -6,12 +7,17 @@
 #include <iostream>
 #include <cstdio>
 
+
+
+
 using namespace OVR;
 
 
 HmdDeviceOculusSdk::HmdDeviceOculusSdk()
     :mIsInitialized(false)
     ,mUsingDebugHmd(false)
+    ,mPositionTrackingEnabled(false)
+    ,mIsRotated(false)
     ,mpHmd(NULL)
 {
 
@@ -99,6 +105,30 @@ bool HmdDeviceOculusSdk::Init(bool allowDummyDevice)
         mInfo += " (Debug)";
     }
 
+
+    std::string displayName = mpHmd->DisplayDeviceName;
+    
+    // at least on Linux the provided display name is not the same as the SDL2 display name provided
+    // hardcode the correct names for DK1 and DK2
+    switch (mpHmd->Type)
+    {
+        case ovrHmd_DK1:
+            displayName = "Rift DK 7\"";
+            break;
+        case ovrHmd_DK2:
+            displayName = "Rift DK2 6\"";
+            break;
+    }
+    
+    // we only need the rotation information
+    SearchForDisplay::DisplayInfo rInfo;
+    bool worked = SearchForDisplay::GetDisplayPosition(displayName, mpHmd->Resolution.w, mpHmd->Resolution.h, rInfo);
+    if (worked)
+    {
+        mIsRotated = rInfo.isRotated;
+    }
+    
+    
     mIsInitialized = true;
 
     if (debugPrint)
@@ -164,7 +194,7 @@ bool HmdDeviceOculusSdk::GetDeviceResolution(int& rWidth, int& rHeight, bool& rI
 
     rWidth = mpHmd->Resolution.w;
     rHeight = mpHmd->Resolution.h;
-	rIsRotated = false;
+	rIsRotated = mIsRotated;
 
     return true;
 }

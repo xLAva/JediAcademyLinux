@@ -21,14 +21,16 @@ IHmdDevice* FactoryHmdDevice::CreateHmdDevice(bool allowDummyDevice)
 {
     vector<IHmdDevice*> devices;
 
-#ifdef USE_OPENHMD
-    devices.push_back(new HmdDeviceOpenHmd());
-#endif
 
 #ifdef USE_OVR
     devices.push_back(new HmdDeviceOculusSdk());
 #endif
 
+    
+#ifdef USE_OPENHMD
+    devices.push_back(new HmdDeviceOpenHmd());
+#endif
+    
 #ifdef OVR_SIM_MOUSE
     devices.push_back(new HmdDeviceMouse());
 #endif
@@ -80,15 +82,7 @@ IHmdRenderer* FactoryHmdDevice::CreateRendererForDevice(IHmdDevice* pDevice)
     }
 
 
-#ifdef USE_OPENHMD
-    HmdDeviceOpenHmd* pOpenHmd = dynamic_cast<HmdDeviceOpenHmd*>(pDevice);
-    if (pOpenHmd != NULL)
-    {
-        //HmdRendererOculus* pRenderer = new HmdRendererOculus();
-        HmdRendererOculusOpenHmd* pRenderer = new HmdRendererOculusOpenHmd(pOpenHmd);
-        return pRenderer;
-    }
-#endif
+
 
 #ifdef USE_OVR
     HmdDeviceOculusSdk* pOculusSdk = dynamic_cast<HmdDeviceOculusSdk*>(pDevice);
@@ -100,6 +94,16 @@ IHmdRenderer* FactoryHmdDevice::CreateRendererForDevice(IHmdDevice* pDevice)
     }
 #endif
 
+#ifdef USE_OPENHMD
+    HmdDeviceOpenHmd* pOpenHmd = dynamic_cast<HmdDeviceOpenHmd*>(pDevice);
+    if (pOpenHmd != NULL)
+    {
+        //HmdRendererOculus* pRenderer = new HmdRendererOculus();
+        HmdRendererOculusOpenHmd* pRenderer = new HmdRendererOculusOpenHmd(pOpenHmd);
+        return pRenderer;
+    }
+#endif
+    
     HmdDeviceMouse* pHmdMouse = dynamic_cast<HmdDeviceMouse*>(pDevice);
     if (pHmdMouse != NULL)
     {

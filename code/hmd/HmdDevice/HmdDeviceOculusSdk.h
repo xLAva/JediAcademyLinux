@@ -47,6 +47,7 @@ private:
     bool mIsInitialized;
     bool mUsingDebugHmd;
     bool mPositionTrackingEnabled;
+    bool mIsRotated;
     ovrHmd mpHmd;
 
     std::string mInfo;

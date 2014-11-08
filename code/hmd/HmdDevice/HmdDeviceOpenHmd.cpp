@@ -1,14 +1,8 @@
 #include "HmdDeviceOpenHmd.h"
+#include "../SearchForDisplay.h"
 
 #include "../../game/q_shared.h"
 
-#ifdef USE_SDL2
-#ifdef LINUX
-#include <SDL2/SDL.h>
-#else
-#include <SDL.h>
-#endif
-#endif
 
 #include <string.h>
 #include <iostream>
@@ -251,79 +245,30 @@ void HmdDeviceOpenHmd::ConvertQuatToEuler(const float* quat, float& rYaw, float&
 
 void HmdDeviceOpenHmd::DetectDisplay()
 {
-#ifdef USE_SDL2
-
-    // we don't get any information about the display position from OpenHmd
-    // so let's try to find the display witch SDL2
-
-    // if no display is found the rift has to be the main monitor
-
-    int fallbackW = 1280;
-    int fallbackH = 800;
-
-    if (mDeviceType == DEVICE_OCULUSRIFT_DK2)
+    
+    std::string displayName = "";
+    
+    // hardcode the correct names for DK1 and DK2 (on Linux)
+    switch (mDeviceType)
     {
-        fallbackW = 1080;
-        fallbackH = 1920;
-    }
-
-    int displayCount = SDL_GetNumVideoDisplays();
-    for (int i=0; i<displayCount; i++)
-    {
-        const char* displayName = SDL_GetDisplayName(i);
-        if (strcmp(displayName, "Rift DK 7\"") == 0 || 
-            strcmp(displayName, "Rift DK2 6\"") == 0)
-        {
-            mDisplayId = i;
-            mDisplayDeviceName = displayName;
+        case DEVICE_OCULUSRIFT_DK1:
+            displayName = "Rift DK 7\"";
             break;
-        }
-
-        SDL_Rect r;
-        int ret = SDL_GetDisplayBounds(i, &r);
-        if (ret == 0)
-        {
-            if (r.w == fallbackW && r.h == fallbackH)
-            {
-                // this is a fallback, if the display name is not correct
-                mDisplayId = i;
-                mDisplayDeviceName = displayName;
-            }
-        }
-        else if (ret != 0)
-        {
-            const char* error = SDL_GetError();
-            printf("SDL_GetDisplayBounds failed: %s\n", error);
-
-        }
-
-        //printf("display name: %s\n", displayName);
-        //flush(std::cout);
+        case DEVICE_OCULUSRIFT_DK2:
+            displayName = "Rift DK2 6\"";
+            break;
     }
-
-    if (mDisplayId >= 0)
+    
+    SearchForDisplay::DisplayInfo rInfo;
+    bool worked = SearchForDisplay::GetDisplayPosition(displayName, mDisplayWidth, mDisplayHeight, rInfo);
+    if (worked)
     {
-        SDL_Rect r;
-        int ret = SDL_GetDisplayBounds(mDisplayId, &r);
-        if (ret == 0)
-        {
-            mDisplayX = r.x;
-            mDisplayY = r.y;
-
-            // this code only works on Linux for now
-            #ifdef LINUX
-            if (mDisplayWidth == r.h)
-            {
-                mDisplayIsRotated = true;
-            }
-            #endif
-
-            //printf("display x=%d y=%d\n", r.x, r.y);
-            //flush(std::cout);
-        }
+        mDisplayId = rInfo.id;
+        mDisplayDeviceName = rInfo.name;
+        mDisplayX = rInfo.posX;
+        mDisplayY = rInfo.posY;
+        mDisplayIsRotated = rInfo.isRotated;
     }
-
-#endif
 }
 
 

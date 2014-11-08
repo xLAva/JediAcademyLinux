@@ -38,6 +38,8 @@ public:
     virtual bool GetOrientationRad(float& rPitch, float& rYaw, float& rRoll);
     virtual bool GetPosition(float& rX, float& rY, float& rZ);
 
+    virtual void Recenter() {}
+
     ohmd_device* GetHmd() { return mpHmd; }
     bool IsDisplayRotated() { return mDisplayIsRotated; }
 
@@ -66,7 +68,7 @@ private:
     std::string mDisplayDeviceName;
 
     bool mDisplayIsRotated;
-
 };
+
 
 #endif

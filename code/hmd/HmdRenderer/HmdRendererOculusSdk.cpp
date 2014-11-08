@@ -47,11 +47,13 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
 
     mWindowWidth = windowWidth;
     mWindowHeight = windowHeight;
-    mRenderWidth = windowWidth/2;
-    mRenderHeight = windowHeight;
 
     mpHmd = mpDevice->GetHmd();
 
+    
+    mRenderWidth = mpHmd->Resolution.w/2;
+    mRenderHeight = mpHmd->Resolution.h;
+    
 	if (mpHmd->Type == ovrHmd_DK1)
 	{
 		mGuiScale = 0.3f;
@@ -90,7 +92,8 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     ovrGLConfig cfg;
 	memset(&cfg, 0, sizeof(cfg));
     cfg.OGL.Header.API = ovrRenderAPI_OpenGL;
-    cfg.OGL.Header.RTSize = mpHmd->Resolution;
+    cfg.OGL.Header.RTSize.w = mWindowWidth;
+    cfg.OGL.Header.RTSize.h = mWindowHeight;
     cfg.OGL.Header.Multisample = 1;
 
 #ifdef LINUX
@@ -107,7 +110,18 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     eyeFov[0] = mpHmd->DefaultEyeFov[0];
     eyeFov[1] = mpHmd->DefaultEyeFov[1];
 
-	unsigned distortionCaps = ovrDistortionCap_Chromatic | ovrDistortionCap_Vignette | ovrDistortionCap_TimeWarp | ovrDistortionCap_Overdrive/* | ovrDistortionCap_LinuxDevFullscreen*/;
+	unsigned distortionCaps = ovrDistortionCap_Chromatic | ovrDistortionCap_Vignette | ovrDistortionCap_TimeWarp | ovrDistortionCap_Overdrive;
+#ifdef LINUX
+    int dummyW = 0;
+    int dummyH = 0;
+    bool isRotated = false;
+    mpDevice->GetDeviceResolution(dummyW, dummyH, isRotated);
+    if (isRotated)
+    {
+        distortionCaps |= ovrDistortionCap_LinuxDevFullscreen;
+    }
+#endif
+    
 
     bool worked = ovrHmd_ConfigureRendering(mpHmd, &cfg.Config, distortionCaps, eyeFov, mEyeRenderDesc);
     if (!worked)
@@ -124,16 +138,18 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     Sizei texSize = Sizei(mRenderWidth, mRenderHeight);
     Sizei renderSize = Sizei(mRenderWidth, mRenderHeight);
 
+    Recti renderViewport = Recti(renderSize);
+    
     ovrGLTextureData* texData = (ovrGLTextureData*)&EyeTexture[0];
     texData->Header.API            = ovrRenderAPI_OpenGL;
     texData->Header.TextureSize    = texSize;
-    texData->Header.RenderViewport = Recti(Vector2i(0), renderSize);
+    texData->Header.RenderViewport = renderViewport;
     texData->TexId                 = mFboInfos[0].ColorBuffer;
 
     texData = (ovrGLTextureData*)&EyeTexture[1];
     texData->Header.API            = ovrRenderAPI_OpenGL;
     texData->Header.TextureSize    = texSize;
-    texData->Header.RenderViewport = Recti(Vector2i(0), renderSize);
+    texData->Header.RenderViewport = renderViewport;
     texData->TexId                 = mFboInfos[1].ColorBuffer;
 
 
@@ -378,11 +394,13 @@ bool HmdRendererOculusSdk::GetCustomViewMatrix(float* rViewMatrix, float& xPos, 
 
 	mCurrentView = hmdRotation * hmdPosition * bodyYawRotation * bodyPosition;
 
+    // ipd is already included in eye position
+    
     // apply ipd
 
-    Vector3f viewAdjust = mEyeRenderDesc[mEyeId].HmdToEyeViewOffset;
+    //Vector3f viewAdjust = mEyeRenderDesc[mEyeId].HmdToEyeViewOffset;
     //viewAdjust *= meterToGame;
-    mCurrentView = Matrix4f::Translation(viewAdjust) * mCurrentView;
+    //mCurrentView = Matrix4f::Translation(viewAdjust) * mCurrentView;
 
     ConvertMatrix(mCurrentView, rViewMatrix);
 
