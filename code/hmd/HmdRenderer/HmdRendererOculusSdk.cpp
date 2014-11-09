@@ -7,7 +7,9 @@
 using namespace OVR::Util::Render;
 
 #include <OVR_CAPI_GL.h>
+#ifdef LINUX
 #include <CAPI/CAPI_HSWDisplay.h>
+#endif
 
 #include <math.h>
 #include <iostream>
@@ -124,13 +126,16 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     
 
     bool worked = ovrHmd_ConfigureRendering(mpHmd, &cfg.Config, distortionCaps, eyeFov, mEyeRenderDesc);
+	qglUseProgramObjectARB(0);
     if (!worked)
     {
         return false;
     }
 
+#ifdef LINUX
     ovrhmd_EnableHSWDisplaySDKRender(mpHmd, false);
-    
+#endif
+
     qglBindBuffer(GL_ARRAY_BUFFER, 0);
     qglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
