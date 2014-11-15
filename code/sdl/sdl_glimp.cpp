@@ -1083,6 +1083,55 @@ void IN_ShutdownGameController( void )
     
 }
 
+void InitHmdDevice()
+{
+    // try to create a hmd device
+    ClientHmd::Get()->SetDevice(NULL);
+    ClientHmd::Get()->SetRenderer(NULL);
+
+    cvar_t* pHmdEnabled = Cvar_Get("hmd_enabled", "1", CVAR_ARCHIVE);
+    if (pHmdEnabled->integer == 1)
+    {
+        cvar_t* pHmdLib = Cvar_Get("hmd_forceLibrary", "", CVAR_ARCHIVE);
+        std::string hmdLibName = pHmdLib->string;
+        std::transform(hmdLibName.begin(), hmdLibName.end(), hmdLibName.begin(), ::tolower);
+
+        FactoryHmdDevice::HmdLibrary lib = FactoryHmdDevice::LIB_UNDEFINED;
+        if (hmdLibName == "ovr")
+        {
+            lib = FactoryHmdDevice::LIB_OVR;
+        }
+        else if (hmdLibName == "openhmd")
+        {
+            lib = FactoryHmdDevice::LIB_OPENHMD;
+        }
+        else if (hmdLibName == "mouse_dummy")
+        {
+            lib = FactoryHmdDevice::LIB_MOUSE_DUMMY;
+        }
+
+        cvar_t* pAllowDummyDevice = Cvar_Get ("hmd_allowdummydevice", "0", CVAR_ARCHIVE);
+        bool allowDummyDevice = pAllowDummyDevice->integer;
+
+        IHmdDevice* pHmdDevice = FactoryHmdDevice::CreateHmdDevice(lib, allowDummyDevice);
+        if (pHmdDevice)
+        {
+            VID_Printf(PRINT_ALL, "HMD Device found: %s\n", pHmdDevice->GetInfo().c_str());
+            ClientHmd::Get()->SetDevice(pHmdDevice);
+
+            Cvar_Set("cg_useHmd", "1");
+            Cvar_Set("cg_thirdPerson", "0");
+
+            IHmdRenderer* pHmdRenderer = FactoryHmdDevice::CreateRendererForDevice(pHmdDevice);
+
+            if (pHmdRenderer)
+            {
+                VID_Printf(PRINT_ALL, "HMD Renderer created: %s\n", pHmdRenderer->GetInfo().c_str());
+                ClientHmd::Get()->SetRenderer(pHmdRenderer);
+            }
+        }
+    }
+}
 
 /*
 ** GLimp_Init
@@ -1108,34 +1157,7 @@ void GLimp_Init( void )
 
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER);
 
-    
-    // try to create a hmd device
-    ClientHmd::Get()->SetDevice(NULL);
-    ClientHmd::Get()->SetRenderer(NULL);    
-
-    bool allowDummyDevice = false;
-#ifdef HMD_ALLOW_DUMMY_DEVICE
-    allowDummyDevice = true;
-#endif
-
-    IHmdDevice* pHmdDevice = FactoryHmdDevice::CreateHmdDevice(allowDummyDevice);
-    if (pHmdDevice)
-    {
-        VID_Printf(PRINT_ALL, "HMD Device found: %s\n", pHmdDevice->GetInfo().c_str());
-        ClientHmd::Get()->SetDevice(pHmdDevice);
-        
-        Cvar_Set("cg_useHmd", "1");
-        Cvar_Set("cg_thirdPerson", "0");
-        
-        IHmdRenderer* pHmdRenderer = FactoryHmdDevice::CreateRendererForDevice(pHmdDevice);
-        
-        if (pHmdRenderer)
-        {
-            VID_Printf(PRINT_ALL, "HMD Renderer created: %s\n", pHmdRenderer->GetInfo().c_str());
-            ClientHmd::Get()->SetRenderer(pHmdRenderer);
-        }
-    }        
-
+    InitHmdDevice();
 
 
 	//r_allowSoftwareGL = ri.Cvar_Get( "r_allowSoftwareGL", "0", CVAR_LATCH );

@@ -14,7 +14,14 @@ class FactoryHmdDevice
 {
 public:
 
-    static IHmdDevice* CreateHmdDevice(bool allowDummyDevice);
+    enum HmdLibrary {
+        LIB_UNDEFINED,
+        LIB_OVR,
+        LIB_OPENHMD,
+        LIB_MOUSE_DUMMY
+    };
+
+    static IHmdDevice* CreateHmdDevice(HmdLibrary library, bool allowDummyDevice);
     static IHmdRenderer* CreateRendererForDevice(IHmdDevice* pDevice);
 
 private:

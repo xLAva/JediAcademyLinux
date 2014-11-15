@@ -14,10 +14,7 @@
 
 #include "../hmd/ClientHmd.h"
 #include "../hmd/HmdDevice/IHmdDevice.h"
-
-#ifdef OVR_SIM_MOUSE
 #include "../hmd/HmdDevice/HmdDeviceMouse.h"
-#endif
 
 unsigned	frame_msec;
 int			old_com_frameTime;
@@ -805,7 +802,6 @@ usercmd_t CL_CreateCmd( void ) {
 	// get basic movement from keyboard
 	CL_KeyMove (&cmd);
 
-#ifdef OVR_SIM_MOUSE
     HmdDeviceMouse* pDevice = dynamic_cast<HmdDeviceMouse*>(ClientHmd::Get()->GetDevice());
     if (pDevice != NULL)
     {
@@ -828,10 +824,11 @@ usercmd_t CL_CreateCmd( void ) {
         pDevice->SetPosition(1, 0, 0);
         VectorCopy(tempAngles, cl.viewangles);
     }
-#else
-	// get basic movement from mouse
-	CL_MouseMove( &cmd );
-#endif
+    else
+    {
+        // get basic movement from mouse
+        CL_MouseMove( &cmd );
+    }
 	// get basic movement from joystick
 	CL_JoystickMove( &cmd );
 

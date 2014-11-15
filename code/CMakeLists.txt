@@ -12,10 +12,8 @@ cmake_minimum_required(VERSION 2.6)
 
 project(jk3)
 
-set(USE_OCULUS_SDK 1)
+set(USE_OCULUS_SDK 0)
 set(USE_OPENHMD 1)
-set(HMD_ALLOW_DUMMY_DEVICE 0)
-set(HMD_SIM_MOUSE 0)
 
 set(USE_SDL2 1)
 
@@ -747,14 +745,6 @@ if(USE_OPENHMD)
             set_property(TARGET imp_hidapi PROPERTY IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/hidapi-0.7.0/windows/Release/hidapi.lib")
             set(EXTRA_LIBS ${EXTRA_LIBS} imp_hidapi)
     endif()
-endif()
-
-if(HMD_ALLOW_DUMMY_DEVICE)
-    set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DHMD_ALLOW_DUMMY_DEVICE")
-endif()
-
-if(HMD_SIM_MOUSE)
-    set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DOVR_SIM_MOUSE")
 endif()
 
 

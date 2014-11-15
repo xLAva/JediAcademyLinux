@@ -17,23 +17,31 @@
 
 using namespace std;
 
-IHmdDevice* FactoryHmdDevice::CreateHmdDevice(bool allowDummyDevice)
+IHmdDevice* FactoryHmdDevice::CreateHmdDevice(HmdLibrary library, bool allowDummyDevice)
 {
     vector<IHmdDevice*> devices;
 
 
 #ifdef USE_OVR
-    devices.push_back(new HmdDeviceOculusSdk());
+    if (library == LIB_OVR || library == LIB_UNDEFINED)
+    {
+        devices.push_back(new HmdDeviceOculusSdk());
+    }
 #endif
 
     
 #ifdef USE_OPENHMD
-    devices.push_back(new HmdDeviceOpenHmd());
+    if (library == LIB_OPENHMD || library == LIB_UNDEFINED)
+    {
+        devices.push_back(new HmdDeviceOpenHmd());
+    }
 #endif
     
-#ifdef OVR_SIM_MOUSE
-    devices.push_back(new HmdDeviceMouse());
-#endif
+    if (library == LIB_MOUSE_DUMMY)
+    {
+        // only use mouse dummy if it is forced
+        devices.push_back(new HmdDeviceMouse());
+    }
 
     IHmdDevice* pSelectedDevice = NULL;
 
