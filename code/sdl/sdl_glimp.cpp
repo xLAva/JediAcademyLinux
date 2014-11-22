@@ -218,7 +218,7 @@ int GLW_SetMode(int mode, qboolean fullscreen )
 				fullscreen = true;
 			#else
 				fullscreen = false;
-				fullscreenWindow = true;            
+				fullscreenWindow = false;            
 				//fullscreenDesktopRes = true;            
 			#endif
 

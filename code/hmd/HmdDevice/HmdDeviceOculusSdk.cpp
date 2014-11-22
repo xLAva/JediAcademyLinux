@@ -2,16 +2,13 @@
 #include "../SearchForDisplay.h"
 
 #include "Kernel/OVR_Math.h"
+#include "Kernel/OVR_Threads.h"
 
 #include <string>
 #include <iostream>
 #include <cstdio>
 
-
-
-
 using namespace OVR;
-
 
 HmdDeviceOculusSdk::HmdDeviceOculusSdk()
     :mIsInitialized(false)
@@ -50,7 +47,6 @@ bool HmdDeviceOculusSdk::Init(bool allowDummyDevice)
         SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
     }
 #endif
-    
     
     ovr_Initialize();
 
@@ -116,15 +112,13 @@ bool HmdDeviceOculusSdk::Init(bool allowDummyDevice)
     }
 
     
-    // we only need the rotation information
-    SearchForDisplay::DisplayInfo rInfo;
-#ifdef LINUX
 
+#ifdef LINUX
 	// use the display name to get the rotation information
 
 	std::string displayName = mpHmd->DisplayDeviceName;
 
-	// at least on Linux the provided display name is not the same as the SDL2 display name provided
+	// at least on Linux the provided display name is not the same as the SDL2 display name
 	// hardcode the correct names for DK1 and DK2
 	switch (mpHmd->Type)
 	{
@@ -136,18 +130,17 @@ bool HmdDeviceOculusSdk::Init(bool allowDummyDevice)
 		break;
 	}
 
-    bool worked = SearchForDisplay::GetDisplayPosition(displayName, mpHmd->Resolution.w, mpHmd->Resolution.h, rInfo);
-#else
-	// use the display position and resolution to the the rotation information
+	// we only need the rotation information
+	SearchForDisplay::DisplayInfo rInfo;
 
-	bool worked = SearchForDisplay::GetDisplayPosition(mpHmd->WindowsPos.x, mpHmd->WindowsPos.y, mpHmd->Resolution.w, mpHmd->Resolution.h, rInfo);
-#endif
+    bool worked = SearchForDisplay::GetDisplayPosition(displayName, mpHmd->Resolution.w, mpHmd->Resolution.h, rInfo);
     if (worked)
     {
         mIsRotated = rInfo.isRotated;
     }
     
-    
+#endif
+
     mIsInitialized = true;
 
     if (debugPrint)

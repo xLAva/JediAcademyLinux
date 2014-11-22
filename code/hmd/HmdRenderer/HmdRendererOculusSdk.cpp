@@ -117,7 +117,7 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     ovrHmd_SetEnabledCaps(mpHmd, hmdCaps);
     
     
-    unsigned distortionCaps = ovrDistortionCap_Chromatic | ovrDistortionCap_Vignette | ovrDistortionCap_TimeWarp;
+	unsigned distortionCaps = ovrDistortionCap_Chromatic | ovrDistortionCap_Vignette | ovrDistortionCap_TimeWarp;
     
     bool PixelLuminanceOverdrive = (mpHmd->DistortionCaps & ovrDistortionCap_Overdrive) ? true : false;
     bool HqAaDistortion = (mpHmd->DistortionCaps & ovrDistortionCap_HqDistortion) ? true : false;
@@ -218,10 +218,10 @@ bool HmdRendererOculusSdk::GetRenderResolution(int& rWidth, int& rHeight)
 
 void HmdRendererOculusSdk::StartFrame()
 {
-        mStartedFrame = true;
-        
-        mFrameStartTime = ovr_GetTimeInSeconds();
-        mFrameTiming = ovrHmd_BeginFrame(mpHmd, 0);        
+    mStartedFrame = true;
+
+	mFrameStartTime = ovr_GetTimeInSeconds();
+	mFrameTiming = ovrHmd_BeginFrame(mpHmd, 0);
 }
 
 
