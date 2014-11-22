@@ -32,6 +32,7 @@ public:
     virtual bool HandlesSwap();
     virtual bool GetRenderResolution(int& rWidth, int& rHeight);
 
+    virtual void StartFrame();
     virtual void BeginRenderingForEye(bool leftEye);
     virtual void EndFrame();
 
@@ -40,17 +41,22 @@ public:
 
     virtual bool Get2DViewport(int& rX, int& rY, int& rW, int& rH);
 
-	bool AttachToWindow(void* pWindowHandle);
+    bool AttachToWindow(void* pWindowHandle);
+    void DismissHealthSafetyWarning();
 
 protected:
     static void ConvertMatrix(const OVR::Matrix4f& from, float* rTo);
 
 private:
-
+    bool FrameNeedsRendering();
+    void HandleSafetyWarning();
+    
     static const int FBO_COUNT = 2;
     RenderTool::FrameBufferInfo mFboInfos[FBO_COUNT];
 
     bool mIsInitialized;
+    bool mStartedFrame;
+    double mFrameStartTime;
     bool mStartedRendering;
     int mEyeId;
 
@@ -60,8 +66,10 @@ private:
     int mRenderWidth;
     int mRenderHeight;
 
-	float mGuiScale;
-	float mGuiOffsetFactorX;
+    float mGuiScale;
+    float mGuiOffsetFactorX;
+
+    bool mDismissHealthSafetyWarning;
 
     HmdDeviceOculusSdk* mpDevice;
     ovrHmd mpHmd;
@@ -70,6 +78,7 @@ private:
 
     ovrEyeType mEyes[2];
     ovrPosef mEyePoses[2];
+    ovrFrameTiming mFrameTiming;
 
     OVR::Matrix4f mCurrentProj;
     OVR::Matrix4f mCurrentView;

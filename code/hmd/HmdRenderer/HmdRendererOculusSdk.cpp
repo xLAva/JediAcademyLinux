@@ -7,9 +7,6 @@
 using namespace OVR::Util::Render;
 
 #include <OVR_CAPI_GL.h>
-#ifdef LINUX
-#include <CAPI/CAPI_HSWDisplay.h>
-#endif
 
 #include <math.h>
 #include <iostream>
@@ -20,6 +17,8 @@ using namespace std;
 
 HmdRendererOculusSdk::HmdRendererOculusSdk(HmdDeviceOculusSdk* pHmdDeviceOculusSdk)
     :mIsInitialized(false)
+    ,mStartedFrame(false)
+    ,mFrameStartTime(0)
     ,mStartedRendering(false)
     ,mEyeId(-1)
     ,mWindowWidth(0)
@@ -28,6 +27,7 @@ HmdRendererOculusSdk::HmdRendererOculusSdk(HmdDeviceOculusSdk* pHmdDeviceOculusS
     ,mRenderHeight(0)
 	,mGuiScale(1.0f)
 	,mGuiOffsetFactorX(0)
+    ,mDismissHealthSafetyWarning(false)
     ,mpDevice(pHmdDeviceOculusSdk)
     ,mpHmd(NULL)
 {
@@ -63,7 +63,7 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
 	}
 	else if (mpHmd->Type == ovrHmd_DK2)
 	{
-		mGuiScale = 0.45f;
+		mGuiScale = 0.50f;
 		mGuiOffsetFactorX = 0;
 	}
 
@@ -112,7 +112,26 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     eyeFov[0] = mpHmd->DefaultEyeFov[0];
     eyeFov[1] = mpHmd->DefaultEyeFov[1];
 
-	unsigned distortionCaps = ovrDistortionCap_Chromatic | ovrDistortionCap_Vignette | ovrDistortionCap_TimeWarp | ovrDistortionCap_Overdrive;
+    
+    unsigned hmdCaps = ovrHmdCap_LowPersistence | ovrHmdCap_DynamicPrediction;
+    ovrHmd_SetEnabledCaps(mpHmd, hmdCaps);
+    
+    
+    unsigned distortionCaps = ovrDistortionCap_Chromatic | ovrDistortionCap_Vignette | ovrDistortionCap_TimeWarp;
+    
+    bool PixelLuminanceOverdrive = (mpHmd->DistortionCaps & ovrDistortionCap_Overdrive) ? true : false;
+    bool HqAaDistortion = (mpHmd->DistortionCaps & ovrDistortionCap_HqDistortion) ? true : false;
+
+    if (PixelLuminanceOverdrive)
+    {
+        distortionCaps |= ovrDistortionCap_Overdrive;
+    }
+    
+    if (HqAaDistortion)
+    {
+        distortionCaps |= ovrDistortionCap_HqDistortion;
+    }
+
 #ifdef LINUX
     int dummyW = 0;
     int dummyH = 0;
@@ -132,9 +151,6 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
         return false;
     }
 
-#ifdef LINUX
-    ovrhmd_EnableHSWDisplaySDKRender(mpHmd, false);
-#endif
 
     qglBindBuffer(GL_ARRAY_BUFFER, 0);
     qglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -200,10 +216,18 @@ bool HmdRendererOculusSdk::GetRenderResolution(int& rWidth, int& rHeight)
     return true;
 }
 
+void HmdRendererOculusSdk::StartFrame()
+{
+        mStartedFrame = true;
+        
+        mFrameStartTime = ovr_GetTimeInSeconds();
+        mFrameTiming = ovrHmd_BeginFrame(mpHmd, 0);        
+}
+
 
 void HmdRendererOculusSdk::BeginRenderingForEye(bool leftEye)
 {
-    if (!mIsInitialized)
+    if (!mIsInitialized || !mStartedFrame)
     {
         return;
     }
@@ -220,7 +244,6 @@ void HmdRendererOculusSdk::BeginRenderingForEye(bool leftEye)
     {
         // render begin
         mStartedRendering = true;
-        ovrFrameTiming hmdFrameTiming = ovrHmd_BeginFrame(mpHmd, 0);
 
         ovrTrackingState hmdState;
         ovrVector3f hmdToEyeViewOffset[2] = { mEyeRenderDesc[0].HmdToEyeViewOffset, mEyeRenderDesc[1].HmdToEyeViewOffset };
@@ -251,37 +274,15 @@ void HmdRendererOculusSdk::BeginRenderingForEye(bool leftEye)
 
 void HmdRendererOculusSdk::EndFrame()
 {
-    if (!mIsInitialized && mEyeId < 0)
+    if (!mIsInitialized || !mStartedFrame)
     {
         return;
     }
 
-    if (mStartedRendering)
+    HandleSafetyWarning();
+    
+    if (mStartedFrame)
     {
-  //      //render end
-		//qglBindBuffer(GL_ARRAY_BUFFER, 0);
-		//qglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		//qglBindVertexArray(0);
-		//qglUseProgramObjectARB(0);
-		//qglDisable(GL_FRAMEBUFFER_SRGB);
-		//qglFrontFace(GL_CCW);
-
-		//qglBindFramebuffer(GL_FRAMEBUFFER, 0);
-		//qglDisableClientState(GL_VERTEX_ARRAY);
-
-  //      ovrHmd_EndFrame(mpHmd, mEyePoses, EyeTexture);
-
-		//qglEnableClientState(GL_VERTEX_ARRAY);
-  //      // cleanup the OculusSdk state mess
-  //      qglBindBuffer(GL_ARRAY_BUFFER, 0);
-  //      qglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-  //      qglBindVertexArray(0);
-  //      qglUseProgramObjectARB(0);
-		//qglDisable(GL_FRAMEBUFFER_SRGB);
-		//qglFrontFace(GL_CCW);
-		////qglDisable(GL_BLEND);
-
-
 		GLboolean depth_test = qglIsEnabled(GL_DEPTH_TEST);
 		GLboolean blend = qglIsEnabled(GL_BLEND);
 		GLboolean texture_2d = qglIsEnabled(GL_TEXTURE_2D);
@@ -343,16 +344,77 @@ void HmdRendererOculusSdk::EndFrame()
 		qglBindTexture(GL_TEXTURE_2D, texture);
 
 
+        mStartedFrame = false;
         mStartedRendering = false;
 
         // keep for debugging
         //RenderTool::DrawFbos(&mFboInfos[0], FBO_COUNT, mWindowWidth, mWindowHeight);
-
     }
-
+    
     mEyeId = -1;
 }
 
+
+// Determine whether this frame needs rendering based on time-warp timing and flags.
+bool HmdRendererOculusSdk::FrameNeedsRendering()
+{    
+    double curtime = mFrameStartTime;
+    
+    static double   lastUpdate          = 0.0;    
+    double          renderInterval      = 0.0;
+    double          timeSinceLast       = curtime - lastUpdate;
+    bool            updateRenderedView  = true;
+
+    
+
+    if ( (timeSinceLast < 0.0) || ((float)timeSinceLast > renderInterval) )
+    {
+        // This allows us to do "fractional" speeds, e.g. 45fps rendering on a 60fps display.
+        lastUpdate += renderInterval;
+        if ( timeSinceLast > 5.0 )
+        {
+            // renderInterval is probably tiny (i.e. "as fast as possible")
+            lastUpdate = curtime;
+        }
+
+        updateRenderedView = true;
+    }
+    else
+    {
+        updateRenderedView = false;
+    }
+
+    return updateRenderedView;
+}
+
+void HmdRendererOculusSdk::HandleSafetyWarning()
+{
+    // Health and Safety Warning display state.
+    ovrHSWDisplayState hswDisplayState;
+    ovrHmd_GetHSWDisplayState(mpHmd, &hswDisplayState);
+    if (hswDisplayState.Displayed)
+    {
+        // Dismiss the warning if the user pressed the appropriate key or if the user
+        // is tapping the side of the HMD.
+        // If the user has requested to dismiss the warning via keyboard or controller input...
+        if (mDismissHealthSafetyWarning)
+            ovrHmd_DismissHSWDisplay(mpHmd);
+        else
+        {
+            // Detect a moderate tap on the side of the HMD.
+            ovrTrackingState ts = ovrHmd_GetTrackingState(mpHmd, ovr_GetTimeInSeconds());
+            if (ts.StatusFlags & ovrStatus_OrientationTracked)
+            {
+                const OVR::Vector3f v(ts.RawSensorData.Accelerometer.x,
+                ts.RawSensorData.Accelerometer.y,
+                ts.RawSensorData.Accelerometer.z);
+                // Arbitrary value and representing moderate tap on the side of the DK2 Rift.
+                if (v.LengthSq() > 250.f)
+                    ovrHmd_DismissHSWDisplay(mpHmd);
+            }
+        }
+    }
+}
 
 bool HmdRendererOculusSdk::GetCustomProjectionMatrix(float* rProjectionMatrix, float zNear, float zFar, float fov)
 {
@@ -460,6 +522,11 @@ bool HmdRendererOculusSdk::AttachToWindow(void* pWindowHandle)
 #else
 	return false;
 #endif
+}
+
+void HmdRendererOculusSdk::DismissHealthSafetyWarning()
+{
+    mDismissHealthSafetyWarning = true;
 }
 
 void HmdRendererOculusSdk::ConvertMatrix(const Matrix4f& from, float* rTo)

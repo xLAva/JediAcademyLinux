@@ -12,7 +12,7 @@ cmake_minimum_required(VERSION 2.6)
 
 project(jk3)
 
-set(USE_OCULUS_SDK 0)
+set(USE_OCULUS_SDK 1)
 set(USE_OPENHMD 1)
 
 set(USE_SDL2 1)

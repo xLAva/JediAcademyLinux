@@ -42,6 +42,16 @@ bool HmdDeviceOculusSdk::Init(bool allowDummyDevice)
         printf("ovr init ...\n");
     }
 
+#if defined(OVR_OS_WIN32)
+    OVR::Thread::SetCurrentPriority(Thread::HighestPriority);
+
+    if(OVR::Thread::GetCPUCount() >= 4) // Don't do this unless there are at least 4 processors, otherwise the process could hog the machine.
+    {
+        SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
+    }
+#endif
+    
+    
     ovr_Initialize();
 
     if (debugPrint)

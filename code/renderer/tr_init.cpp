@@ -366,6 +366,11 @@ void R_Splash()
     const float y1 = 240 - height / 2;
     const float y2 = 240 + height / 2;    
     
+    if (pHmdRenderer)
+    {
+        pHmdRenderer->StartFrame();
+    }         
+    
     for (int i=0; i<drawCount; i++)
     {
         if (pHmdRenderer)

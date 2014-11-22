@@ -94,6 +94,25 @@ static void InitSig(void)
 	return;
 }
 
+
+static void QueKeyEvent(int time, sysEventType_t type, int value, int value2, int ptrLength, void *ptr)
+{
+#ifdef USE_OVR
+    IHmdRenderer* pRenderer = ClientHmd::Get()->GetRenderer();
+    if (pRenderer)
+    {
+        static HmdRendererOculusSdk* pHmdRenderer = dynamic_cast<HmdRendererOculusSdk*>(pRenderer);
+        if (pHmdRenderer)
+        {
+            pHmdRenderer->DismissHealthSafetyWarning();
+        }
+    }
+#endif
+    
+    Sys_QueEvent(time, type, value, value2, ptrLength, ptr);
+}
+
+
 /*
 ** GLW_StartDriverAndSetMode
 */
@@ -1522,19 +1541,19 @@ void IN_GameControllerMove(int axis, int value) {
     fAxisValue = JoyToF(value, threshold);
     
     if (i == 0) {
-        Sys_QueEvent(0, SE_JOYSTICK_AXIS, AXIS_SIDE, (int) (fAxisValue*127.0), 0, NULL );
+        QueKeyEvent(0, SE_JOYSTICK_AXIS, AXIS_SIDE, (int) (fAxisValue*127.0), 0, NULL );
     }
     
     if (i == 1) {
-        Sys_QueEvent(0, SE_JOYSTICK_AXIS, AXIS_FORWARD, (int) -(fAxisValue*127.0), 0, NULL );
+        QueKeyEvent(0, SE_JOYSTICK_AXIS, AXIS_FORWARD, (int) -(fAxisValue*127.0), 0, NULL );
     }
     
     if (i == 2) {
-        Sys_QueEvent( 0, SE_JOYSTICK_AXIS, AXIS_YAW, (int) -(fAxisValue*127.0), 0, NULL );
+        QueKeyEvent( 0, SE_JOYSTICK_AXIS, AXIS_YAW, (int) -(fAxisValue*127.0), 0, NULL );
     }      
     
     if (i == 3) {
-        Sys_QueEvent( 0, SE_JOYSTICK_AXIS, AXIS_PITCH, (int) (fAxisValue*127.0), 0, NULL );
+        QueKeyEvent( 0, SE_JOYSTICK_AXIS, AXIS_PITCH, (int) (fAxisValue*127.0), 0, NULL );
     }       
     
   
@@ -1550,11 +1569,11 @@ void IN_GameControllerMove(int axis, int value) {
 //    // determine which bits have changed and key an auxillary event for each change
 //    for (i=0 ; i < 16 ; i++) {
 //        if ( (povstate & (1<<i)) && !(joy.oldpovstate & (1<<i)) ) {
-//            Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, joyDirectionKeys[i], qtrue, 0, NULL );
+//            QueKeyEvent( g_wv.sysMsgTime, SE_KEY, joyDirectionKeys[i], qtrue, 0, NULL );
 //        }
     
 //        if ( !(povstate & (1<<i)) && (joy.oldpovstate & (1<<i)) ) {
-//            Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, joyDirectionKeys[i], qfalse, 0, NULL );
+//            QueKeyEvent( g_wv.sysMsgTime, SE_KEY, joyDirectionKeys[i], qfalse, 0, NULL );
 //        }
 //    }
 }
@@ -1601,11 +1620,11 @@ void IN_JoyMove_Old(SDL_JoyAxisEvent event)
   for( i = 0; i < 16; i++ ) {
 
     if( ( axes & ( 1 << i ) ) && !( old_axes & ( 1 << i ) ) ) {
-      Sys_QueEvent( 0, SE_KEY, joyDirectionKeys[i], qtrue, 0, NULL );
+      QueKeyEvent( 0, SE_KEY, joyDirectionKeys[i], qtrue, 0, NULL );
     }
 
     if( !( axes & ( 1 << i ) ) && ( old_axes & ( 1 << i ) ) ) {
-      Sys_QueEvent( 0, SE_KEY, joyDirectionKeys[i], qfalse, 0, NULL );
+      QueKeyEvent( 0, SE_KEY, joyDirectionKeys[i], qfalse, 0, NULL );
     }
   }
 
@@ -1653,15 +1672,15 @@ static void HandleEvents(void)
         case SDL_KEYDOWN:
             p = XLateKey(event.key.keysym, &key);
             if (key)
-                Sys_QueEvent( 0, SE_KEY, key, qtrue, 0, NULL );
+                QueKeyEvent( 0, SE_KEY, key, qtrue, 0, NULL );
 			//handle control chars
             while (*p)
-                Sys_QueEvent( 0, SE_CHAR, *p++, 0, 0, NULL );
+                QueKeyEvent( 0, SE_CHAR, *p++, 0, 0, NULL );
             break;                
         case SDL_KEYUP:
             XLateKey(event.key.keysym, &key);
             
-            Sys_QueEvent( 0, SE_KEY, key, qfalse, 0, NULL );
+            QueKeyEvent( 0, SE_KEY, key, qfalse, 0, NULL );
             break;
 
 		case SDL_TEXTINPUT:
@@ -1669,7 +1688,7 @@ static void HandleEvents(void)
 			if (*p != '`' && *p != '^')
 			{
 				while (*p)
-					Sys_QueEvent(0, SE_CHAR, *p++, 0, 0, NULL);
+					QueKeyEvent(0, SE_CHAR, *p++, 0, 0, NULL);
 			}
 			break;
         case SDL_MOUSEMOTION:
@@ -1702,7 +1721,7 @@ static void HandleEvents(void)
             int buttonNr = event.button.button - 1;
             if (buttonNr >= 0 && buttonNr < MAX_MOUSE_BUTTONS)
 			{
-				Sys_QueEvent( 0, SE_KEY, mouseConvert[buttonNr], qtrue, 0, NULL );
+				QueKeyEvent( 0, SE_KEY, mouseConvert[buttonNr], qtrue, 0, NULL );
 			}
             break;
         }
@@ -1711,7 +1730,7 @@ static void HandleEvents(void)
             int buttonNr = event.button.button - 1;
 			if (buttonNr >= 0 && buttonNr < MAX_MOUSE_BUTTONS)
 			{
-				Sys_QueEvent( 0, SE_KEY, mouseConvert[buttonNr], qfalse, 0, NULL );
+				QueKeyEvent( 0, SE_KEY, mouseConvert[buttonNr], qfalse, 0, NULL );
 			}		
 
             break;
@@ -1726,8 +1745,8 @@ static void HandleEvents(void)
 //                int wheelCount = abs(event.wheel.y);
 //                for (int i=0; i<wheelCount; i++)
 //                {
-//                    Sys_QueEvent( 0, SE_KEY, wheel, qtrue, 0, NULL );
-//                    Sys_QueEvent( 0, SE_KEY, wheel, qfalse, 0, NULL );
+//                    QueKeyEvent( 0, SE_KEY, wheel, qtrue, 0, NULL );
+//                    QueKeyEvent( 0, SE_KEY, wheel, qfalse, 0, NULL );
 //                }
                
 //            }
@@ -1736,13 +1755,13 @@ static void HandleEvents(void)
         case SDL_JOYBUTTONDOWN:
             if (pSdlJoystick)
             {
-                Sys_QueEvent( 0, SE_KEY, A_JOY0 + event.jbutton.button, qtrue, 0, NULL );
+                QueKeyEvent( 0, SE_KEY, A_JOY0 + event.jbutton.button, qtrue, 0, NULL );
             }
             break;            
         case SDL_JOYBUTTONUP:
             if (pSdlJoystick)
             {
-                Sys_QueEvent( 0, SE_KEY, A_JOY0 + event.jbutton.button, qfalse, 0, NULL );
+                QueKeyEvent( 0, SE_KEY, A_JOY0 + event.jbutton.button, qfalse, 0, NULL );
             }
             break;
         case SDL_JOYAXISMOTION:
@@ -1753,10 +1772,10 @@ static void HandleEvents(void)
             break;
             
         case SDL_CONTROLLERBUTTONDOWN:
-            Sys_QueEvent( 0, SE_KEY, A_JOY0 + event.cbutton.button, qtrue, 0, NULL );
+            QueKeyEvent( 0, SE_KEY, A_JOY0 + event.cbutton.button, qtrue, 0, NULL );
             break;            
         case SDL_CONTROLLERBUTTONUP:
-            Sys_QueEvent( 0, SE_KEY, A_JOY0 + event.cbutton.button, qfalse, 0, NULL );
+            QueKeyEvent( 0, SE_KEY, A_JOY0 + event.cbutton.button, qfalse, 0, NULL );
             break;
         case SDL_CONTROLLERAXISMOTION:
             IN_GameControllerMove(event.caxis.axis, event.caxis.value);
@@ -1843,7 +1862,7 @@ void IN_MouseMove(void)
 
 
 	if (mx || my)
-		Sys_QueEvent( 0, SE_MOUSE, mx, my, 0, NULL );
+		QueKeyEvent( 0, SE_MOUSE, mx, my, 0, NULL );
 	mx = my = 0;
 }
 

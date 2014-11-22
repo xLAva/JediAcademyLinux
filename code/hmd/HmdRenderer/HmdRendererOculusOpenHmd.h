@@ -28,6 +28,7 @@ public:
 
     virtual bool GetRenderResolution(int& rWidth, int& rHeight);
 
+    virtual void StartFrame() { }
     virtual void BeginRenderingForEye(bool leftEye);
     virtual void EndFrame();
 

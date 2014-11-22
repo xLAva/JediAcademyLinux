@@ -22,6 +22,8 @@ public:
     virtual bool HandlesSwap() = 0;
     virtual bool GetRenderResolution(int& rWidth, int& rHeight) = 0;
 
+    virtual void StartFrame() = 0;
+    
     // has to be called before rendering or any call to eye dependend methodes like GetCustomProjectionMatrix
     virtual void BeginRenderingForEye(bool leftEye) = 0;
     virtual void EndFrame() = 0;

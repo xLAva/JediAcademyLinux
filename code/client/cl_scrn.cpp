@@ -9,6 +9,7 @@
 #include "client_ui.h"
 
 #include "../hmd/ClientHmd.h"
+#include "../hmd/HmdRenderer/IHmdRenderer.h"
 
 extern console_t con;
 
@@ -454,6 +455,14 @@ void SCR_UpdateScreen( void ) {
 	}
 	recursive = qtrue;
 
+    IHmdRenderer* pHmdRenderer = ClientHmd::Get()->GetRenderer();
+    if (pHmdRenderer)
+    {
+        // tell the hmd renderer the frame is starting for timing calculations
+        // EndFrame is called after rendering
+        pHmdRenderer->StartFrame();
+    }
+    
     ClientHmd::Get()->UpdateGame();
 
 	// if running in stereo, we need to draw the frame twice
