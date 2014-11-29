@@ -21,7 +21,7 @@ The following files are needed to run the game:
 In order to start Jedi Academy, the "base" folder from your original game has to be copied into the folder of the Linux binary files.
 Be sure to mark "jasp" as executable and start the game with it.
 
-For those not having the Steam version: you'll need the 1.01 update from here http://www.lucasarts.com/support/update/jediacademy.html 
+For those not having the Steam version: you'll need the 1.01 update from here http://help.starwars.com/articles/en_US/FAQ/Where-do-I-find-the-latest-patch-for-Jedi-Knight-Jedi-Academy?section=Star-Wars#patch 
 
 Example:
 ~/jedioutcast/Release/jasp
