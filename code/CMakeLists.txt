@@ -33,12 +33,16 @@ elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
     set(PLATFORM_LINUX 1)
 endif()
 
-message("Win32:${PLATFORM_WIN32} MacOS:${PLATFORM_MACOS} Linux:${PLATFORM_LINUX}")
-
 if(CMAKE_BUILD_TYPE STREQUAL "")
     set(CMAKE_BUILD_TYPE "RELEASE")
 endif()
 
+message("Detected platform: Win32=${PLATFORM_WIN32} MacOS=${PLATFORM_MACOS} Linux=${PLATFORM_LINUX}")
+
+# msvc: Debug or Release is selected inside VisualStudio, so don't show the CMAKE_BUILD_TYPE
+if(NOT MSVC)
+    message("Build Type: ${CMAKE_BUILD_TYPE}")
+endif()
 
 set(CUSTOM_COMPILE_FLAGS_ALL "")
 
