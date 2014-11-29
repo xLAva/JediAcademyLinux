@@ -15,9 +15,22 @@ int	VM_Call( int callnum, ... )
 	
 	if (cgvm.entryPoint)
 	{
-		return cgvm.entryPoint( (&callnum)[0], (&callnum)[1], (&callnum)[2], (&callnum)[3],
-			(&callnum)[4], (&callnum)[5], (&callnum)[6], (&callnum)[7],
-			(&callnum)[8],  (&callnum)[9] );
+        int args[10];
+        args[0] = callnum;
+
+        va_list argList;
+        va_start(argList, callnum);
+        for (int i = 1; i<10; i++)
+        {
+            args[i] = va_arg(argList, int);
+        }
+
+        va_end(argList);
+
+
+        return cgvm.entryPoint( args[0], args[1], args[2], args[3],
+            args[4], args[5], args[6], args[7],
+            args[8],  args[9] );
 	}
 	
 	return -1;
@@ -34,6 +47,19 @@ extern int CL_CgameSystemCalls( int *args );
 extern int CL_UISystemCalls( int *args );
 
 int VM_DllSyscall( int arg, ... ) {
-//	return cgvm->systemCall( &arg );
-	return CL_CgameSystemCalls( &arg );
+    int args[16];
+    args[0] = arg;
+
+    va_list argList;
+    va_start(argList, arg);
+    for (int i = 1; i<16; i++)
+    {
+        args[i] = va_arg(argList, int);
+    }
+
+    va_end(argList);
+
+    return CL_CgameSystemCalls(args);
+
+    //return CL_CgameSystemCalls( &arg );
 }
