@@ -436,7 +436,7 @@ extern	void ( APIENTRY * qglPointParameterivNV)( GLenum, const GLint *);
 //===========================================================================
 
 // non-windows systems will just redefine qgl* to gl*
-#if !defined( _WIN32 ) && !defined( __linux__ )
+#if !defined( _WIN32 ) && !defined( __linux__ ) && !defined(__APPLE__)
 
 #include "qgl_linked.h"
 
@@ -832,6 +832,6 @@ extern Bool (*qglXSwapIntervalEXT) (int interval);
 
 #endif // __linux__
 
-#endif	// _WIN32 && __linux__
+#endif	// _WIN32 && __linux__ && __APPLE__
 
 #endif

@@ -23,8 +23,6 @@
 
 #endif
 
-#ifndef __APPLE__
-
 
 void QGL_EnableLogging( qboolean enable );
 
@@ -4237,20 +4235,3 @@ void QGL_EnableLogging( qboolean enable )
 		qglViewport                  = 	dllViewport                  ;
 	}
 }
-
-
-#else
-qboolean QGL_Init( const char *dllname )
-{
-    return true;
-}
-
-void QGL_Shutdown( void )
-{
-}
-
-void QGL_EnableLogging( qboolean enable )
-{
-}
-
-#endif
