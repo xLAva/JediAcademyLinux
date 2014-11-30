@@ -15,7 +15,7 @@ project(jk3)
 set(USE_OCULUS_SDK 1)
 set(FORCE_STATIC_OCULUS_SDK 0)
 
-set(USE_OPENHMD 1)
+set(USE_OPENHMD 0)
 
 set(USE_SDL2 1)
 
@@ -719,54 +719,46 @@ if(USE_OCULUS_SDK)
 
     set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DUSE_OVR")
 
+    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Src")
+
+    if(NOT FORCE_STATIC_OCULUS_SDK)
+        set(SSF_HMD_LIBOVRDYNAMIC ${SSF_HMD_LIBOVRDYNAMIC}
+            hmd/LibOvrDynamic/oculus_dynamic.h
+            hmd/LibOvrDynamic/oculus_dynamic.cpp
+            hmd/LibOvrDynamic/ovr_dynamic_funcs.h
+        )
+    else()
+        set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DFORCE_STATIC_OCULUS_SDK")
 
         if(PLATFORM_WIN32)
-			include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Src")
+			set(SSF_HMD_LIBOVRDYNAMIC ${SSF_HMD_LIBOVRDYNAMIC}
+				hmd/LibOvrDynamic/oculus_static.h
+			)
 
-			if (FORCE_STATIC_OCULUS_SDK)
-				set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DFORCE_STATIC_OCULUS_SDK")
+			link_directories("C:/WinDDK/7600.16385.1/lib/ATL/i386")
+			set(EXTRA_LIBS ${EXTRA_LIBS} wsock32 ws2_32)
 
-				set(SSF_HMD_LIBOVRDYNAMIC ${SSF_HMD_LIBOVRDYNAMIC}
-					hmd/LibOvrDynamic/oculus_static.h
-				)
-
-				link_directories("C:/WinDDK/7600.16385.1/lib/ATL/i386")
-				set(EXTRA_LIBS ${EXTRA_LIBS} wsock32 ws2_32)
-
-				set(EXTRA_LIBS ${EXTRA_LIBS} debug ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Win32/VS2013/libovrd.lib)
-				set(EXTRA_LIBS ${EXTRA_LIBS} optimized ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Win32/VS2013/libovr.lib)
-			else()
-
-				set(SSF_HMD_LIBOVRDYNAMIC ${SSF_HMD_LIBOVRDYNAMIC}
-					hmd/LibOvrDynamic/oculus_dynamic.h
-					hmd/LibOvrDynamic/oculus_dynamic.cpp
-					hmd/LibOvrDynamic/ovr_dynamic_funcs.h
-				)
+			set(EXTRA_LIBS ${EXTRA_LIBS} debug ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Win32/VS2013/libovrd.lib)
+			set(EXTRA_LIBS ${EXTRA_LIBS} optimized ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Win32/VS2013/libovr.lib)
 
 			endif()
 
         elseif(PLATFORM_LINUX)
-			include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/ovr_sdk_linux_0.4.3/LibOVR/Src")
-
 			if(CMAKE_BUILD_TYPE STREQUAL "DEBUG")
-				set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/ovr_sdk_linux_0.4.3/LibOVR/Lib/Linux/Debug/i386/libovr.a)
+				set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Linux/Debug/i386/libovr.a)
 			else()
-				set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/ovr_sdk_linux_0.4.3/LibOVR/Lib/Linux/Release/i386/libovr.a)
+				set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Linux/Release/i386/libovr.a)
 			endif()
 
 			set(EXTRA_LIBS ${EXTRA_LIBS} udev)
 			set(EXTRA_LIBS ${EXTRA_LIBS} Xinerama)
         elseif(PLATFORM_MACOS)
-        include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/LibOVR/Src")
 
                 if(CMAKE_BUILD_TYPE STREQUAL "DEBUG")
-                        set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/LibOVR/Lib/MacOS/Debug/i386/libovr.a)
+                        set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/MacOS/Debug/i386/libovr.a)
                 else()
-                        set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/LibOVR/Lib/MacOS/Release/i386/libovr.a)
+                        set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/MacOS/Release/i386/libovr.a)
                 endif()
-
-                set(EXTRA_LIBS ${EXTRA_LIBS} udev)
-                set(EXTRA_LIBS ${EXTRA_LIBS} Xinerama)
 	endif()
 
 endif()

@@ -12,6 +12,8 @@
 #error "Unknown O/S"
 #endif
 
+// stupid OVR include bug
+#define OVR_OS_CONSOLE
 #include <OVR_CAPI.h>
 
 #define OVRFUNC(need, rtype, fn, params)        \

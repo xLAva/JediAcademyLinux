@@ -2,7 +2,11 @@
 // replace SDL_LoadObject with dlopen/LoadLibrary and SDL_LoadFunction
 // with dlsym/GetProcAddress
 
+#if defined(LINUX) || defined(__APPLE__)
+#include <SDL2/SDL.h>
+#else
 #include <SDL.h>
+#endif
 #include "oculus_dynamic.h"
 #include <stdlib.h>
 
@@ -25,6 +29,7 @@ extern ovr_dynamic_load_result oculus_dynamic_load(const char** failed_function)
 
     oculus_library_handle = SDL_LoadObject(liboculus);
     if (!oculus_library_handle) {
+        printf("SDL_LoadObject failed: %s\n", SDL_GetError());
         return OVR_DYNAMIC_RESULT_LIBOVR_COULD_NOT_LOAD;
     }
 
