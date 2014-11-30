@@ -39,7 +39,16 @@ bool HmdDeviceOculusSdk::Init(bool allowDummyDevice)
         printf("ovr init ...\n");
     }
 
-#if defined(OVR_OS_WIN32)
+#if !defined(FORCE_STATIC_OCULUS_SDK)
+    ovr_dynamic_load_result result = oculus_dynamic_load(NULL);
+    if (result != OVR_DYNAMIC_RESULT_SUCCESS)
+    {
+        printf("ovr: could not load library\n");
+        return false;
+    }
+#endif
+
+#if defined(FORCE_STATIC_OCULUS_SDK) && defined(OVR_OS_WIN32)
     OVR::Thread::SetCurrentPriority(Thread::HighestPriority);
 
     if(OVR::Thread::GetCPUCount() >= 4) // Don't do this unless there are at least 4 processors, otherwise the process could hog the machine.
@@ -48,14 +57,14 @@ bool HmdDeviceOculusSdk::Init(bool allowDummyDevice)
     }
 #endif
     
-    ovr_Initialize();
+    d_ovr_Initialize();
 
     if (debugPrint)
     {
         printf("Create device ...\n");
     }
 
-    mpHmd = ovrHmd_Create(0);
+    mpHmd = d_ovrHmd_Create(0);
     mUsingDebugHmd = false;
 
     if (!mpHmd)
@@ -63,13 +72,13 @@ bool HmdDeviceOculusSdk::Init(bool allowDummyDevice)
         if (allowDummyDevice)
         {
             // no hmd detected, create debugging device
-            mpHmd = ovrHmd_CreateDebug(ovrHmd_DK1);
+            mpHmd = d_ovrHmd_CreateDebug(ovrHmd_DK1);
             mUsingDebugHmd = true;
         }
 
         if (!mpHmd)
         {
-            ovr_Shutdown();
+            d_ovr_Shutdown();
 
             if (debugPrint)
             {
@@ -84,7 +93,7 @@ bool HmdDeviceOculusSdk::Init(bool allowDummyDevice)
     mPositionTrackingEnabled = (mpHmd->TrackingCaps & ovrTrackingCap_Position) ? true : false;
 
     // Start the sensor which provides the Rift’s pose and motion.
-    ovrHmd_ConfigureTracking(mpHmd, ovrTrackingCap_Orientation | ovrTrackingCap_MagYawCorrection | ovrTrackingCap_Position , ovrTrackingCap_Orientation);
+    d_ovrHmd_ConfigureTracking(mpHmd, ovrTrackingCap_Orientation | ovrTrackingCap_MagYawCorrection | ovrTrackingCap_Position, ovrTrackingCap_Orientation);
 
 
     if (debugPrint)
@@ -161,10 +170,10 @@ void HmdDeviceOculusSdk::Shutdown()
 
     mInfo = "";
 
-    ovrHmd_Destroy(mpHmd);
+    d_ovrHmd_Destroy(mpHmd);
     mpHmd = NULL;
 
-    ovr_Shutdown();
+    d_ovr_Shutdown();
 
     mIsInitialized = false;
 }
@@ -219,7 +228,7 @@ bool HmdDeviceOculusSdk::GetOrientationRad(float& rPitch, float& rYaw, float& rR
     }
 
     // Query the HMD for the sensor state at a given time.
-    ovrTrackingState ss = ovrHmd_GetTrackingState(mpHmd, 0.0);
+    ovrTrackingState ss = d_ovrHmd_GetTrackingState(mpHmd, 0.0);
     if ((ss.StatusFlags & ovrStatus_OrientationTracked))
     {
         OVR::Quatf orientation = OVR::Quatf(ss.HeadPose.ThePose.Orientation);
@@ -243,7 +252,7 @@ bool HmdDeviceOculusSdk::GetPosition(float &rX, float &rY, float &rZ)
     }
 
     // Query the HMD for the sensor state at a given time.
-    ovrTrackingState ss = ovrHmd_GetTrackingState(mpHmd, 0.0);
+    ovrTrackingState ss = d_ovrHmd_GetTrackingState(mpHmd, 0.0);
     if ((ss.StatusFlags & ovrStatus_PositionTracked))
     {
         OVR::Vector3f pos = OVR::Vector3f(ss.HeadPose.ThePose.Position);
@@ -261,5 +270,5 @@ bool HmdDeviceOculusSdk::GetPosition(float &rX, float &rY, float &rZ)
 
 void HmdDeviceOculusSdk::Recenter()
 {
-    ovrHmd_RecenterPose(mpHmd);
+    d_ovrHmd_RecenterPose(mpHmd);
 }

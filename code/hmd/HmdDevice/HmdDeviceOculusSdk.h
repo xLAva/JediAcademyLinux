@@ -9,8 +9,12 @@
 
 #include "IHmdDevice.h"
 
+#ifdef FORCE_STATIC_OCULUS_SDK
 #include <OVR_CAPI.h>
-
+#include "../LibOvrDynamic/oculus_static.h"
+#else
+#include "../LibOvrDynamic/oculus_dynamic.h"
+#endif
 
 
 class HmdDeviceOculusSdk : public IHmdDevice

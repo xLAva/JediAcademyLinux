@@ -70,8 +70,8 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
 	if (mpHmd->Type == ovrHmd_DK1)
 	{
 		// Configure Stereo settings.
-		ovrSizei recommenedTex0Size = ovrHmd_GetFovTextureSize(mpHmd, ovrEye_Left, mpHmd->DefaultEyeFov[0], 1.0f);
-		ovrSizei recommenedTex1Size = ovrHmd_GetFovTextureSize(mpHmd, ovrEye_Right, mpHmd->DefaultEyeFov[1], 1.0f);
+        ovrSizei recommenedTex0Size = d_ovrHmd_GetFovTextureSize(mpHmd, ovrEye_Left, mpHmd->DefaultEyeFov[0], 1.0f);
+        ovrSizei recommenedTex1Size = d_ovrHmd_GetFovTextureSize(mpHmd, ovrEye_Right, mpHmd->DefaultEyeFov[1], 1.0f);
 
 		mRenderWidth = max(recommenedTex0Size.w, recommenedTex1Size.w);
 		mRenderHeight = max(recommenedTex0Size.h, recommenedTex1Size.h);
@@ -114,7 +114,7 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
 
     
     unsigned hmdCaps = ovrHmdCap_LowPersistence | ovrHmdCap_DynamicPrediction;
-    ovrHmd_SetEnabledCaps(mpHmd, hmdCaps);
+    d_ovrHmd_SetEnabledCaps(mpHmd, hmdCaps);
     
     
 	unsigned distortionCaps = ovrDistortionCap_Chromatic | ovrDistortionCap_Vignette | ovrDistortionCap_TimeWarp;
@@ -144,7 +144,7 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
 #endif
     
 
-    bool worked = ovrHmd_ConfigureRendering(mpHmd, &cfg.Config, distortionCaps, eyeFov, mEyeRenderDesc);
+    bool worked = d_ovrHmd_ConfigureRendering(mpHmd, &cfg.Config, distortionCaps, eyeFov, mEyeRenderDesc);
 	qglUseProgramObjectARB(0);
     if (!worked)
     {
@@ -220,8 +220,8 @@ void HmdRendererOculusSdk::StartFrame()
 {
     mStartedFrame = true;
 
-	mFrameStartTime = ovr_GetTimeInSeconds();
-	mFrameTiming = ovrHmd_BeginFrame(mpHmd, 0);
+    mFrameStartTime = d_ovr_GetTimeInSeconds();
+    mFrameTiming = d_ovrHmd_BeginFrame(mpHmd, 0);
 }
 
 
@@ -247,7 +247,7 @@ void HmdRendererOculusSdk::BeginRenderingForEye(bool leftEye)
 
         ovrTrackingState hmdState;
         ovrVector3f hmdToEyeViewOffset[2] = { mEyeRenderDesc[0].HmdToEyeViewOffset, mEyeRenderDesc[1].HmdToEyeViewOffset };
-        ovrHmd_GetEyePoses(mpHmd, 0, hmdToEyeViewOffset, mEyePoses, &hmdState);
+        d_ovrHmd_GetEyePoses(mpHmd, 0, hmdToEyeViewOffset, mEyePoses, &hmdState);
         
         for (int i=0; i<FBO_COUNT; i++)
         {
@@ -310,7 +310,7 @@ void HmdRendererOculusSdk::EndFrame()
 		qglDisableClientState(GL_VERTEX_ARRAY);
 
 
-		ovrHmd_EndFrame(mpHmd, mEyePoses, EyeTexture);
+        d_ovrHmd_EndFrame(mpHmd, mEyePoses, EyeTexture);
 
 
 		// restore the old state
@@ -391,18 +391,18 @@ void HmdRendererOculusSdk::HandleSafetyWarning()
 {
     // Health and Safety Warning display state.
     ovrHSWDisplayState hswDisplayState;
-    ovrHmd_GetHSWDisplayState(mpHmd, &hswDisplayState);
+    d_ovrHmd_GetHSWDisplayState(mpHmd, &hswDisplayState);
     if (hswDisplayState.Displayed)
     {
         // Dismiss the warning if the user pressed the appropriate key or if the user
         // is tapping the side of the HMD.
         // If the user has requested to dismiss the warning via keyboard or controller input...
         if (mDismissHealthSafetyWarning)
-            ovrHmd_DismissHSWDisplay(mpHmd);
+            d_ovrHmd_DismissHSWDisplay(mpHmd);
         else
         {
             // Detect a moderate tap on the side of the HMD.
-            ovrTrackingState ts = ovrHmd_GetTrackingState(mpHmd, ovr_GetTimeInSeconds());
+            ovrTrackingState ts = d_ovrHmd_GetTrackingState(mpHmd, d_ovr_GetTimeInSeconds());
             if (ts.StatusFlags & ovrStatus_OrientationTracked)
             {
                 const OVR::Vector3f v(ts.RawSensorData.Accelerometer.x,
@@ -410,7 +410,7 @@ void HmdRendererOculusSdk::HandleSafetyWarning()
                 ts.RawSensorData.Accelerometer.z);
                 // Arbitrary value and representing moderate tap on the side of the DK2 Rift.
                 if (v.LengthSq() > 250.f)
-                    ovrHmd_DismissHSWDisplay(mpHmd);
+                    d_ovrHmd_DismissHSWDisplay(mpHmd);
             }
         }
     }
@@ -424,7 +424,7 @@ bool HmdRendererOculusSdk::GetCustomProjectionMatrix(float* rProjectionMatrix, f
     }
 
     //float fovRad = DEG2RAD(fov);
-    ovrMatrix4f projMatrix = ovrMatrix4f_Projection(mEyeRenderDesc[mEyeId].Fov, zNear, zFar, true);
+    ovrMatrix4f projMatrix = d_ovrMatrix4f_Projection(mEyeRenderDesc[mEyeId].Fov, zNear, zFar, true);
     ConvertMatrix(projMatrix, rProjectionMatrix);
 
     return true;
@@ -515,7 +515,7 @@ bool HmdRendererOculusSdk::AttachToWindow(void* pWindowHandle)
 
 	if (!(mpDevice->GetHmd()->HmdCaps & ovrHmdCap_ExtendDesktop))
 	{
-		ovrHmd_AttachToWindow(mpDevice->GetHmd(), pWindowHandle, NULL, NULL);
+        d_ovrHmd_AttachToWindow(mpDevice->GetHmd(), pWindowHandle, NULL, NULL);
 	}
 
 	return true;
