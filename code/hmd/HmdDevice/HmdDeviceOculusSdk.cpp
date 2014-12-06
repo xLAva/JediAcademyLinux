@@ -1,6 +1,7 @@
 #include "HmdDeviceOculusSdk.h"
 #include "../SearchForDisplay.h"
 
+#define OVR_OS_CONSOLE
 #include "Kernel/OVR_Math.h"
 #include "Kernel/OVR_Threads.h"
 

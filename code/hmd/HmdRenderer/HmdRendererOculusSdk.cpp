@@ -3,9 +3,6 @@
 #include "../HmdDevice/HmdDeviceOculusSdk.h"
 #include "PlatformInfo.h"
 
-#include "Util/Util_Render_Stereo.h"
-using namespace OVR::Util::Render;
-
 #include <OVR_CAPI_GL.h>
 
 #include <math.h>
@@ -94,13 +91,11 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     ovrGLConfig cfg;
 	memset(&cfg, 0, sizeof(cfg));
     cfg.OGL.Header.API = ovrRenderAPI_OpenGL;
-    cfg.OGL.Header.RTSize.w = mWindowWidth;
-    cfg.OGL.Header.RTSize.h = mWindowHeight;
+    cfg.OGL.Header.BackBufferSize = Sizei(mpHmd->Resolution.w, mpHmd->Resolution.h);
     cfg.OGL.Header.Multisample = 1;
 
 #ifdef LINUX
     cfg.OGL.Disp = platformInfo.pDisplay;
-    cfg.OGL.Win = platformInfo.WindowId;
 #endif
 
 #ifdef _WINDOWS

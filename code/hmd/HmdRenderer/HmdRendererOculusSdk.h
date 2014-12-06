@@ -10,12 +10,11 @@
 #include "IHmdRenderer.h"
 #include "../../renderer/qgl.h"
 
+#include <OVR_CAPI.h>
+
 // stupid OVR include bug
 #define OVR_OS_CONSOLE
-
-#include <OVR_CAPI.h>
 #include <Kernel/OVR_Math.h>
-#include <OVR_CAPI_GL.h>
 
 #include "RenderTool.h"
 
