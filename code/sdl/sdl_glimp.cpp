@@ -283,14 +283,15 @@ int GLW_SetMode(int mode, qboolean fullscreen )
     }
 
     int displayPosX = useWindowPosition ? xPos : SDL_WINDOWPOS_UNDEFINED;
-    int displayPoxY = useWindowPosition ? yPos : SDL_WINDOWPOS_UNDEFINED;
+    int displayPosY = useWindowPosition ? yPos : SDL_WINDOWPOS_UNDEFINED;
     
     #ifdef LINUX
     // fullscreen is ... ARRGG! Legacy worked better on Ubuntu Unity, but gamepad is not working with legacy :-(
     //putenv("SDL_VIDEO_X11_LEGACY_FULLSCREEN=1");
     #endif
     
-    s_pSdlWindow = SDL_CreateWindow("Jasp HMD", displayPosX, displayPoxY, actualWidth, actualHeight, windowFlags);
+    VID_Printf( PRINT_ALL, "Create Window %dx%d at %dx%d\n", actualWidth, actualHeight, displayPosX, displayPosY);
+    s_pSdlWindow = SDL_CreateWindow("Jasp HMD", displayPosX, displayPosY, actualWidth, actualHeight, windowFlags);
     
 
 	if (!s_pSdlWindow)

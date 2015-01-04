@@ -3,6 +3,9 @@
 #include "../HmdDevice/HmdDeviceOculusSdk.h"
 #include "PlatformInfo.h"
 
+// stupid OVR include bug
+#define OVR_OS_CONSOLE
+#include <Kernel/OVR_Types.h>
 #include <OVR_CAPI_GL.h>
 
 #include <math.h>
@@ -87,11 +90,21 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
         }
     }
 
+    
+    bool isRotated = false;
+#ifdef LINUX
+    int dummyW = 0;
+    int dummyH = 0;
+
+    mpDevice->GetDeviceResolution(dummyW, dummyH, isRotated);
+#endif
+    
 
     ovrGLConfig cfg;
 	memset(&cfg, 0, sizeof(cfg));
     cfg.OGL.Header.API = ovrRenderAPI_OpenGL;
-    cfg.OGL.Header.BackBufferSize = Sizei(mpHmd->Resolution.w, mpHmd->Resolution.h);
+    cfg.OGL.Header.BackBufferSize.w = !isRotated ? mpHmd->Resolution.w : mpHmd->Resolution.h;
+    cfg.OGL.Header.BackBufferSize.h = !isRotated ? mpHmd->Resolution.h : mpHmd->Resolution.w;
     cfg.OGL.Header.Multisample = 1;
 
 #ifdef LINUX
@@ -128,10 +141,6 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     }
 
 #ifdef LINUX
-    int dummyW = 0;
-    int dummyH = 0;
-    bool isRotated = false;
-    mpDevice->GetDeviceResolution(dummyW, dummyH, isRotated);
     if (isRotated)
     {
         distortionCaps |= ovrDistortionCap_LinuxDevFullscreen;
@@ -151,10 +160,16 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     qglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 
-    Sizei texSize = Sizei(mRenderWidth, mRenderHeight);
-    Sizei renderSize = Sizei(mRenderWidth, mRenderHeight);
+    ovrSizei texSize;
+    texSize.w = mRenderWidth;
+    texSize.h = mRenderHeight;
 
-    Recti renderViewport = Recti(renderSize);
+    ovrRecti renderViewport;
+    renderViewport.Pos.x = 0;
+    renderViewport.Pos.y = 0;
+    renderViewport.Size.w = mRenderWidth;
+    renderViewport.Size.h = mRenderHeight;
+    
     
     ovrGLTextureData* texData = (ovrGLTextureData*)&EyeTexture[0];
     texData->Header.API            = ovrRenderAPI_OpenGL;
@@ -249,16 +264,19 @@ void HmdRendererOculusSdk::BeginRenderingForEye(bool leftEye)
             qglBindFramebuffer(GL_FRAMEBUFFER, mFboInfos[i].Fbo);
             RenderTool::ClearFBO(mFboInfos[i]);
 
-            mCurrentOrientations[i] = Quatf(mEyePoses[i].Orientation);
-			mCurrentPosition[i] = Vector3f(mEyePoses[i].Position);
+            ovrQuatf orientation = mEyePoses[i].Orientation;
+            mCurrentOrientations[i] = glm::quat(orientation.w, orientation.x, orientation.y, orientation.z);
+            
+            ovrVector3f position = mEyePoses[i].Position;
+            mCurrentPosition[i] = glm::vec3(position.x, position.y, position.z);
         }
 
         qglBindBuffer(GL_ARRAY_BUFFER, 0);
         qglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         qglBindVertexArray(0);
         qglUseProgramObjectARB(0);
-		qglDisable(GL_FRAMEBUFFER_SRGB);
-		qglFrontFace(GL_CCW);
+        qglDisable(GL_FRAMEBUFFER_SRGB);
+        qglFrontFace(GL_CCW);
     }
 
     // bind framebuffer
@@ -400,11 +418,13 @@ void HmdRendererOculusSdk::HandleSafetyWarning()
             ovrTrackingState ts = d_ovrHmd_GetTrackingState(mpHmd, d_ovr_GetTimeInSeconds());
             if (ts.StatusFlags & ovrStatus_OrientationTracked)
             {
-                const OVR::Vector3f v(ts.RawSensorData.Accelerometer.x,
+                const glm::vec3 v(ts.RawSensorData.Accelerometer.x,
                 ts.RawSensorData.Accelerometer.y,
                 ts.RawSensorData.Accelerometer.z);
+                
+                float lengthSq = glm::length2(v);
                 // Arbitrary value and representing moderate tap on the side of the DK2 Rift.
-                if (v.LengthSq() > 250.f)
+                if (lengthSq > 250.f)
                     d_ovrHmd_DismissHSWDisplay(mpHmd);
             }
         }
@@ -433,45 +453,43 @@ bool HmdRendererOculusSdk::GetCustomViewMatrix(float* rViewMatrix, float& xPos, 
         return false;
     }
 
+    
+    // get current hmd rotation 
+    glm::quat hmdRotation = glm::inverse(mCurrentOrientations[mEyeId]);
 
     // change hmd orientation to game coordinate system
-    Matrix4f hmdRotation = Matrix4f(mCurrentOrientations[mEyeId].Inverted()) * Matrix4f::RotationX(DEG2RAD(-90.0f)) * Matrix4f::RotationZ(DEG2RAD(90));
+    glm::quat convertHmdToGame = glm::rotate(glm::quat(1.0f,0.0f,0.0f,0.0f), (float)DEG2RAD(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    convertHmdToGame = glm::rotate(convertHmdToGame, (float)DEG2RAD(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    glm::mat4 hmdRotationMat = glm::mat4_cast(hmdRotation) * glm::mat4_cast(convertHmdToGame);
+
 
     // convert body transform to matrix
-    Matrix4f bodyYawRotation = Matrix4f::RotationZ(DEG2RAD(-bodyYaw));
+    glm::mat4 bodyPosition = glm::translate(glm::mat4(1.0f), glm::vec3(-xPos, -yPos, -zPos));
+    glm::quat bodyYawRotation = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), (float)(DEG2RAD(-bodyYaw)), glm::vec3(0.0f, 0.0f, 1.0f));
 
-
-	float meterToGame = 26.2464f;// (3.2808f * 8.0f); // meter to feet * game factor 8
-	Vector3f bodyPos = Vector3f(xPos, yPos, zPos);
-	bodyPos *= -1;
-
-	Vector3f hmdPos;
-	hmdPos.x = mCurrentPosition[mEyeId].z * meterToGame;
-	hmdPos.y = mCurrentPosition[mEyeId].x * meterToGame;
-	hmdPos.z = mCurrentPosition[mEyeId].y * -meterToGame;
-	
-
-	Matrix4f bodyPosition = Matrix4f::Translation(bodyPos);
-	Matrix4f hmdPosition = Matrix4f::Translation(hmdPos);
-
-	mCurrentView = hmdRotation * hmdPosition * bodyYawRotation * bodyPosition;
-
-    // ipd is already included in eye position
     
-    // apply ipd
+    float meterToGame = 26.2464f;// (3.2808f * 8.0f); // meter to feet * game factor 8
+    glm::vec3 hmdPos;
+    hmdPos.x = mCurrentPosition[mEyeId].z * meterToGame;
+    hmdPos.y = mCurrentPosition[mEyeId].x * meterToGame;
+    hmdPos.z = mCurrentPosition[mEyeId].y * -meterToGame;
+    
+    glm::mat4 hmdPosition = glm::translate(glm::mat4(1.0f), hmdPos);    
+    
+    // create view matrix
+    glm::mat4 viewMatrix = hmdRotationMat * hmdPosition* glm::mat4_cast(bodyYawRotation) * bodyPosition;
 
-    //Vector3f viewAdjust = mEyeRenderDesc[mEyeId].HmdToEyeViewOffset;
-    //viewAdjust *= meterToGame;
-    //mCurrentView = Matrix4f::Translation(viewAdjust) * mCurrentView;
-
-    ConvertMatrix(mCurrentView, rViewMatrix);
-
-
+    
+    memcpy(rViewMatrix, &viewMatrix[0][0], sizeof(float) * 16);
+    
+    
     // add hmd offset to body pos
 
-    Matrix4f bodyYawRotationReverse = Matrix4f::RotationZ(DEG2RAD(bodyYaw));
-    Vector3f offsetPos = (bodyYawRotationReverse * Matrix4f::Translation(hmdPos)).GetTranslation();
-
+    glm::quat bodyYawRotationReverse = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), (float)(DEG2RAD(bodyYaw)), glm::vec3(0.0f, 0.0f, 1.0f));
+    glm::mat4 offsetMat = glm::mat4_cast(bodyYawRotationReverse) * hmdPosition;
+    glm::vec3 offsetPos = glm::vec3(offsetMat[3]);
+    
     /// TODO: do we need this?
     offsetPos *= -1;
 
@@ -524,7 +542,7 @@ void HmdRendererOculusSdk::DismissHealthSafetyWarning()
     mDismissHealthSafetyWarning = true;
 }
 
-void HmdRendererOculusSdk::ConvertMatrix(const Matrix4f& from, float* rTo)
+void HmdRendererOculusSdk::ConvertMatrix(const ovrMatrix4f& from, float* rTo)
 {
     rTo[0] = from.M[0][0];
     rTo[4] = from.M[0][1];

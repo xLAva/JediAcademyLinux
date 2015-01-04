@@ -12,11 +12,14 @@
 
 #include <OVR_CAPI.h>
 
-// stupid OVR include bug
-#define OVR_OS_CONSOLE
-#include <Kernel/OVR_Math.h>
-
 #include "RenderTool.h"
+
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
 
 class HmdDeviceOculusSdk;
 
@@ -47,7 +50,7 @@ public:
     void DismissHealthSafetyWarning();
 
 protected:
-    static void ConvertMatrix(const OVR::Matrix4f& from, float* rTo);
+    static void ConvertMatrix(const ovrMatrix4f& from, float* rTo);
 
 private:
     bool FrameNeedsRendering();
@@ -82,10 +85,8 @@ private:
     ovrPosef mEyePoses[2];
     ovrFrameTiming mFrameTiming;
 
-    OVR::Matrix4f mCurrentProj;
-    OVR::Matrix4f mCurrentView;
-    OVR::Quatf mCurrentOrientations[2];
-	OVR::Vector3f mCurrentPosition[2];
+    glm::quat mCurrentOrientations[2];
+    glm::vec3 mCurrentPosition[2];
 
 
 };

@@ -1,15 +1,21 @@
 #include "HmdDeviceOculusSdk.h"
 #include "../SearchForDisplay.h"
 
-#define OVR_OS_CONSOLE
-#include "Kernel/OVR_Math.h"
-#include "Kernel/OVR_Threads.h"
 
+#ifdef FORCE_STATIC_OCULUS_SDK
+#define OVR_OS_CONSOLE
+#include "Kernel/OVR_Threads.h"
+#endif
+
+#include <cstring>
 #include <string>
 #include <iostream>
 #include <cstdio>
+#include <cmath>
+#include <algorithm>
 
-using namespace OVR;
+using namespace std;
+
 
 HmdDeviceOculusSdk::HmdDeviceOculusSdk()
     :mIsInitialized(false)
@@ -229,12 +235,19 @@ bool HmdDeviceOculusSdk::GetOrientationRad(float& rPitch, float& rYaw, float& rR
     }
 
     // Query the HMD for the sensor state at a given time.
-    ovrTrackingState ss = d_ovrHmd_GetTrackingState(mpHmd, 0.0);
-    if ((ss.StatusFlags & ovrStatus_OrientationTracked))
+    ovrTrackingState ts = d_ovrHmd_GetTrackingState(mpHmd, 0.0);
+    if ((ts.StatusFlags & ovrStatus_OrientationTracked))
     {
-        OVR::Quatf orientation = OVR::Quatf(ss.HeadPose.ThePose.Orientation);
-        orientation.GetEulerAngles<Axis_Y, Axis_X, Axis_Z>(&rYaw, &rPitch, &rRoll);
-
+        ovrQuatf orientation = ts.HeadPose.ThePose.Orientation;
+        
+        float quat[4];
+        quat[0] = orientation.x;
+        quat[1] = orientation.y;
+        quat[2] = orientation.z;
+        quat[3] = orientation.w;
+        
+        ConvertQuatToEuler(&quat[0], rYaw, rPitch, rRoll);
+        
         //printf("pitch: %.2f yaw: %.2f roll: %.2f\n", rPitch, rYaw, rRoll);
 
         return true;
@@ -253,10 +266,10 @@ bool HmdDeviceOculusSdk::GetPosition(float &rX, float &rY, float &rZ)
     }
 
     // Query the HMD for the sensor state at a given time.
-    ovrTrackingState ss = d_ovrHmd_GetTrackingState(mpHmd, 0.0);
-    if ((ss.StatusFlags & ovrStatus_PositionTracked))
+    ovrTrackingState ts = d_ovrHmd_GetTrackingState(mpHmd, 0.0);
+    if ((ts.StatusFlags & ovrStatus_PositionTracked))
     {
-        OVR::Vector3f pos = OVR::Vector3f(ss.HeadPose.ThePose.Position);
+        ovrVector3f pos = ts.HeadPose.ThePose.Position;
         rX = pos.x;
         rY = pos.y;
         rZ = pos.z;
@@ -273,3 +286,52 @@ void HmdDeviceOculusSdk::Recenter()
 {
     d_ovrHmd_RecenterPose(mpHmd);
 }
+
+void HmdDeviceOculusSdk::ConvertQuatToEuler(const float* quat, float& rYaw, float& rPitch, float& rRoll)
+{
+    //https://svn.code.sf.net/p/irrlicht/code/trunk/include/quaternion.h
+    // modified to get yaw before pitch
+
+    float W = quat[3];
+    float X = quat[1];
+    float Y = quat[0];
+    float Z = quat[2];
+
+    float sqw = W*W;
+    float sqx = X*X;
+    float sqy = Y*Y;
+    float sqz = Z*Z;
+
+    float test = 2.0f * (Y*W - X*Z);
+
+    if (test > (1.0f - 0.000001f))
+    {
+        // heading = rotation about z-axis
+        rRoll = (-2.0f*atan2(X, W));
+        // bank = rotation about x-axis
+        rYaw = 0;
+        // attitude = rotation about y-axis
+        rPitch = M_PI/2.0f;
+    }
+    else if (test < (-1.0f + 0.000001f))
+    {
+        // heading = rotation about z-axis
+        rRoll = (2.0f*atan2(X, W));
+        // bank = rotation about x-axis
+        rYaw = 0;
+        // attitude = rotation about y-axis
+        rPitch = M_PI/-2.0f;
+    }
+    else
+    {
+        // heading = rotation about z-axis
+        rRoll = atan2(2.0f * (X*Y +Z*W),(sqx - sqy - sqz + sqw));
+        // bank = rotation about x-axis
+        rYaw = atan2(2.0f * (Y*Z +X*W),(-sqx - sqy + sqz + sqw));
+        // attitude = rotation about y-axis
+        test = max(test, -1.0f);
+        test = min(test, 1.0f);
+        rPitch = asin(test);
+    }
+}
+

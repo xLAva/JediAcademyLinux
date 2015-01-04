@@ -48,6 +48,8 @@ private:
     HmdDeviceOculusSdk(const HmdDeviceOculusSdk&);
     HmdDeviceOculusSdk& operator=(const HmdDeviceOculusSdk&);
 
+    void ConvertQuatToEuler(const float* quat, float& rYaw, float& rPitch, float& rRoll);
+    
     bool mIsInitialized;
     bool mUsingDebugHmd;
     bool mPositionTrackingEnabled;
