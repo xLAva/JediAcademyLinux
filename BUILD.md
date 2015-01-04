@@ -2,7 +2,7 @@ How to build the code
 =====================
 
 Checkout the code from the git repository:
-https://github.com/xLAva/JediAcademyLinux/tree/HmdSupportGPL
+https://github.com/xLAva/JediAcademyLinux/tree/HMD-DK2
 
 Checkout OpenHmd from the git repository inside the 3rdparty/OpenHmd folder (inside the JediAcademy folder structure)
 https://github.com/xLAva/OpenHmd
@@ -11,7 +11,7 @@ https://github.com/xLAva/OpenHmd
 Needed packages on Ubuntu 14.04 64bit:
 --------------------------------------
 
-sudo apt-get install cmake g++-multilib libsdl2-dev:i386 libglm-dev libhidapi-dev:i386 libopenal-dev:i386
+sudo apt-get install cmake g++-multilib libsdl2-dev:i386 libglm-dev libhidapi-dev:i386 libopenal-dev:i386 libhidapi-libusb0:i386
 
 
 Needed packages on Windows:
@@ -31,7 +31,7 @@ Start building the project:
 Create a new directory beside the repository folder.
 Call this command inside the new folder:
 
-cmake ../HmdSupportGPL/code
+cmake ../HMD-DK2/code
 
 After cmake is finished follow the last step.
 

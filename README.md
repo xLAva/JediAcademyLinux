@@ -25,11 +25,13 @@ Copy all the files from the Windows or Linux platform folder into the root direc
 
 The version was tested on Ubuntu 14.04 and Windows 7.
 
+Ubuntu: the universe repository has to be activated (Software & Updates)
+
 Needed libraries on Ubuntu 14.04 32bit:
-sudo apt-get install libhidapi-libusb0 libsdl2-2.0-0 libopenal1
+sudo apt-get install libsdl2-2.0-0 libopenal1
 
 Needed libraries on Ubuntu 14.04 64bit:
-sudo apt-get install libhidapi-libusb0:i386 libsdl2-2.0-0:i386 libopenal1:i386 libgl1-mesa-glx:i386
+sudo apt-get install libsdl2-2.0-0:i386 libopenal1:i386 libgl1-mesa-glx:i386
 
 
 Changes and new Features for the Oculus Rift:
