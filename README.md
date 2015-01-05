@@ -1,31 +1,46 @@
 Oculus Rift support for Jedi Academy
 ====================================
 
-I want to share my new project: Oculus Rift DK1 support for Jedi Academy (for Windows and Linux)
+I want to share my new project: Oculus Rift DK1 & DK2 support for Jedi Academy (for Windows and Linux)
 
-https://github.com/xLAva/JediAcademyLinux/tree/HmdSupportGPL
+https://github.com/xLAva/JediAcademyLinux/tree/HMD-DK2
 
 This project was on my mind since the source code was released last year. Finally I had some time this summer to get started.
 
 This Oculus Rift support implementation is designed for first person game play. It is possible to switch to 3rd-person view, but the best (and motion sickness free) experience is in first person mode.
 
-I haven't tested the whole game yet, but the first 7 levels are working very good.
 
+## Play the game
 
-Play the game
--------------
+### Binary:
 
 There are binaries for Linux and Windows checked into the Github repository, so if you want to just play the Oculus Rift version, download the binary files and start playing right away.
 
-https://github.com/xLAva/JediAcademyLinux/tree/HmdSupportGPL/binary/win32
+https://github.com/xLAva/JediAcademyLinux/tree/HMD-DK2/binary/win32
 
-https://github.com/xLAva/JediAcademyLinux/tree/HmdSupportGPL/binary/linux
+https://github.com/xLAva/JediAcademyLinux/tree/HMD-DK2/binary/linux_i386
 
 Copy all the files from the Windows or Linux platform folder into the root directory of your "Jedi Knight III: Jedi Academy" installation and start the "jasphmd" executable.
 
+
+### Additional Asset File (optional):
+
+The additional asset file just contains a new default config with the gamepad already setup (including hmd recenter using the start button). 
+Also a small translation string was added for the resolution selection (not needed in HMD mode).
+The game runs fine without this asset file.
+
+If you want to use it, download the additional asset file and place it on your "base" folder of the "Jedi Knight III: Jedi Academy" insallation folder.
+
+https://github.com/xLAva/JediAcademyLinux/tree/HMD-DK2/binary/base/assets4.pk3
+
+
+### Platform Specific:
+
 The version was tested on Ubuntu 14.04 and Windows 7.
 
-Ubuntu: the universe repository has to be activated (Software & Updates)
+#### Ubuntu: 
+
+The universe repository has to be activated (Software & Updates)
 
 Needed libraries on Ubuntu 14.04 32bit:
 sudo apt-get install libsdl2-2.0-0 libopenal1
@@ -34,8 +49,7 @@ Needed libraries on Ubuntu 14.04 64bit:
 sudo apt-get install libsdl2-2.0-0:i386 libopenal1:i386 libgl1-mesa-glx:i386
 
 
-Changes and new Features for the Oculus Rift:
----------------------------------------------
+## Changes and new Features for the Oculus Rift:
 
 * Free look during in-game cut scenes
 * Removed all forced camera rotations and a lot of camera movements
@@ -45,18 +59,17 @@ Changes and new Features for the Oculus Rift:
 * Resized UI rendering
 
 
-Build the game
---------------
+## Build the game
 
 This time around I used cmake instead of Code::Blocks. It is configured to work on Linux and Windows. If you want to build the code yourself, just follow the instructions in Build.md.
 
 
-More information
-----------------
+## More information
 
-Because of the license issues with the original Oculus Rift SDK, I used the OpenHMD library. It works pretty good, but the original SDK has more high level features. I might experiment with the alternative solution to run the Oculus Rift SDK in a separate process.
+For the DK2 support I had to use the OculusSDK. The OpenHMD library just doesn't support all the features. It is still possible to build the game with OpenHMD support. Just follow the instructions in the Build.md file.
+The OculusSDK library is loaded during runtime and the game also works fine without the library. 
 
-There are some hacks inside the code to improve the Oculus Rift experience, which also affects the normal gameplay without a connected HMD device. I plan to replace all hacks with a proper implementation and merge the Oculus Rift changes with the original port.
+This version can also be played without any HMD device. All HMD tweaks will be disabled and the game should behave like the original version.
 
 Before I started this project, I had a look at the rift support implementation from LeeN (mtbs3d forum). This helped me to get started. Thx LeeN.
 

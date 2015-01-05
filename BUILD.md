@@ -4,8 +4,17 @@ How to build the code
 Checkout the code from the git repository:
 https://github.com/xLAva/JediAcademyLinux/tree/HMD-DK2
 
-Checkout OpenHmd from the git repository inside the 3rdparty/OpenHmd folder (inside the JediAcademy folder structure)
+Checkout OpenHmd from my git repository into the 3rdparty/OpenHmd folder (inside the JediAcademy folder structure)
 https://github.com/xLAva/OpenHmd
+
+Checkout OculusSDK from my git repository into the 3rdparty/OculusSDK folder (inside the JediAcademy folder structure)
+This folder contains 
+* all OculusSDK platform files merged together
+* prebuild binaries 
+* dynamic lib versions (based on https://www.jspenguin.org/software/ovrsdk/ - thx Jared Stafford)
+
+https://github.com/xLAva/OculusSDK
+
 
 
 Needed packages on Ubuntu 14.04 64bit:
@@ -41,3 +50,5 @@ make
 On Windows: 
 Open the VisualStudio solution and build the project
 
+On Mac:
+... sorry. Mac is not supported at the moment.
