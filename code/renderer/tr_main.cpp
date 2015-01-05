@@ -398,7 +398,7 @@ void R_RotateForViewer (void)
 	VectorCopy( tr.viewParms.or.origin, origin );
 
     bool rMatrixCreated = false;
-    ViewParamsHmdUtility::UpdateRenderParams(&tr, rMatrixCreated);
+    ViewParamsHmdUtility::UpdateRenderParams(&tr, isskyboxportal, rMatrixCreated);
 
     // check if the renderer handled the view matrix creation
     if (rMatrixCreated)
@@ -1013,6 +1013,7 @@ qboolean R_MirrorViewBySurface (drawSurf_t *drawSurf, int entityNum) {
 	viewParms_t		oldParms;
 	orientation_t	surface, camera;
 
+	
 	// don't recursively mirror
 	if (tr.viewParms.isPortal) 
 	{

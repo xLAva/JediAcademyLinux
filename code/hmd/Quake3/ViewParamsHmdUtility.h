@@ -4,5 +4,5 @@
 class ViewParamsHmdUtility
 {
 public:
-    static void UpdateRenderParams(trGlobals_t *trRef, bool &rViewMatrixCreated);
+    static void UpdateRenderParams(trGlobals_t *trRef, bool drawskyboxportal, bool &rViewMatrixCreated);
 };

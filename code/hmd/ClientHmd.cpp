@@ -97,7 +97,7 @@ void ClientHmd::UpdateGame()
         return;
     }
 
-    float angles[3];
+    float angles[4];
 
     bool worked = GetOrientation(angles[0], angles[1], angles[2]);
 
@@ -108,7 +108,7 @@ void ClientHmd::UpdateGame()
 
     //printf("pitch: %.2f yaw: %.2f roll: %.2f\n", pitch, yaw, roll);
 
-    angles[1] += mViewangleDiff;
+    angles[3] = mViewangleDiff;
 
     float position[3];
     bool usePosition = false; //GetPosition(position[0], position[1], position[2]);

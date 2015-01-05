@@ -28,6 +28,7 @@ int			r_numpolyverts;
 
 int			skyboxportal;
 int			drawskyboxportal;
+int			isskyboxportal;
 
 /*
 ====================
@@ -298,11 +299,13 @@ void RE_RenderScene( const refdef_t *fd ) {
 	if (fd->rdflags & RDF_SKYBOXPORTAL)
 	{
 		skyboxportal = 1;
+		isskyboxportal = 1;
 	}
 	else
 	{
 		// cdr - only change last time for the real render, not the portal
 		lastTime = fd->time;
+		isskyboxportal = 0;
 	}
 
 	if (fd->rdflags & RDF_DRAWSKYBOX)
@@ -400,7 +403,11 @@ void RE_RenderScene( const refdef_t *fd ) {
         pHmdRenderer->BeginRenderingForEye(leftEye);
         
         // calculate body yaw
-        parms.bodyYaw = ClientHmd::Get()->GetYawDiff() + tr.refdef.delta_yaw;        
+        parms.bodyYaw = tr.refdef.delta_yaw;
+        if (!fd->cameraControlled)
+        {
+            parms.bodyYaw += ClientHmd::Get()->GetYawDiff();
+        }
     }    
     
     

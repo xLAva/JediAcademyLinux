@@ -1318,13 +1318,14 @@ void CGCam_Update( void )
 
     if (cg_useHmd.integer)
     {
-        cg.refdefViewAngles[0] = cg.predicted_player_state.viewangles[0];
-        cg.refdefViewAngles[1] += cg.predicted_player_state.viewangles[1];
-        cg.refdefViewAngles[2] = cg.predicted_player_state.viewangles[2];
-    
-        
+        // reset roll and pitch angles to the start values
+        // they should be overwritten by the hmd device anyway
+        cg.refdefViewAngles[ROLL] = cg.predicted_player_state.viewangles[ROLL];
+        cg.refdefViewAngles[PITCH] = cg.predicted_player_state.viewangles[PITCH];
+
         VectorCopy(cg.refdefViewAngles, cg.refdefViewAnglesWeapon);
-    
+
+        // save the camera controlled yaw angle part in delta_yaw
         cg.refdef.delta_yaw = cg.refdefViewAngles[YAW];
         
         float pitch, yaw, roll;

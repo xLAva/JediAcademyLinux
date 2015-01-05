@@ -6,6 +6,7 @@
 // stupid OVR include bug
 #define OVR_OS_CONSOLE
 #include <Kernel/OVR_Types.h>
+#include <Kernel/OVR_Math.h>
 #include <OVR_CAPI_GL.h>
 
 #include <math.h>
@@ -445,7 +446,7 @@ bool HmdRendererOculusSdk::GetCustomProjectionMatrix(float* rProjectionMatrix, f
     return true;
 }
 
-bool HmdRendererOculusSdk::GetCustomViewMatrix(float* rViewMatrix, float& xPos, float& yPos, float& zPos, float bodyYaw)
+bool HmdRendererOculusSdk::GetCustomViewMatrix(float* rViewMatrix, float& xPos, float& yPos, float& zPos, float bodyYaw, bool noPosition)
 {
 
     if (!mIsInitialized)
@@ -478,17 +479,36 @@ bool HmdRendererOculusSdk::GetCustomViewMatrix(float* rViewMatrix, float& xPos, 
     glm::mat4 hmdPosition = glm::translate(glm::mat4(1.0f), hmdPos);    
     
     // create view matrix
-    glm::mat4 viewMatrix = hmdRotationMat * hmdPosition* glm::mat4_cast(bodyYawRotation) * bodyPosition;
+    glm::mat4 viewMatrix;
+    if (noPosition)
+    {
+        viewMatrix = hmdRotationMat * glm::mat4_cast(bodyYawRotation) * bodyPosition;
+    }
+    else
+    {
+        viewMatrix = hmdRotationMat * hmdPosition* glm::mat4_cast(bodyYawRotation) * bodyPosition;
+    }
+
 
     
     memcpy(rViewMatrix, &viewMatrix[0][0], sizeof(float) * 16);
     
+    
+    if (noPosition)
+    {
+        return true;
+    }
     
     // add hmd offset to body pos
 
     glm::quat bodyYawRotationReverse = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), (float)(DEG2RAD(bodyYaw)), glm::vec3(0.0f, 0.0f, 1.0f));
     glm::mat4 offsetMat = glm::mat4_cast(bodyYawRotationReverse) * hmdPosition;
     glm::vec3 offsetPos = glm::vec3(offsetMat[3]);
+    
+    //Vector3f hmdPos2 = Vector3f(hmdPos.x, hmdPos.y, hmdPos.z);
+    
+    //Matrix4f bodyYawRotationReverse = Matrix4f::RotationZ(DEG2RAD(bodyYaw));
+    //Vector3f offsetPos = (bodyYawRotationReverse * Matrix4f::Translation(hmdPos2)).GetTranslation();
     
     /// TODO: do we need this?
     offsetPos *= -1;

@@ -23,6 +23,7 @@ public:
 
     bool GetOrientation(float& pitch, float& yaw, float& roll);
     bool GetPosition(float& rX, float& rY, float& rZ);
+    float GetInputYaw();
 
 private:
 
@@ -36,6 +37,7 @@ private:
     float mPitch;
     float mYaw;
     float mRoll;
+    float mInputYaw;
 
     float mX;
     float mY;

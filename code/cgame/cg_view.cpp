@@ -1793,9 +1793,11 @@ static qboolean CG_CalcViewValues( void ) {
     float pitch, yaw, roll;
     if (GameHmd::Get()->GetOrientation(pitch, yaw, roll))
     {	
+        float inputYaw = GameHmd::Get()->GetInputYaw();
+        
         cg.refdefViewAngles[ROLL] = roll;
         cg.refdefViewAngles[PITCH] = pitch;
-        cg.refdefViewAngles[YAW] = yaw + SHORT2ANGLE(ps->delta_angles[YAW]);
+        cg.refdefViewAngles[YAW] = yaw + inputYaw + SHORT2ANGLE(ps->delta_angles[YAW]);
     }
 
 	float x, y, z;
@@ -2256,9 +2258,11 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView ) {
 		cg.renderingThirdPerson = qfalse;
 	}
 
+	cg.refdef.cameraControlled = false;
 	if ( in_camera )
 	{
 		// The camera takes over the view
+		cg.refdef.cameraControlled = true;
 		CGCam_RenderScene();
 	}
 	else

@@ -64,6 +64,7 @@
 
 extern int	skyboxportal;
 extern int	drawskyboxportal;
+extern int	isskyboxportal;
 
 typedef byte color4ub_t[4];
 
@@ -178,8 +179,9 @@ typedef struct {
 
 	// 1 bits will prevent the associated area from rendering at all
 	byte		areamask[MAX_MAP_AREA_BYTES];
-	stereoFrame_t stereoFrame;
-    float       delta_yaw;
+	stereoFrame_t	stereoFrame;
+	float			delta_yaw;
+	int				cameraControlled;
 
 	// text messages for deform text shaders
 //	char		text[MAX_RENDER_STRINGS][MAX_RENDER_STRING_LENGTH];

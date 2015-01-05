@@ -3,7 +3,7 @@
 #include "../ClientHmd.h"
 #include "../HmdRenderer/IHmdRenderer.h"
 
-void ViewParamsHmdUtility::UpdateRenderParams(trGlobals_t* trRef, bool &rViewMatrixCreated)
+void ViewParamsHmdUtility::UpdateRenderParams(trGlobals_t* trRef, bool isSkyBoxPortal, bool &rViewMatrixCreated)
 {
     rViewMatrixCreated = false;
 
@@ -20,11 +20,13 @@ void ViewParamsHmdUtility::UpdateRenderParams(trGlobals_t* trRef, bool &rViewMat
                 origin[0],
                 origin[1],
                 origin[2],
-                trRef->viewParms.bodyYaw);
+                trRef->viewParms.bodyYaw, isSkyBoxPortal);
 
         if (matrixCreated)
         {
             VectorCopy(origin, trRef->viewParms.or.origin);
+            VectorCopy(origin, trRef->viewParms.or.viewOrigin);
+            VectorCopy(origin, trRef->viewParms.pvsOrigin);
         }
 
         rViewMatrixCreated = matrixCreated;
