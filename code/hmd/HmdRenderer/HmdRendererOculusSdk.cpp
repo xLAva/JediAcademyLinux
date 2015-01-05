@@ -439,8 +439,22 @@ bool HmdRendererOculusSdk::GetCustomProjectionMatrix(float* rProjectionMatrix, f
         return false;
     }
 
-    //float fovRad = DEG2RAD(fov);
-    ovrMatrix4f projMatrix = d_ovrMatrix4f_Projection(mEyeRenderDesc[mEyeId].Fov, zNear, zFar, true);
+    ovrFovPort fovPort = mEyeRenderDesc[mEyeId].Fov;
+    
+    // ugly hardcoded default value
+    if (fov < 124)
+    {
+        // something needs zooming
+        float fovRad = DEG2RAD(fov);
+        float tanVal = tanf(fovRad * 0.5f);
+        fovPort.DownTan = tanVal;
+        fovPort.LeftTan = tanVal;
+        fovPort.RightTan = tanVal;
+        fovPort.UpTan = tanVal;
+    }
+    
+
+    ovrMatrix4f projMatrix = d_ovrMatrix4f_Projection(fovPort, zNear, zFar, true);
     ConvertMatrix(projMatrix, rProjectionMatrix);
 
     return true;
