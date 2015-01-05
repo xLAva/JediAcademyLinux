@@ -4190,7 +4190,7 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 	// draw 3D view
 
     // in hmd mode the crosshair is drawn in 3d instead of 2d space
-    if (cg_useHmd.integer)
+    if (cg_useHmd.integer && !in_camera)
     {
         CG_DrawCrosshairNames();
     }
