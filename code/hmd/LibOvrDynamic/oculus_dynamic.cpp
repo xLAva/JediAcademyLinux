@@ -9,6 +9,7 @@
 #endif
 #include "oculus_dynamic.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 void *oculus_library_handle;
 

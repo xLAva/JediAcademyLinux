@@ -11,6 +11,7 @@
 
 #include <math.h>
 #include <iostream>
+#include <algorithm>
 
 
 using namespace OVR;
@@ -150,7 +151,7 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     
 
     bool worked = d_ovrHmd_ConfigureRendering(mpHmd, &cfg.Config, distortionCaps, eyeFov, mEyeRenderDesc);
-	qglUseProgramObjectARB(0);
+    qglUseProgramObjectARB(0);
     if (!worked)
     {
         return false;

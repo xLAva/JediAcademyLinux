@@ -14,6 +14,11 @@
 #include <cmath>
 #include <algorithm>
 
+#ifdef _WINDOWS
+#define _USE_MATH_DEFINES
+#include <math.h>
+#endif
+
 using namespace std;
 
 
