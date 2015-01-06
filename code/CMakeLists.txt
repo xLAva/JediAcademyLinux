@@ -12,7 +12,7 @@ cmake_minimum_required(VERSION 2.6)
 
 project(jk3)
 
-set(USE_OCULUS_SDK 0)
+set(USE_OCULUS_SDK 1)
 set(USE_OPENHMD 1)
 set(HMD_ALLOW_DUMMY_DEVICE 0)
 set(HMD_SIM_MOUSE 0)
@@ -678,9 +678,9 @@ if(USE_OCULUS_SDK)
     )
 
     set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DUSE_OVR")
-    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK_0.3.2.p2/LibOVR/Src")
+    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/LibOVR/Src")
 
-    set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK_0.3.2.p2/LibOVR/Lib/Linux/Debug/i386/libovr.a)
+    set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/LibOVR/Lib/Linux/Debug/i386/libovr.a)
     set(EXTRA_LIBS ${EXTRA_LIBS} udev)
     set(EXTRA_LIBS ${EXTRA_LIBS} Xinerama)
 
