@@ -82,3 +82,9 @@ void HmdDeviceMouse::GetOrientationDeg(float& rPitch, float& rYaw, float& rRoll)
     rYaw = mYaw;
     rRoll = mRoll;
 }
+
+
+bool HmdDeviceMouse::GetPosition(float &rX, float &rY, float &rZ)
+{
+    return false;
+}

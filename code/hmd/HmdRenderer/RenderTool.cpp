@@ -100,12 +100,17 @@ void RenderTool::DrawFbos(FrameBufferInfo* pFbos, int fboCount, int windowWidth,
         -1.f,-1.f, 0.f, 0.f,
     };
 
+    if (windowHeight > windowWidth)
+    {
+        // display is rotated
+        qglRotatef(90, 0, 0, 1);
+    }
+
     if (fboCount == 1)
     {
         qglScalef(2.0f, 1.0f, 1.0f);
         qglTranslatef(0.5f, 0.f, 0.f);
     }
-
 
     qglBindTexture(GL_TEXTURE_2D, pFbos[0].ColorBuffer);
     qglColor4ub(255,255,255,255);

@@ -54,6 +54,8 @@ SDL_Window*   s_pSdlWindow = NULL;
 SDL_Renderer* s_pSdlRenderer = NULL;
 SDL_GLContext sGlContext = NULL;
 
+int s_windowWidth = 0;
+int s_windowHeight = 0;
 
 static qboolean        mouse_avail;
 static int   mx, my;
@@ -177,11 +179,15 @@ int GLW_SetMode(int mode, qboolean fullscreen )
         {
             int deviceWidth = 0;
             int deviceHeight = 0;
-            pHmdDevice->GetDeviceResolution(deviceWidth, deviceHeight);            
+            bool isRotated = false;
+            pHmdDevice->GetDeviceResolution(deviceWidth, deviceHeight, isRotated);
             
             fixedDeviceResolution = true;
-            actualWidth = deviceWidth;
-            actualHeight = deviceHeight;
+            actualWidth = isRotated ? deviceHeight : deviceWidth;
+            actualHeight = isRotated ? deviceWidth : deviceHeight;
+
+            s_windowWidth = actualWidth;
+            s_windowHeight = actualHeight;
             
             glConfig.vidWidth = deviceWidth / 2;
             glConfig.vidHeight = deviceHeight;
@@ -843,9 +849,9 @@ static void GLW_InitExtensions( void )
         // try to initialize hmd renderer
         
         PlatformInfo platformInfo;
-        platformInfo.WindowWidth = glConfig.vidWidth*2;
-        platformInfo.WindowHeight = glConfig.vidHeight;
-		
+        platformInfo.WindowWidth = s_windowWidth;
+        platformInfo.WindowHeight = s_windowHeight;
+
         SDL_SysWMinfo sysInfo;
         SDL_VERSION(&sysInfo.version); // initialize info structure with SDL version info
         SDL_GetWindowWMInfo(s_pSdlWindow, &sysInfo);
@@ -864,7 +870,7 @@ static void GLW_InitExtensions( void )
 			platformInfo.DC = NULL;// GetDC(sysInfo.info.win.window);
 		}
 #endif
-		bool worked = pHmdRenderer->Init(glConfig.vidWidth*2.0, glConfig.vidHeight, platformInfo);
+        bool worked = pHmdRenderer->Init(s_windowWidth, s_windowHeight, platformInfo);
         if (worked)
         {  
             pHmdRenderer->GetRenderResolution(glConfig.vidWidth, glConfig.vidHeight);

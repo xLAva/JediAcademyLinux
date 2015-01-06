@@ -21,11 +21,13 @@ HmdDeviceOpenHmd::HmdDeviceOpenHmd()
     :mIsInitialized(false)
     ,mpCtx(NULL)
     ,mpHmd(NULL)
+    ,mDeviceType(DEVICE_GENERIC)
     ,mDisplayWidth(0)
     ,mDisplayHeight(0)
     ,mDisplayId(-1)
     ,mDisplayX(0)
     ,mDisplayY(0)
+    ,mDisplayIsRotated(false)
 {
 
 }
@@ -95,6 +97,22 @@ bool HmdDeviceOpenHmd::Init(bool allowDummyDevice)
     ohmd_device_geti(mpHmd, OHMD_SCREEN_HORIZONTAL_RESOLUTION, &mDisplayWidth);
     ohmd_device_geti(mpHmd, OHMD_SCREEN_VERTICAL_RESOLUTION, &mDisplayHeight);
 
+
+    if (strcmp(vendorName, "Oculus VR, Inc.") == 0)
+    {
+        if (strcmp(productName, "Rift (Devkit)") == 0)
+        {
+            if (mDisplayWidth == 1920 && mDisplayHeight == 1080)
+            {
+                mDeviceType = DEVICE_OCULUSRIFT_DK2;
+            }
+            else
+            {
+                mDeviceType = DEVICE_OCULUSRIFT_DK1;
+            }
+        }
+    }
+
     DetectDisplay();
 
     mIsInitialized = true;
@@ -115,6 +133,7 @@ void HmdDeviceOpenHmd::Shutdown()
 
     ohmd_ctx_destroy(mpCtx);
     mpCtx = NULL;
+    mDisplayIsRotated = false;
 }
 
 string HmdDeviceOpenHmd::GetInfo()
@@ -149,7 +168,7 @@ bool HmdDeviceOpenHmd::GetDisplayPos(int& rX, int& rY)
     return true;
 }
 
-bool HmdDeviceOpenHmd::GetDeviceResolution(int& rWidth, int& rHeight)
+bool HmdDeviceOpenHmd::GetDeviceResolution(int& rWidth, int& rHeight, bool &rIsRotated)
 {
     if (!mIsInitialized || mDisplayWidth <= 0)
     {
@@ -159,6 +178,7 @@ bool HmdDeviceOpenHmd::GetDeviceResolution(int& rWidth, int& rHeight)
 
     rWidth = mDisplayWidth;
     rHeight = mDisplayHeight;
+    rIsRotated = mDisplayIsRotated;
 
     return true;
 }
@@ -238,11 +258,20 @@ void HmdDeviceOpenHmd::DetectDisplay()
 
     // if no display is found the rift has to be the main monitor
 
+    int fallbackW = 1280;
+    int fallbackH = 800;
+
+    if (mDeviceType == DEVICE_OCULUSRIFT_DK2)
+    {
+        fallbackW = 1080;
+        fallbackH = 1920;
+    }
+
     int displayCount = SDL_GetNumVideoDisplays();
     for (int i=0; i<displayCount; i++)
     {
         const char* displayName = SDL_GetDisplayName(i);
-        if (strcmp(displayName, "Rift DK 7\"") == 0 ||
+        if (strcmp(displayName, "Rift DK 7\"") == 0 || 
             strcmp(displayName, "Rift DK2 6\"") == 0)
         {
             mDisplayId = i;
@@ -252,11 +281,14 @@ void HmdDeviceOpenHmd::DetectDisplay()
 
         SDL_Rect r;
         int ret = SDL_GetDisplayBounds(i, &r);
-        if (ret == 0 && (r.w == 1280 && r.h == 800 || r.w == 1080 && r.h == 1920))
+        if (ret == 0)
         {
-            // this is a fallback, if the display name is not correct
-            mDisplayId = i;
-            mDisplayDeviceName = displayName;
+            if (r.w == fallbackW && r.h == fallbackH)
+            {
+                // this is a fallback, if the display name is not correct
+                mDisplayId = i;
+                mDisplayDeviceName = displayName;
+            }
         }
         else if (ret != 0)
         {
@@ -278,10 +310,24 @@ void HmdDeviceOpenHmd::DetectDisplay()
             mDisplayX = r.x;
             mDisplayY = r.y;
 
+            // this code only works on Linux for now
+            #ifdef LINUX
+            if (mDisplayWidth == r.h)
+            {
+                mDisplayIsRotated = true;
+            }
+            #endif
+
             //printf("display x=%d y=%d\n", r.x, r.y);
             //flush(std::cout);
         }
     }
 
 #endif
+}
+
+
+bool HmdDeviceOpenHmd::GetPosition(float &rX, float &rY, float &rZ)
+{
+    return false;
 }

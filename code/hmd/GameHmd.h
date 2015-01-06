@@ -18,8 +18,11 @@ public:
 
 
     bool IsInitialized() { return mIsInitialized; }
-    void UpdateHmd(float* pitch, float* yaw, float* roll);
+    void UpdateHmd(float angles[3]);
+    void UpdateHmd(float angles[3], float position[3]);
+
     bool GetOrientation(float& pitch, float& yaw, float& roll);
+    bool GetPosition(float& rX, float& rY, float& rZ);
 
 private:
 
@@ -28,10 +31,15 @@ private:
     GameHmd& operator=(const GameHmd&);
 
     bool mIsInitialized;
+    bool mUsePositionTracking;
 
     float mPitch;
     float mYaw;
     float mRoll;
+
+    float mX;
+    float mY;
+    float mZ;
 
     static GameHmd* sGameHmd;
 

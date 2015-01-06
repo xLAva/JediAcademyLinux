@@ -14,6 +14,13 @@ class HmdDeviceOpenHmd : public IHmdDevice
 {
 public:
 
+    enum DeviceType
+    {
+        DEVICE_GENERIC,
+        DEVICE_OCULUSRIFT_DK1,
+        DEVICE_OCULUSRIFT_DK2
+    };
+
     HmdDeviceOpenHmd();
     virtual ~HmdDeviceOpenHmd();
 
@@ -21,15 +28,18 @@ public:
     virtual void Shutdown();
 
     virtual std::string GetInfo();
+    DeviceType GetDeviceType() { return mDeviceType; }
 
     virtual bool HasDisplay();
     virtual std::string GetDisplayDeviceName();
     virtual bool GetDisplayPos(int& rX, int& rY);
 
-    virtual bool GetDeviceResolution(int& rWidth, int& rHeight);
+    virtual bool GetDeviceResolution(int& rWidth, int& rHeight, bool& rIsRotated);
     virtual bool GetOrientationRad(float& rPitch, float& rYaw, float& rRoll);
+    virtual bool GetPosition(float& rX, float& rY, float& rZ);
 
     ohmd_device* GetHmd() { return mpHmd; }
+    bool IsDisplayRotated() { return mDisplayIsRotated; }
 
 protected:
     void ConvertQuatToEuler(const float* quat, float& rYaw, float& rPitch, float& rRoll);
@@ -45,6 +55,8 @@ private:
     ohmd_device* mpHmd;
 
     std::string mInfo;
+    DeviceType mDeviceType;
+
     int mDisplayWidth;
     int mDisplayHeight;
 
@@ -52,6 +64,9 @@ private:
     int mDisplayX;
     int mDisplayY;
     std::string mDisplayDeviceName;
+
+    bool mDisplayIsRotated;
+
 };
 
 #endif

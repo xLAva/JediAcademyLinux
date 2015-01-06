@@ -27,6 +27,7 @@ public:
 
     virtual bool GetDeviceResolution(int& rWidth, int& rHeight);
     virtual bool GetOrientationRad(float& rPitch, float& rYaw, float& rRoll);
+    virtual bool GetPosition(float& rX, float& rY, float& rZ);
 
     void SetOrientationDeg(float pitch, float yaw, float roll);
     void GetOrientationDeg(float& rPitch, float& rYaw, float& rRoll);

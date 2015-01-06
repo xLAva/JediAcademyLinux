@@ -58,6 +58,9 @@ private:
     ohmd_device* mpHmd;
 
     float mInterpupillaryDistance;
+
+    float mGuiScale;
+    float mGuiOffsetFactorX;
 };
 
 #endif

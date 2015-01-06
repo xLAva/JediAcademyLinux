@@ -22,6 +22,7 @@ public:
     void UpdateInputView(float yawDiff, float& rPitch, float& rYaw, float& rRoll);
     void UpdateGame();
     bool GetOrientation(float& rPitch, float& rYaw, float& rRoll);
+    bool GetPosition(float& rX, float& rY, float& rZ);
 
     IHmdDevice* GetDevice() { return mpDevice; }
     void SetDevice(IHmdDevice* pDevice) { mpDevice = pDevice; }

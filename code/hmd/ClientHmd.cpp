@@ -89,11 +89,9 @@ void ClientHmd::UpdateGame()
         return;
     }
 
-    float pitch = 0;
-    float yaw = 0;
-    float roll = 0;
+    float angles[3];
 
-    bool worked = GetOrientation(pitch, yaw, roll);
+    bool worked = GetOrientation(angles[0], angles[1], angles[2]);
 
     if (!worked)
     {
@@ -102,9 +100,18 @@ void ClientHmd::UpdateGame()
 
     //printf("pitch: %.2f yaw: %.2f roll: %.2f\n", pitch, yaw, roll);
 
-    yaw += mViewangleDiff;
+    angles[1] += mViewangleDiff;
 
-    VM_Call(CG_HMD_UPDATE, &pitch, &yaw, &roll);
+    float position[3];
+    bool usePosition = GetPosition(position[0], position[1], position[2]);
+    if (usePosition)
+    {
+        VM_Call(CG_HMD_UPDATE_ROT_POS, &angles[0], &position[0]);
+    }
+    else
+    {
+        VM_Call(CG_HMD_UPDATE_ROT, &angles[0]);
+    }
 }
 
 
@@ -124,6 +131,22 @@ bool ClientHmd::GetOrientation(float& rPitch, float& rYaw, float& rRoll)
     rPitch = RAD2DEG(-rPitch);
     rYaw = RAD2DEG(rYaw);
     rRoll = RAD2DEG(-rRoll);
+
+    return true;
+}
+
+bool ClientHmd::GetPosition(float& rX, float& rY, float& rZ)
+{
+    if (mpDevice == NULL)
+    {
+        return false;
+    }
+
+    bool worked = mpDevice->GetPosition(rX, rY, rZ);
+    if (!worked)
+    {
+        return false;
+    }
 
     return true;
 }

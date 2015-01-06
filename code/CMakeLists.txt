@@ -728,13 +728,13 @@ if(USE_OPENHMD)
     endif()
 
 
-	if(UNIX)
-		set(EXTRA_LIBS ${EXTRA_LIBS} hidapi-libusb)
-	else()
-		add_library(imp_hidapi STATIC IMPORTED)
-		set_property(TARGET imp_hidapi PROPERTY IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/hidapi-0.7.0/windows/Release/hidapi.lib")
-		set(EXTRA_LIBS ${EXTRA_LIBS} imp_hidapi)
-	endif()
+    if(UNIX)
+            set(EXTRA_LIBS ${EXTRA_LIBS} hidapi-libusb)
+    else()
+            add_library(imp_hidapi STATIC IMPORTED)
+            set_property(TARGET imp_hidapi PROPERTY IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/hidapi-0.7.0/windows/Release/hidapi.lib")
+            set(EXTRA_LIBS ${EXTRA_LIBS} imp_hidapi)
+    endif()
 endif()
 
 if(HMD_ALLOW_DUMMY_DEVICE)
@@ -802,7 +802,7 @@ if(USE_SDL2)
 
     set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DUSE_SDL2")
 
-	if(WIN32)
+        if(WIN32)
         # windows sdl
 
 		set(SSF_WIN32 ${SSF_WIN32}
