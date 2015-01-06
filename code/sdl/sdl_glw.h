@@ -5,7 +5,7 @@
 
 typedef struct
 {
-    bool OpenGLLib; // instance of OpenGL library
+	bool OpenGLLib; // instance of OpenGL library
 
 	FILE *log_fp;
 	

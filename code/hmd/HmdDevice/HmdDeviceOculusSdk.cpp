@@ -130,24 +130,24 @@ bool HmdDeviceOculusSdk::Init(bool allowDummyDevice)
     
 
 #ifdef LINUX
-	// use the display name to get the rotation information
-
-	std::string displayName = mpHmd->DisplayDeviceName;
-
-	// at least on Linux the provided display name is not the same as the SDL2 display name
-	// hardcode the correct names for DK1 and DK2
-	switch (mpHmd->Type)
-	{
-	case ovrHmd_DK1:
-		displayName = "Rift DK 7\"";
-		break;
-	case ovrHmd_DK2:
-		displayName = "Rift DK2 6\"";
-		break;
-	}
-
-	// we only need the rotation information
-	SearchForDisplay::DisplayInfo rInfo;
+    // use the display name to get the rotation information
+    
+    std::string displayName = mpHmd->DisplayDeviceName;
+    
+    // at least on Linux the provided display name is not the same as the SDL2 display name
+    // hardcode the correct names for DK1 and DK2
+    switch (mpHmd->Type)
+    {
+    case ovrHmd_DK1:
+        displayName = "Rift DK 7\"";
+        break;
+    case ovrHmd_DK2:
+        displayName = "Rift DK2 6\"";
+        break;
+    }
+    
+    // we only need the rotation information
+    SearchForDisplay::DisplayInfo rInfo;
 
     bool worked = SearchForDisplay::GetDisplayPosition(displayName, mpHmd->Resolution.w, mpHmd->Resolution.h, rInfo);
     if (worked)

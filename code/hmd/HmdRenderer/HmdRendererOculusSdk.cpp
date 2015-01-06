@@ -26,8 +26,8 @@ HmdRendererOculusSdk::HmdRendererOculusSdk(HmdDeviceOculusSdk* pHmdDeviceOculusS
     ,mWindowHeight(0)
     ,mRenderWidth(0)
     ,mRenderHeight(0)
-	,mGuiScale(1.0f)
-	,mGuiOffsetFactorX(0)
+    ,mGuiScale(1.0f)
+    ,mGuiOffsetFactorX(0)
     ,mDismissHealthSafetyWarning(false)
     ,mpDevice(pHmdDeviceOculusSdk)
     ,mpHmd(NULL)
@@ -57,26 +57,26 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     mRenderWidth = mpHmd->Resolution.w/2;
     mRenderHeight = mpHmd->Resolution.h;
     
-	if (mpHmd->Type == ovrHmd_DK1)
-	{
-		mGuiScale = 0.3f;
-		mGuiOffsetFactorX = 5.0f;
-	}
-	else if (mpHmd->Type == ovrHmd_DK2)
-	{
-		mGuiScale = 0.50f;
-		mGuiOffsetFactorX = 0;
-	}
-
-	if (mpHmd->Type == ovrHmd_DK1)
-	{
-		// Configure Stereo settings.
+    if (mpHmd->Type == ovrHmd_DK1)
+    {
+        mGuiScale = 0.3f;
+        mGuiOffsetFactorX = 5.0f;
+    }
+    else if (mpHmd->Type == ovrHmd_DK2)
+    {
+        mGuiScale = 0.50f;
+        mGuiOffsetFactorX = 0;
+    }
+    
+    if (mpHmd->Type == ovrHmd_DK1)
+    {
+        // Configure Stereo settings.
         ovrSizei recommenedTex0Size = d_ovrHmd_GetFovTextureSize(mpHmd, ovrEye_Left, mpHmd->DefaultEyeFov[0], 1.0f);
         ovrSizei recommenedTex1Size = d_ovrHmd_GetFovTextureSize(mpHmd, ovrEye_Right, mpHmd->DefaultEyeFov[1], 1.0f);
-
-		mRenderWidth = max(recommenedTex0Size.w, recommenedTex1Size.w);
-		mRenderHeight = max(recommenedTex0Size.h, recommenedTex1Size.h);
-	}
+        
+        mRenderWidth = max(recommenedTex0Size.w, recommenedTex1Size.w);
+        mRenderHeight = max(recommenedTex0Size.h, recommenedTex1Size.h);
+    }
 
     printf("HmdRendererOculusSdk: target texture size (%dx%d)\n", mRenderWidth, mRenderHeight);
     flush(std::cout);
@@ -102,7 +102,7 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     
 
     ovrGLConfig cfg;
-	memset(&cfg, 0, sizeof(cfg));
+    memset(&cfg, 0, sizeof(cfg));
     cfg.OGL.Header.API = ovrRenderAPI_OpenGL;
     cfg.OGL.Header.BackBufferSize.w = !isRotated ? mpHmd->Resolution.w : mpHmd->Resolution.h;
     cfg.OGL.Header.BackBufferSize.h = !isRotated ? mpHmd->Resolution.h : mpHmd->Resolution.w;
@@ -113,8 +113,8 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
 #endif
 
 #ifdef _WINDOWS
-	cfg.OGL.Window = platformInfo.Window;
-	cfg.OGL.DC = platformInfo.DC;
+    cfg.OGL.Window = platformInfo.Window;
+    cfg.OGL.DC = platformInfo.DC;
 #endif
 
     ovrFovPort eyeFov[2];
@@ -126,7 +126,7 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     d_ovrHmd_SetEnabledCaps(mpHmd, hmdCaps);
     
     
-	unsigned distortionCaps = ovrDistortionCap_Chromatic | ovrDistortionCap_Vignette | ovrDistortionCap_TimeWarp;
+    unsigned distortionCaps = ovrDistortionCap_Chromatic | ovrDistortionCap_Vignette | ovrDistortionCap_TimeWarp;
     
     bool PixelLuminanceOverdrive = (mpHmd->DistortionCaps & ovrDistortionCap_Overdrive) ? true : false;
     bool HqAaDistortion = (mpHmd->DistortionCaps & ovrDistortionCap_HqDistortion) ? true : false;
@@ -297,65 +297,65 @@ void HmdRendererOculusSdk::EndFrame()
     
     if (mStartedFrame)
     {
-		GLboolean depth_test = qglIsEnabled(GL_DEPTH_TEST);
-		GLboolean blend = qglIsEnabled(GL_BLEND);
-		GLboolean texture_2d = qglIsEnabled(GL_TEXTURE_2D);
-		GLboolean texture_coord_array = qglIsEnabled(GL_TEXTURE_COORD_ARRAY);
-		GLboolean color_array = qglIsEnabled(GL_COLOR_ARRAY);
-		GLint viewport[4];
-		GLint scissor[4];
-		GLint texture;
-		qglGetIntegerv(GL_VIEWPORT, viewport);
-		qglGetIntegerv(GL_SCISSOR_BOX, scissor);
-		qglGetIntegerv(GL_TEXTURE_BINDING_2D, &texture);
-
-		qglViewport(0, 0, mWindowWidth, mWindowHeight);
-		qglScissor(0, 0, mWindowWidth, mWindowHeight);
-
-		// set state
-		qglBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-
-		qglDisable(GL_DEPTH_TEST);
-		qglDisable(GL_BLEND);
-		qglEnable(GL_TEXTURE_2D);
-		qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		qglDisableClientState(GL_COLOR_ARRAY);
-		qglDisableClientState(GL_VERTEX_ARRAY);
+        GLboolean depth_test = qglIsEnabled(GL_DEPTH_TEST);
+        GLboolean blend = qglIsEnabled(GL_BLEND);
+        GLboolean texture_2d = qglIsEnabled(GL_TEXTURE_2D);
+        GLboolean texture_coord_array = qglIsEnabled(GL_TEXTURE_COORD_ARRAY);
+        GLboolean color_array = qglIsEnabled(GL_COLOR_ARRAY);
+        GLint viewport[4];
+        GLint scissor[4];
+        GLint texture;
+        qglGetIntegerv(GL_VIEWPORT, viewport);
+        qglGetIntegerv(GL_SCISSOR_BOX, scissor);
+        qglGetIntegerv(GL_TEXTURE_BINDING_2D, &texture);
+        
+        qglViewport(0, 0, mWindowWidth, mWindowHeight);
+        qglScissor(0, 0, mWindowWidth, mWindowHeight);
+        
+        // set state
+        qglBindFramebuffer(GL_FRAMEBUFFER, 0);
+        
+        
+        qglDisable(GL_DEPTH_TEST);
+        qglDisable(GL_BLEND);
+        qglEnable(GL_TEXTURE_2D);
+        qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        qglDisableClientState(GL_COLOR_ARRAY);
+        qglDisableClientState(GL_VERTEX_ARRAY);
 
 
         d_ovrHmd_EndFrame(mpHmd, mEyePoses, EyeTexture);
 
 
-		// restore the old state
-		qglUseProgramObjectARB(0);
-
-		if (depth_test)
-		{
-			qglEnable(GL_DEPTH_TEST);
-		}
-		if (blend)
-		{
-			qglEnable(GL_BLEND);
-		}
-		if (!texture_2d)
-		{
-			qglDisable(GL_TEXTURE_2D);
-		}
-		if (!texture_coord_array)
-		{
-			qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		}
-		if (color_array)
-		{
-			qglEnableClientState(GL_COLOR_ARRAY);
-		}
-
-		qglEnableClientState(GL_VERTEX_ARRAY);
-
-		qglViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
-		qglScissor(scissor[0], scissor[1], scissor[2], scissor[3]);
-		qglBindTexture(GL_TEXTURE_2D, texture);
+        // restore the old state
+        qglUseProgramObjectARB(0);
+        
+        if (depth_test)
+        {
+            qglEnable(GL_DEPTH_TEST);
+        }
+        if (blend)
+        {
+            qglEnable(GL_BLEND);
+        }
+        if (!texture_2d)
+        {
+            qglDisable(GL_TEXTURE_2D);
+        }
+        if (!texture_coord_array)
+        {
+            qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        }
+        if (color_array)
+        {
+            qglEnableClientState(GL_COLOR_ARRAY);
+        }
+        
+        qglEnableClientState(GL_VERTEX_ARRAY);
+        
+        qglViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+        qglScissor(scissor[0], scissor[1], scissor[2], scissor[3]);
+        qglBindTexture(GL_TEXTURE_2D, texture);
 
 
         mStartedFrame = false;
@@ -371,7 +371,7 @@ void HmdRendererOculusSdk::EndFrame()
 
 // Determine whether this frame needs rendering based on time-warp timing and flags.
 bool HmdRendererOculusSdk::FrameNeedsRendering()
-{    
+{
     double curtime = mFrameStartTime;
     
     static double   lastUpdate          = 0.0;    
@@ -540,34 +540,34 @@ bool HmdRendererOculusSdk::Get2DViewport(int& rX, int& rY, int& rW, int& rH)
     float aspect = 1.0f;
 
     rW = mRenderWidth * mGuiScale;
-	rH = mRenderWidth* mGuiScale * aspect;
+    rH = mRenderWidth* mGuiScale * aspect;
 
     rX = (mRenderWidth - rW)/2.0f;
-	int xOff = mGuiOffsetFactorX > 0 ? (mRenderWidth / mGuiOffsetFactorX) : 0;
+    int xOff = mGuiOffsetFactorX > 0 ? (mRenderWidth / mGuiOffsetFactorX) : 0;
     xOff *= mEyeId == 0 ? 1 : -1;
     rX += xOff;
 
     rY = (mRenderHeight - rH)/2;
 
-	return true;
+    return true;
 }
 
 bool HmdRendererOculusSdk::AttachToWindow(void* pWindowHandle)
 {
 #ifdef _WINDOWS
-	if (mpDevice == NULL || mpDevice->GetHmd() == NULL)
-	{
-		return false;
-	}
-
-	if (!(mpDevice->GetHmd()->HmdCaps & ovrHmdCap_ExtendDesktop))
-	{
+    if (mpDevice == NULL || mpDevice->GetHmd() == NULL)
+    {
+        return false;
+    }
+    
+    if (!(mpDevice->GetHmd()->HmdCaps & ovrHmdCap_ExtendDesktop))
+    {
         d_ovrHmd_AttachToWindow(mpDevice->GetHmd(), pWindowHandle, NULL, NULL);
-	}
-
-	return true;
+    }
+    
+    return true;
 #else
-	return false;
+    return false;
 #endif
 }
 

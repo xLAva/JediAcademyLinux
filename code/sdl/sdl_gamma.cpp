@@ -31,26 +31,26 @@ static uint16_t sOriginalGammaBlue[256];
 
 void WG_CheckHardwareGamma( void )
 {
-    //SDL_GetWindowGammaRamp
-    
-    
+	//SDL_GetWindowGammaRamp
+	
+	
 	glConfig.deviceSupportsGamma = qfalse;
-    
-    // [LAva] gamma is not working yet
-    return;
-    
-    if (s_pSdlWindow == NULL)
-    {
-        return;
-    }
-    
-    int ret = SDL_GetWindowGammaRamp(s_pSdlWindow, &sOriginalGammaRed[0], &sOriginalGammaGreen[0], &sOriginalGammaBlue[0]);
-    if (ret != 0)
-    {
-        return;
-    }
-    
-    glConfig.deviceSupportsGamma = qtrue;
+	
+	// [LAva] gamma is not working yet
+	return;
+	
+	if (s_pSdlWindow == NULL)
+	{
+		return;
+	}
+	
+	int ret = SDL_GetWindowGammaRamp(s_pSdlWindow, &sOriginalGammaRed[0], &sOriginalGammaGreen[0], &sOriginalGammaBlue[0]);
+	if (ret != 0)
+	{
+		return;
+	}
+
+	glConfig.deviceSupportsGamma = qtrue;
 
 //	if ( !r_ignorehwgamma->integer )
 //	{
@@ -130,27 +130,27 @@ void GLimp_SetGamma( unsigned char red[256], unsigned char green[256], unsigned 
 //	}
 
 
-    bool worked = false;
-    
-    if (glConfig.deviceSupportsGamma && s_pSdlWindow != NULL)
-    {
-        uint16_t sdlRed[256];
-        uint16_t sdlGreen[256];
-        uint16_t sdlBlue[256];        
-        
-        for (int i = 0; i < 256; i++ ) {
-            sdlRed[i] = red[i];//( ( ( unsigned short ) red[i] ) << 8 ) | red[i];
-            sdlGreen[i] = green[i];//( ( ( unsigned short ) green[i] ) << 8 ) | green[i];
-            sdlBlue[i] = blue[i];//( ( ( unsigned short ) blue[i] ) << 8 ) | blue[i];
-        }        
-        
-        int ret = SDL_SetWindowGammaRamp(s_pSdlWindow, &sdlRed[0], &sdlGreen[0], &sdlBlue[0]);
-        worked = ret == 0;
-    }
-    
-
+	bool worked = false;
+	
+	if (glConfig.deviceSupportsGamma && s_pSdlWindow != NULL)
+	{
+		uint16_t sdlRed[256];
+		uint16_t sdlGreen[256];
+		uint16_t sdlBlue[256];
+		
+		for (int i = 0; i < 256; i++ ) {
+			sdlRed[i] = red[i];//( ( ( unsigned short ) red[i] ) << 8 ) | red[i];
+			sdlGreen[i] = green[i];//( ( ( unsigned short ) green[i] ) << 8 ) | green[i];
+			sdlBlue[i] = blue[i];//( ( ( unsigned short ) blue[i] ) << 8 ) | blue[i];
+		}
+		
+		int ret = SDL_SetWindowGammaRamp(s_pSdlWindow, &sdlRed[0], &sdlGreen[0], &sdlBlue[0]);
+		worked = ret == 0;
+	}
+	
+	
 	if (!worked) 
-    {
+	{
 		Com_Printf( "SetDeviceGammaRamp failed.\n" );
 	}
 }
@@ -161,10 +161,10 @@ void GLimp_SetGamma( unsigned char red[256], unsigned char green[256], unsigned 
 void WG_RestoreGamma( void )
 {
 	if (!glConfig.deviceSupportsGamma || s_pSdlWindow == NULL)
-    {
-        return;
-    }
-  
-    SDL_SetWindowGammaRamp(s_pSdlWindow, &sOriginalGammaRed[0], &sOriginalGammaGreen[0], &sOriginalGammaBlue[0]);
+	{
+		return;
+	}
+
+	SDL_SetWindowGammaRamp(s_pSdlWindow, &sOriginalGammaRed[0], &sOriginalGammaGreen[0], &sOriginalGammaBlue[0]);
 }
 

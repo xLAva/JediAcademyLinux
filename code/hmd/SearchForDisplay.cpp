@@ -94,48 +94,47 @@ bool SearchForDisplay::GetDisplayPosition(string displayName, int resolutionW, i
 
 bool SearchForDisplay::GetDisplayPosition(int posX, int posY, int resolutionW, int resolutionH, DisplayInfo& rInfo)
 {
-	// only implemented for SDL2
+    // only implemented for SDL2
 #ifdef USE_SDL2
 
-	int displayCount = SDL_GetNumVideoDisplays();
-	for (int i = 0; i<displayCount; i++)
-	{
-		const char* name = SDL_GetDisplayName(i);
+    int displayCount = SDL_GetNumVideoDisplays();
+    for (int i = 0; i<displayCount; i++)
+    {
+        const char* name = SDL_GetDisplayName(i);
+        
+        SDL_Rect r;
+        int ret = SDL_GetDisplayBounds(i, &r);
+        if (ret == 0)
+        {
+            if (r.x == posX && r.y == posY)
+            {
+                // found display pos
+                if (r.w == resolutionW && r.h == resolutionH ||
+                    r.w == resolutionH && r.h == resolutionW)
+                {
+                    // found display with corret resolution on correction position
+                    rInfo.id = i;
+                    rInfo.name = name;
+                    rInfo.posX = posX;
+                    rInfo.posY = posY;
+                    rInfo.isRotated = r.w == resolutionH;
+                    return true;
+                }
+            }
+        }
+        else if (ret != 0)
+        {
+            const char* error = SDL_GetError();
+            printf("SDL_GetDisplayBounds failed: %s\n", error);
+        }
+    
+        //printf("display name: %s\n", displayName);
+        //flush(std::cout);
+    }
 
-		SDL_Rect r;
-		int ret = SDL_GetDisplayBounds(i, &r);
-		if (ret == 0)
-		{
-			if (r.x == posX && r.y == posY)
-			{
-				// found display pos
-				if (r.w == resolutionW && r.h == resolutionH ||
-					r.w == resolutionH && r.h == resolutionW)
-				{
-					// found display with corret resolution on correction position
-					rInfo.id = i;
-					rInfo.name = name;
-					rInfo.posX = posX;
-					rInfo.posY = posY;
-					rInfo.isRotated = r.w == resolutionH;
-					return true;
-				}
-			}
-		}
-		else if (ret != 0)
-		{
-			const char* error = SDL_GetError();
-			printf("SDL_GetDisplayBounds failed: %s\n", error);
+#endif
 
-		}
-
-		//printf("display name: %s\n", displayName);
-		//flush(std::cout);
-	}
-
-#endif    
-
-	return false;
+    return false;
 
 
 }

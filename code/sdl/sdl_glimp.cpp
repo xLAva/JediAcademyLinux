@@ -83,7 +83,7 @@ int GLW_SetMode(int mode, qboolean fullscreen );
 //
 void	 QGL_EnableLogging( qboolean enable );
 qboolean QGL_Init( const char *dllname );
-void     QGL_Shutdown( void );
+void	 QGL_Shutdown( void );
 
 
 /*****************************************************************************/
@@ -98,18 +98,18 @@ static void InitSig(void)
 static void QueKeyEvent(int time, sysEventType_t type, int value, int value2, int ptrLength, void *ptr)
 {
 #ifdef USE_OVR
-    IHmdRenderer* pRenderer = ClientHmd::Get()->GetRenderer();
-    if (pRenderer)
-    {
-        static HmdRendererOculusSdk* pHmdRenderer = dynamic_cast<HmdRendererOculusSdk*>(pRenderer);
-        if (pHmdRenderer)
-        {
-            pHmdRenderer->DismissHealthSafetyWarning();
-        }
-    }
+	IHmdRenderer* pRenderer = ClientHmd::Get()->GetRenderer();
+	if (pRenderer)
+	{
+		static HmdRendererOculusSdk* pHmdRenderer = dynamic_cast<HmdRendererOculusSdk*>(pRenderer);
+		if (pHmdRenderer)
+		{
+			pHmdRenderer->DismissHealthSafetyWarning();
+		}
+	}
 #endif
-    
-    Sys_QueEvent(time, type, value, value2, ptrLength, ptr);
+	
+	Sys_QueEvent(time, type, value, value2, ptrLength, ptr);
 }
 
 
@@ -121,7 +121,7 @@ static qboolean GLW_StartDriverAndSetMode( const char *drivername,
 										   qboolean fullscreen )
 {
 	rserr_t err;
-    
+
 	err = (rserr_t) GLW_SetMode(mode, fullscreen );
 
 	switch ( err )
@@ -146,7 +146,7 @@ static qboolean GLW_StartDriverAndSetMode( const char *drivername,
 int GLW_SetMode(int mode, qboolean fullscreen )
 {
 	int colorbits, depthbits, stencilbits;
-    int redbits, greenbits, bluebits;
+	int redbits, greenbits, bluebits;
 	int actualWidth, actualHeight;
 
 
@@ -160,60 +160,60 @@ int GLW_SetMode(int mode, qboolean fullscreen )
 		Com_Error( PRINT_ALL, " invalid mode\n" );
 		return RSERR_INVALID_MODE;
 	}
-    
-    if (mode == 10)
-    {
-        // use main display resolution
-        SDL_DisplayMode dm;
-        int ret = SDL_GetDesktopDisplayMode(0, &dm);
-        if (ret == 0)
-        {
-            glConfig.vidWidth = dm.w;
-            glConfig.vidHeight = dm.h;
-        }
-    }
-    
+	
+	if (mode == 10)
+	{
+		// use main display resolution
+		SDL_DisplayMode dm;
+		int ret = SDL_GetDesktopDisplayMode(0, &dm);
+		if (ret == 0)
+		{
+			glConfig.vidWidth = dm.w;
+			glConfig.vidHeight = dm.h;
+		}
+	}
+
 	//glConfig.vidWidth = 640;
 	//glConfig.vidHeight = 480;
 	//fullscreen = false;
-    
-    actualWidth = glConfig.vidWidth;
+	
+	actualWidth = glConfig.vidWidth;
 	actualHeight = glConfig.vidHeight;
-    
-    bool fixedDeviceResolution = false;
-    bool fullscreenWindow = false;
-    bool fullscreenDesktopRes = false;
-    
-    bool useWindowPosition = false;
-    int xPos = 0;
-    int yPos = 0;
-    
-    // check for hmd device
-    IHmdDevice* pHmdDevice = ClientHmd::Get()->GetDevice();
-    if (pHmdDevice)
-    {
-        // found hmd device - test if device has a display
-        bool displayFound = pHmdDevice->HasDisplay();
-        if (displayFound)
-        {
-            int deviceWidth = 0;
-            int deviceHeight = 0;
-            bool isRotated = false;
-            pHmdDevice->GetDeviceResolution(deviceWidth, deviceHeight, isRotated);
-            
-            fixedDeviceResolution = true;
-            actualWidth = isRotated ? deviceHeight : deviceWidth;
-            actualHeight = isRotated ? deviceWidth : deviceHeight;
-
-            s_windowWidth = actualWidth;
-            s_windowHeight = actualHeight;
-            
-            glConfig.vidWidth = deviceWidth / 2;
-            glConfig.vidHeight = deviceHeight;
-                        
-            useWindowPosition = pHmdDevice->GetDisplayPos(xPos, yPos);
-            //useWindowPosition = false;
-            
+	
+	bool fixedDeviceResolution = false;
+	bool fullscreenWindow = false;
+	bool fullscreenDesktopRes = false;
+	
+	bool useWindowPosition = false;
+	int xPos = 0;
+	int yPos = 0;
+	
+	// check for hmd device
+	IHmdDevice* pHmdDevice = ClientHmd::Get()->GetDevice();
+	if (pHmdDevice)
+	{
+		// found hmd device - test if device has a display
+		bool displayFound = pHmdDevice->HasDisplay();
+		if (displayFound)
+		{
+			int deviceWidth = 0;
+			int deviceHeight = 0;
+			bool isRotated = false;
+			pHmdDevice->GetDeviceResolution(deviceWidth, deviceHeight, isRotated);
+			
+			fixedDeviceResolution = true;
+			actualWidth = isRotated ? deviceHeight : deviceWidth;
+			actualHeight = isRotated ? deviceWidth : deviceHeight;
+	
+			s_windowWidth = actualWidth;
+			s_windowHeight = actualHeight;
+			
+			glConfig.vidWidth = deviceWidth / 2;
+			glConfig.vidHeight = deviceHeight;
+						
+			useWindowPosition = pHmdDevice->GetDisplayPos(xPos, yPos);
+			//useWindowPosition = false;
+			
 			#ifdef LINUX
 				fullscreen = true;
 			#else
@@ -222,20 +222,20 @@ int GLW_SetMode(int mode, qboolean fullscreen )
 				//fullscreenDesktopRes = true;            
 			#endif
 
-            VID_Printf( PRINT_ALL, "hmd display: %s\n", pHmdDevice->GetDisplayDeviceName().c_str());    
-            
-            glConfig.stereoEnabled = qtrue; 
-            
-            Cvar_Set("r_stereo", "1");
-        }
-    }
-    
-    sVideoModeFullscreen = fullscreen || fullscreenWindow || fullscreenDesktopRes;
-    mx = 0;
-    my = 0;
-    
+			VID_Printf( PRINT_ALL, "hmd display: %s\n", pHmdDevice->GetDisplayDeviceName().c_str());    
+			
+			glConfig.stereoEnabled = qtrue; 
+			
+			Cvar_Set("r_stereo", "1");
+		}
+	}
+	
+	sVideoModeFullscreen = fullscreen || fullscreenWindow || fullscreenDesktopRes;
+	mx = 0;
+	my = 0;
+
 	VID_Printf( PRINT_ALL, " %d %d\n", glConfig.vidWidth, glConfig.vidHeight);    
-    
+
 
 	if (!r_colorbits->value)
 		colorbits = 24;
@@ -247,59 +247,59 @@ int GLW_SetMode(int mode, qboolean fullscreen )
 	else
 		depthbits = r_depthbits->value;
 	stencilbits = r_stencilbits->value;
-
-    if (colorbits == 24) 
-    {
-        redbits = 8;
-        greenbits = 8;
-        bluebits = 8;
-    } 
-    else  
-    {
-        // must be 16 bit
-        redbits = 4;
-        greenbits = 4;
-        bluebits = 4;
-    }
-
-
-    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, redbits);
-    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, greenbits);
-    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, bluebits);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, depthbits);
-    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, stencilbits);
-
-
-    int windowFlags = SDL_WINDOW_OPENGL;
-    if (fullscreen || fullscreenDesktopRes)
-    {
-        windowFlags |= (fullscreen ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_FULLSCREEN_DESKTOP);
-        windowFlags |= SDL_WINDOW_INPUT_GRABBED;
-    }
-    
-    if (fullscreenWindow)
-    {
-        windowFlags |= SDL_WINDOW_BORDERLESS;
-    }
-
-    int displayPosX = useWindowPosition ? xPos : SDL_WINDOWPOS_UNDEFINED;
-    int displayPosY = useWindowPosition ? yPos : SDL_WINDOWPOS_UNDEFINED;
-    
-    #ifdef LINUX
-    // fullscreen is ... ARRGG! Legacy worked better on Ubuntu Unity, but gamepad is not working with legacy :-(
-    //putenv("SDL_VIDEO_X11_LEGACY_FULLSCREEN=1");
-    #endif
-    
-    VID_Printf( PRINT_ALL, "Create Window %dx%d at %dx%d\n", actualWidth, actualHeight, displayPosX, displayPosY);
-    s_pSdlWindow = SDL_CreateWindow("Jasp HMD", displayPosX, displayPosY, actualWidth, actualHeight, windowFlags);
-    
+	
+	if (colorbits == 24) 
+	{
+		redbits = 8;
+		greenbits = 8;
+		bluebits = 8;
+	} 
+	else  
+	{
+		// must be 16 bit
+		redbits = 4;
+		greenbits = 4;
+		bluebits = 4;
+	}
+	
+	
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, redbits);
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, greenbits);
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, bluebits);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, depthbits);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, stencilbits);
+	
+	
+	int windowFlags = SDL_WINDOW_OPENGL;
+	if (fullscreen || fullscreenDesktopRes)
+	{
+		windowFlags |= (fullscreen ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_FULLSCREEN_DESKTOP);
+		windowFlags |= SDL_WINDOW_INPUT_GRABBED;
+	}
+	
+	if (fullscreenWindow)
+	{
+		windowFlags |= SDL_WINDOW_BORDERLESS;
+	}
+	
+	int displayPosX = useWindowPosition ? xPos : SDL_WINDOWPOS_UNDEFINED;
+	int displayPosY = useWindowPosition ? yPos : SDL_WINDOWPOS_UNDEFINED;
+	
+	#ifdef LINUX
+	// fullscreen is ... ARRGG! Legacy worked better on Ubuntu Unity, but gamepad is not working with legacy :-(
+	//putenv("SDL_VIDEO_X11_LEGACY_FULLSCREEN=1");
+	#endif
+	
+	VID_Printf( PRINT_ALL, "Create Window %dx%d at %dx%d\n", actualWidth, actualHeight, displayPosX, displayPosY);
+	s_pSdlWindow = SDL_CreateWindow("Jasp HMD", displayPosX, displayPosY, actualWidth, actualHeight, windowFlags);
+	
 
 	if (!s_pSdlWindow)
-    {
-        VID_Printf( PRINT_ALL, "CreateWindow failed: %s\n", SDL_GetError());
-        return RSERR_UNKNOWN;
-    }
-
+	{
+		VID_Printf( PRINT_ALL, "CreateWindow failed: %s\n", SDL_GetError());
+		return RSERR_UNKNOWN;
+	}
+	
 #ifdef USE_OVR
 	HmdRendererOculusSdk* pHmdRenderer = dynamic_cast<HmdRendererOculusSdk*>(ClientHmd::Get()->GetRenderer());
 	if (pHmdRenderer)
@@ -312,7 +312,7 @@ int GLW_SetMode(int mode, qboolean fullscreen )
 #ifdef LINUX
 		if (sysInfo.subsystem == SDL_SYSWM_X11)
 		{
-            pWindowHandle = (void*)sysInfo.info.x11.window;
+			pWindowHandle = (void*)sysInfo.info.x11.window;
 		}
 #endif
 
@@ -330,68 +330,68 @@ int GLW_SetMode(int mode, qboolean fullscreen )
 	}
 #endif
 
-    sWindowHasFocus = true;
-    if (sVideoModeFullscreen)
-    {
-        SDL_SetRelativeMouseMode(SDL_TRUE);
-    }    
-    
+	sWindowHasFocus = true;
+	if (sVideoModeFullscreen)
+	{
+		SDL_SetRelativeMouseMode(SDL_TRUE);
+	}
+
 	sGlContext = SDL_GL_CreateContext(s_pSdlWindow);
+	
+	//int rendererFlags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
+	//
+	//int rendererCount = SDL_GetNumRenderDrivers();
+	//for (int i=0; i<rendererCount; i++)
+	//{
+	//    SDL_RendererInfo renderInfo;
+	//    int ret = SDL_GetRenderDriverInfo(i, &renderInfo);
+	//    if (ret == 0)
+	//    {
+	//        //VID_Printf( PRINT_ALL, "renderer found: %s\n", renderInfo.name);
+	//        if (strcmp(renderInfo.name, "opengl") == 0)
+	//        {
+	//            s_pSdlRenderer = SDL_CreateRenderer(s_pSdlWindow, i, rendererFlags);
+	//            break;
+	//        }
+	//    }
+	//}
+	//
+	//if (!s_pSdlRenderer)
+	//{
+	//    VID_Printf( PRINT_ALL, "CreateRenderer failed: %s\n", SDL_GetError());
+	//    return RSERR_UNKNOWN;
+	//}
+	   
+	
+	SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &redbits);
+	SDL_GL_GetAttribute(SDL_GL_GREEN_SIZE, &greenbits);
+	SDL_GL_GetAttribute(SDL_GL_BLUE_SIZE, &bluebits);
+	SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE, &depthbits);
+	SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &stencilbits);
+	
+	
+	VID_Printf( PRINT_ALL, "Using %d/%d/%d Color bits, %d depth, %d stencil display.\n",
+		redbits, greenbits, bluebits, depthbits, stencilbits);
+	
+	
+	glConfig.colorBits = colorbits;
+	glConfig.depthBits = depthbits;
+	glConfig.stencilBits = stencilbits;
+	
+	if (!fixedDeviceResolution)
+	{
+		SDL_GetWindowSize(s_pSdlWindow, &actualWidth, &actualHeight);
+		glConfig.vidWidth = actualWidth;
+		glConfig.vidHeight = actualHeight;
+	}
+	
+	if (fullscreenWindow)
+	{
+		SDL_SetWindowPosition(s_pSdlWindow, xPos, yPos);
+	}
+	
+	WG_CheckHardwareGamma();
 
-    //int rendererFlags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
-    //
-    //int rendererCount = SDL_GetNumRenderDrivers();
-    //for (int i=0; i<rendererCount; i++)
-    //{
-    //    SDL_RendererInfo renderInfo;
-    //    int ret = SDL_GetRenderDriverInfo(i, &renderInfo);
-    //    if (ret == 0)
-    //    {
-    //        //VID_Printf( PRINT_ALL, "renderer found: %s\n", renderInfo.name);
-    //        if (strcmp(renderInfo.name, "opengl") == 0)
-    //        {
-    //            s_pSdlRenderer = SDL_CreateRenderer(s_pSdlWindow, i, rendererFlags);
-    //            break;
-    //        }
-    //    }
-    //}
-    //
-    //if (!s_pSdlRenderer)
-    //{
-    //    VID_Printf( PRINT_ALL, "CreateRenderer failed: %s\n", SDL_GetError());
-    //    return RSERR_UNKNOWN;
-    //}
-       
-
-    SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &redbits);
-    SDL_GL_GetAttribute(SDL_GL_GREEN_SIZE, &greenbits);
-    SDL_GL_GetAttribute(SDL_GL_BLUE_SIZE, &bluebits);
-    SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE, &depthbits);
-    SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &stencilbits);
-
-
-    VID_Printf( PRINT_ALL, "Using %d/%d/%d Color bits, %d depth, %d stencil display.\n",
-        redbits, greenbits, bluebits, depthbits, stencilbits);
-
-
-    glConfig.colorBits = colorbits;
-    glConfig.depthBits = depthbits;
-    glConfig.stencilBits = stencilbits;
-
-    if (!fixedDeviceResolution)
-    {
-        SDL_GetWindowSize(s_pSdlWindow, &actualWidth, &actualHeight);
-        glConfig.vidWidth = actualWidth;
-        glConfig.vidHeight = actualHeight;
-    }
-    
-    if (fullscreenWindow)
-    {
-        SDL_SetWindowPosition(s_pSdlWindow, xPos, yPos);
-    }
-    
-    WG_CheckHardwareGamma();
-    
 	return RSERR_OK;
 }
 
@@ -581,7 +581,7 @@ static void GLW_InitExtensions( void )
 
 	// WGL_EXT_swap_control
 	#if 0
-    qwglSwapIntervalEXT = ( BOOL (WINAPI *)(int)) GPA( "wglSwapIntervalEXT" );
+	qwglSwapIntervalEXT = ( BOOL (WINAPI *)(int)) GPA( "wglSwapIntervalEXT" );
 	if ( qwglSwapIntervalEXT )
 	{
 		VID_Printf( PRINT_ALL, "...using WGL_EXT_swap_control\n" );
@@ -601,9 +601,9 @@ static void GLW_InitExtensions( void )
 	{
 		if ( r_ext_multitexture->integer )
 		{
-            qglMultiTexCoord2fARB = ( PFNGLMULTITEXCOORD2FARBPROC ) GPA("glMultiTexCoord2fARB" );
-            qglActiveTextureARB = ( PFNGLACTIVETEXTUREARBPROC ) GPA( "glActiveTextureARB" );
-            qglClientActiveTextureARB = ( PFNGLCLIENTACTIVETEXTUREARBPROC ) GPA( "glClientActiveTextureARB" );
+			qglMultiTexCoord2fARB = ( PFNGLMULTITEXCOORD2FARBPROC ) GPA("glMultiTexCoord2fARB" );
+			qglActiveTextureARB = ( PFNGLACTIVETEXTUREARBPROC ) GPA( "glActiveTextureARB" );
+			qglClientActiveTextureARB = ( PFNGLCLIENTACTIVETEXTUREARBPROC ) GPA( "glClientActiveTextureARB" );
 
 			if ( qglActiveTextureARB )
 			{
@@ -640,8 +640,8 @@ static void GLW_InitExtensions( void )
 		if ( r_ext_compiled_vertex_array->integer )
 		{
 			VID_Printf( PRINT_ALL, "...using GL_EXT_compiled_vertex_array\n" );
-            qglLockArraysEXT = ( void ( APIENTRY * )( int, int ) ) GPA( "glLockArraysEXT" );
-            qglUnlockArraysEXT = ( void ( APIENTRY * )( void ) ) GPA( "glUnlockArraysEXT" );
+			qglLockArraysEXT = ( void ( APIENTRY * )( int, int ) ) GPA( "glLockArraysEXT" );
+			qglUnlockArraysEXT = ( void ( APIENTRY * )( void ) ) GPA( "glUnlockArraysEXT" );
 			if (!qglLockArraysEXT || !qglUnlockArraysEXT) {
 				Com_Error (ERR_FATAL, "bad getprocaddress");
 			}
@@ -663,8 +663,8 @@ static void GLW_InitExtensions( void )
 	{
 		if ( r_ext_point_parameters->integer )
 		{
-            qglPointParameterfEXT = ( void ( APIENTRY * )( GLenum, GLfloat) ) GPA( "glPointParameterfEXT" );
-            qglPointParameterfvEXT = ( void ( APIENTRY * )( GLenum, GLfloat *) ) GPA( "glPointParameterfvEXT" );
+			qglPointParameterfEXT = ( void ( APIENTRY * )( GLenum, GLfloat) ) GPA( "glPointParameterfEXT" );
+			qglPointParameterfvEXT = ( void ( APIENTRY * )( GLenum, GLfloat *) ) GPA( "glPointParameterfvEXT" );
 			if (!qglPointParameterfEXT || !qglPointParameterfvEXT) 
 			{
 				VID_Printf( ERR_FATAL, "Bad GetProcAddress for GL_EXT_point_parameters");
@@ -688,8 +688,8 @@ static void GLW_InitExtensions( void )
 	{
 		if ( r_ext_nv_point_sprite->integer )
 		{
-            qglPointParameteriNV = ( void ( APIENTRY * )( GLenum, GLint) ) GPA( "glPointParameteriNV" );
-            qglPointParameterivNV = ( void ( APIENTRY * )( GLenum, const GLint *) ) GPA( "glPointParameterivNV" );
+			qglPointParameteriNV = ( void ( APIENTRY * )( GLenum, GLint) ) GPA( "glPointParameteriNV" );
+			qglPointParameterivNV = ( void ( APIENTRY * )( GLenum, const GLint *) ) GPA( "glPointParameterivNV" );
 			if (!qglPointParameteriNV || !qglPointParameterivNV) 
 			{
 				VID_Printf( ERR_FATAL, "Bad GetProcAddress for GL_NV_point_sprite");
@@ -718,19 +718,19 @@ static void GLW_InitExtensions( void )
 			// NOTE: VV guys will _definetly_ not be able to use regcoms. Pixel Shaders are just as good though :-)
 			// NOTE: Also, this is an nVidia specific extension (of course), so fragment shaders would serve the same purpose
 			// if we needed some kind of fragment/pixel manipulation support.
-            qglCombinerParameterfvNV = ( PFNGLCOMBINERPARAMETERFVNV ) GPA( "glCombinerParameterfvNV" );
-            qglCombinerParameterivNV = ( PFNGLCOMBINERPARAMETERIVNV ) GPA( "glCombinerParameterivNV" );
-            qglCombinerParameterfNV = ( PFNGLCOMBINERPARAMETERFNV ) GPA( "glCombinerParameterfNV" );
-            qglCombinerParameteriNV = ( PFNGLCOMBINERPARAMETERINV ) GPA( "glCombinerParameteriNV" );
-            qglCombinerInputNV = ( PFNGLCOMBINERINPUTNV ) GPA( "glCombinerInputNV" );
-            qglCombinerOutputNV = ( PFNGLCOMBINEROUTPUTNV ) GPA( "glCombinerOutputNV" );
-            qglFinalCombinerInputNV = ( PFNGLFINALCOMBINERINPUTNV ) GPA( "glFinalCombinerInputNV" );
-            qglGetCombinerInputParameterfvNV	= ( PFNGLGETCOMBINERINPUTPARAMETERFVNV ) GPA( "glGetCombinerInputParameterfvNV" );
-            qglGetCombinerInputParameterivNV	= ( PFNGLGETCOMBINERINPUTPARAMETERIVNV ) GPA( "glGetCombinerInputParameterivNV" );
-            qglGetCombinerOutputParameterfvNV = ( PFNGLGETCOMBINEROUTPUTPARAMETERFVNV ) GPA( "glGetCombinerOutputParameterfvNV" );
-            qglGetCombinerOutputParameterivNV = ( PFNGLGETCOMBINEROUTPUTPARAMETERIVNV ) GPA( "glGetCombinerOutputParameterivNV" );
-            qglGetFinalCombinerInputParameterfvNV = ( PFNGLGETFINALCOMBINERINPUTPARAMETERFVNV ) GPA( "glGetFinalCombinerInputParameterfvNV" );
-            qglGetFinalCombinerInputParameterivNV = ( PFNGLGETFINALCOMBINERINPUTPARAMETERIVNV ) GPA( "glGetFinalCombinerInputParameterivNV" );
+			qglCombinerParameterfvNV = ( PFNGLCOMBINERPARAMETERFVNV ) GPA( "glCombinerParameterfvNV" );
+			qglCombinerParameterivNV = ( PFNGLCOMBINERPARAMETERIVNV ) GPA( "glCombinerParameterivNV" );
+			qglCombinerParameterfNV = ( PFNGLCOMBINERPARAMETERFNV ) GPA( "glCombinerParameterfNV" );
+			qglCombinerParameteriNV = ( PFNGLCOMBINERPARAMETERINV ) GPA( "glCombinerParameteriNV" );
+			qglCombinerInputNV = ( PFNGLCOMBINERINPUTNV ) GPA( "glCombinerInputNV" );
+			qglCombinerOutputNV = ( PFNGLCOMBINEROUTPUTNV ) GPA( "glCombinerOutputNV" );
+			qglFinalCombinerInputNV = ( PFNGLFINALCOMBINERINPUTNV ) GPA( "glFinalCombinerInputNV" );
+			qglGetCombinerInputParameterfvNV	= ( PFNGLGETCOMBINERINPUTPARAMETERFVNV ) GPA( "glGetCombinerInputParameterfvNV" );
+			qglGetCombinerInputParameterivNV	= ( PFNGLGETCOMBINERINPUTPARAMETERIVNV ) GPA( "glGetCombinerInputParameterivNV" );
+			qglGetCombinerOutputParameterfvNV = ( PFNGLGETCOMBINEROUTPUTPARAMETERFVNV ) GPA( "glGetCombinerOutputParameterfvNV" );
+			qglGetCombinerOutputParameterivNV = ( PFNGLGETCOMBINEROUTPUTPARAMETERIVNV ) GPA( "glGetCombinerOutputParameterivNV" );
+			qglGetFinalCombinerInputParameterfvNV = ( PFNGLGETFINALCOMBINERINPUTPARAMETERFVNV ) GPA( "glGetFinalCombinerInputParameterfvNV" );
+			qglGetFinalCombinerInputParameterivNV = ( PFNGLGETFINALCOMBINERINPUTPARAMETERIVNV ) GPA( "glGetFinalCombinerInputParameterivNV" );
 
 			// Validate the functions we need.
 			if ( !qglCombinerParameterfvNV || !qglCombinerParameterivNV || !qglCombinerParameterfNV || !qglCombinerParameteriNV || !qglCombinerInputNV ||
@@ -786,33 +786,33 @@ static void GLW_InitExtensions( void )
 	// If we support one or the other, load the shared function pointers.
 	if ( bARBVertexProgram || bARBFragmentProgram )
 	{
-        qglProgramStringARB					= (PFNGLPROGRAMSTRINGARBPROC)  GPA("glProgramStringARB");
-        qglBindProgramARB					= (PFNGLBINDPROGRAMARBPROC)    GPA("glBindProgramARB");
-        qglDeleteProgramsARB				= (PFNGLDELETEPROGRAMSARBPROC) GPA("glDeleteProgramsARB");
-        qglGenProgramsARB					= (PFNGLGENPROGRAMSARBPROC)    GPA("glGenProgramsARB");
-        qglProgramEnvParameter4dARB			= (PFNGLPROGRAMENVPARAMETER4DARBPROC)    GPA("glProgramEnvParameter4dARB");
-        qglProgramEnvParameter4dvARB		= (PFNGLPROGRAMENVPARAMETER4DVARBPROC)   GPA("glProgramEnvParameter4dvARB");
-        qglProgramEnvParameter4fARB			= (PFNGLPROGRAMENVPARAMETER4FARBPROC)    GPA("glProgramEnvParameter4fARB");
-        qglProgramEnvParameter4fvARB		= (PFNGLPROGRAMENVPARAMETER4FVARBPROC)   GPA("glProgramEnvParameter4fvARB");
-        qglProgramLocalParameter4dARB		= (PFNGLPROGRAMLOCALPARAMETER4DARBPROC)  GPA("glProgramLocalParameter4dARB");
-        qglProgramLocalParameter4dvARB		= (PFNGLPROGRAMLOCALPARAMETER4DVARBPROC) GPA("glProgramLocalParameter4dvARB");
-        qglProgramLocalParameter4fARB		= (PFNGLPROGRAMLOCALPARAMETER4FARBPROC)  GPA("glProgramLocalParameter4fARB");
-        qglProgramLocalParameter4fvARB		= (PFNGLPROGRAMLOCALPARAMETER4FVARBPROC) GPA("glProgramLocalParameter4fvARB");
-        qglGetProgramEnvParameterdvARB		= (PFNGLGETPROGRAMENVPARAMETERDVARBPROC) GPA("glGetProgramEnvParameterdvARB");
-        qglGetProgramEnvParameterfvARB		= (PFNGLGETPROGRAMENVPARAMETERFVARBPROC) GPA("glGetProgramEnvParameterfvARB");
-        qglGetProgramLocalParameterdvARB	= (PFNGLGETPROGRAMLOCALPARAMETERDVARBPROC) GPA("glGetProgramLocalParameterdvARB");
-        qglGetProgramLocalParameterfvARB	= (PFNGLGETPROGRAMLOCALPARAMETERFVARBPROC) GPA("glGetProgramLocalParameterfvARB");
-        qglGetProgramivARB					= (PFNGLGETPROGRAMIVARBPROC)     GPA("glGetProgramivARB");
-        qglGetProgramStringARB				= (PFNGLGETPROGRAMSTRINGARBPROC) GPA("glGetProgramStringARB");
-        qglIsProgramARB						= (PFNGLISPROGRAMARBPROC)        GPA("glIsProgramARB");
+		qglProgramStringARB					= (PFNGLPROGRAMSTRINGARBPROC)  GPA("glProgramStringARB");
+		qglBindProgramARB					= (PFNGLBINDPROGRAMARBPROC)    GPA("glBindProgramARB");
+		qglDeleteProgramsARB				= (PFNGLDELETEPROGRAMSARBPROC) GPA("glDeleteProgramsARB");
+		qglGenProgramsARB					= (PFNGLGENPROGRAMSARBPROC)    GPA("glGenProgramsARB");
+		qglProgramEnvParameter4dARB			= (PFNGLPROGRAMENVPARAMETER4DARBPROC)    GPA("glProgramEnvParameter4dARB");
+		qglProgramEnvParameter4dvARB		= (PFNGLPROGRAMENVPARAMETER4DVARBPROC)   GPA("glProgramEnvParameter4dvARB");
+		qglProgramEnvParameter4fARB			= (PFNGLPROGRAMENVPARAMETER4FARBPROC)    GPA("glProgramEnvParameter4fARB");
+		qglProgramEnvParameter4fvARB		= (PFNGLPROGRAMENVPARAMETER4FVARBPROC)   GPA("glProgramEnvParameter4fvARB");
+		qglProgramLocalParameter4dARB		= (PFNGLPROGRAMLOCALPARAMETER4DARBPROC)  GPA("glProgramLocalParameter4dARB");
+		qglProgramLocalParameter4dvARB		= (PFNGLPROGRAMLOCALPARAMETER4DVARBPROC) GPA("glProgramLocalParameter4dvARB");
+		qglProgramLocalParameter4fARB		= (PFNGLPROGRAMLOCALPARAMETER4FARBPROC)  GPA("glProgramLocalParameter4fARB");
+		qglProgramLocalParameter4fvARB		= (PFNGLPROGRAMLOCALPARAMETER4FVARBPROC) GPA("glProgramLocalParameter4fvARB");
+		qglGetProgramEnvParameterdvARB		= (PFNGLGETPROGRAMENVPARAMETERDVARBPROC) GPA("glGetProgramEnvParameterdvARB");
+		qglGetProgramEnvParameterfvARB		= (PFNGLGETPROGRAMENVPARAMETERFVARBPROC) GPA("glGetProgramEnvParameterfvARB");
+		qglGetProgramLocalParameterdvARB	= (PFNGLGETPROGRAMLOCALPARAMETERDVARBPROC) GPA("glGetProgramLocalParameterdvARB");
+		qglGetProgramLocalParameterfvARB	= (PFNGLGETPROGRAMLOCALPARAMETERFVARBPROC) GPA("glGetProgramLocalParameterfvARB");
+		qglGetProgramivARB					= (PFNGLGETPROGRAMIVARBPROC)     GPA("glGetProgramivARB");
+		qglGetProgramStringARB				= (PFNGLGETPROGRAMSTRINGARBPROC) GPA("glGetProgramStringARB");
+		qglIsProgramARB						= (PFNGLISPROGRAMARBPROC)        GPA("glIsProgramARB");
 
 		// Validate the functions we need.
 		if ( !qglProgramStringARB || !qglBindProgramARB || !qglDeleteProgramsARB || !qglGenProgramsARB ||
 			 !qglProgramEnvParameter4dARB || !qglProgramEnvParameter4dvARB || !qglProgramEnvParameter4fARB ||
-             !qglProgramEnvParameter4fvARB || !qglProgramLocalParameter4dARB || !qglProgramLocalParameter4dvARB ||
-             !qglProgramLocalParameter4fARB || !qglProgramLocalParameter4fvARB || !qglGetProgramEnvParameterdvARB ||
-             !qglGetProgramEnvParameterfvARB || !qglGetProgramLocalParameterdvARB || !qglGetProgramLocalParameterfvARB ||
-             !qglGetProgramivARB || !qglGetProgramStringARB || !qglIsProgramARB )
+			 !qglProgramEnvParameter4fvARB || !qglProgramLocalParameter4dARB || !qglProgramLocalParameter4dvARB ||
+			 !qglProgramLocalParameter4fARB || !qglProgramLocalParameter4fvARB || !qglGetProgramEnvParameterdvARB ||
+			 !qglGetProgramEnvParameterfvARB || !qglGetProgramLocalParameterdvARB || !qglGetProgramLocalParameterfvARB ||
+			 !qglGetProgramivARB || !qglGetProgramStringARB || !qglIsProgramARB )
 		{
 			bARBVertexProgram = false;
 			bARBFragmentProgram = false;
@@ -822,65 +822,65 @@ static void GLW_InitExtensions( void )
 			Com_Printf ("...ignoring GL_ARB_fragment_program\n" );
 		}
 	}
-    
 
 
-    IHmdRenderer* pHmdRenderer = ClientHmd::Get()->GetRenderer();
-    if (pHmdRenderer != NULL)
-    {
-        // init needed extensions
-        
-        qglIsRenderbuffer = (PFNglIsRenderbufferPROC) GPA("glIsRenderbuffer");
-        qglBindRenderbuffer = (PFNglBindRenderbufferPROC) GPA("glBindRenderbuffer");
-        qglDeleteRenderbuffers = (PFNglDeleteRenderbuffersPROC) GPA("glDeleteRenderbuffers");
-        qglGenRenderbuffers = (PFNglGenRenderbuffersPROC) GPA("glGenRenderbuffers");
-        qglRenderbufferStorage = (PFNglRenderbufferStoragePROC) GPA("glRenderbufferStorage");
-        qglRenderbufferStorageMultisample = (PFNglRenderbufferStorageMultisamplePROC) GPA("glRenderbufferStorageMultisample");
-        qglGetRenderbufferParameteriv = (PFNglGetRenderbufferParameterivPROC) GPA("glGetRenderbufferParameteriv");
-        qglIsFramebuffer = (PFNglIsFramebufferPROC) GPA("glIsFramebuffer");
-        qglGenFramebuffers = (PFNglGenFramebuffersPROC) GPA("glGenFramebuffers");
-        qglBindFramebuffer = (PFNglBindFramebufferPROC) GPA("glBindFramebuffer");
-        qglDeleteFramebuffers = (PFNglDeleteFramebuffersPROC) GPA("glDeleteFramebuffers");
-        qglCheckFramebufferStatus = (PFNglCheckFramebufferStatusPROC) GPA("glCheckFramebufferStatus");
-        qglFramebufferTexture1D = (PFNglFramebufferTexture1DPROC) GPA("glFramebufferTexture1D");
-        qglFramebufferTexture2D = (PFNglFramebufferTexture2DPROC) GPA( "glFramebufferTexture2D");
-        qglFramebufferTexture3D = (PFNglFramebufferTexture3DPROC) GPA("glFramebufferTexture3D");
-        qglFramebufferTextureLayer = (PFNglFramebufferTextureLayerPROC) GPA("glFramebufferTextureLayer");
-        qglFramebufferRenderbuffer = (PFNglFramebufferRenderbufferPROC) GPA( "glFramebufferRenderbuffer");
-        qglGetFramebufferAttachmentParameteriv = (PFNglGetFramebufferAttachmentParameterivPROC) GPA( "glGetFramebufferAttachmentParameteriv");
-        qglBlitFramebuffer = (PFNglBlitFramebufferPROC) GPA("glBlitFramebuffer");
-        qglGenerateMipmap = (PFNglGenerateMipmapPROC) GPA("glGenerateMipmap");
-        
-        qglCreateShaderObjectARB = (PFNglCreateShaderObjectARBPROC) GPA("glCreateShaderObjectARB");
-        qglShaderSourceARB = (PFNglShaderSourceARBPROC) GPA("glShaderSourceARB");
-        qglCompileShaderARB = (PFNglCompileShaderARBPROC) GPA("glCompileShaderARB");
-        qglCreateProgramObjectARB = (PFNglCreateProgramObjectARBPROC) GPA("glCreateProgramObjectARB");
-        qglAttachObjectARB = (PFNglAttachObjectARBPROC) GPA("glAttachObjectARB");
-        qglLinkProgramARB = (PFNglLinkProgramARBPROC) GPA("glLinkProgramARB");
-        qglUseProgramObjectARB = (PFNglUseProgramObjectARBPROC) GPA("glUseProgramObjectARB");
-        qglUniform2fARB = (PFNglUniform2fARBPROC) GPA("glUniform2fARB");
-        qglUniform2fvARB = (PFNglUniform2fvARBPROC) GPA("glUniform2fvARB");
-        qglGetUniformLocationARB = (PFNglGetUniformLocationARBPROC) GPA("glGetUniformLocationARB");
-        
-        qglBindBuffer = (PFNglBindBufferPROC) GPA("glBindBuffer");
-        qglBindVertexArray = (PFNglBindVertexArrayPROC) GPA("glBindVertexArray");
-        
-        
-        // try to initialize hmd renderer
-        
-        PlatformInfo platformInfo;
-        platformInfo.WindowWidth = s_windowWidth;
-        platformInfo.WindowHeight = s_windowHeight;
 
-        SDL_SysWMinfo sysInfo;
-        SDL_VERSION(&sysInfo.version); // initialize info structure with SDL version info
-        SDL_GetWindowWMInfo(s_pSdlWindow, &sysInfo);
+	IHmdRenderer* pHmdRenderer = ClientHmd::Get()->GetRenderer();
+	if (pHmdRenderer != NULL)
+	{
+		// init needed extensions
+		
+		qglIsRenderbuffer = (PFNglIsRenderbufferPROC) GPA("glIsRenderbuffer");
+		qglBindRenderbuffer = (PFNglBindRenderbufferPROC) GPA("glBindRenderbuffer");
+		qglDeleteRenderbuffers = (PFNglDeleteRenderbuffersPROC) GPA("glDeleteRenderbuffers");
+		qglGenRenderbuffers = (PFNglGenRenderbuffersPROC) GPA("glGenRenderbuffers");
+		qglRenderbufferStorage = (PFNglRenderbufferStoragePROC) GPA("glRenderbufferStorage");
+		qglRenderbufferStorageMultisample = (PFNglRenderbufferStorageMultisamplePROC) GPA("glRenderbufferStorageMultisample");
+		qglGetRenderbufferParameteriv = (PFNglGetRenderbufferParameterivPROC) GPA("glGetRenderbufferParameteriv");
+		qglIsFramebuffer = (PFNglIsFramebufferPROC) GPA("glIsFramebuffer");
+		qglGenFramebuffers = (PFNglGenFramebuffersPROC) GPA("glGenFramebuffers");
+		qglBindFramebuffer = (PFNglBindFramebufferPROC) GPA("glBindFramebuffer");
+		qglDeleteFramebuffers = (PFNglDeleteFramebuffersPROC) GPA("glDeleteFramebuffers");
+		qglCheckFramebufferStatus = (PFNglCheckFramebufferStatusPROC) GPA("glCheckFramebufferStatus");
+		qglFramebufferTexture1D = (PFNglFramebufferTexture1DPROC) GPA("glFramebufferTexture1D");
+		qglFramebufferTexture2D = (PFNglFramebufferTexture2DPROC) GPA( "glFramebufferTexture2D");
+		qglFramebufferTexture3D = (PFNglFramebufferTexture3DPROC) GPA("glFramebufferTexture3D");
+		qglFramebufferTextureLayer = (PFNglFramebufferTextureLayerPROC) GPA("glFramebufferTextureLayer");
+		qglFramebufferRenderbuffer = (PFNglFramebufferRenderbufferPROC) GPA( "glFramebufferRenderbuffer");
+		qglGetFramebufferAttachmentParameteriv = (PFNglGetFramebufferAttachmentParameterivPROC) GPA( "glGetFramebufferAttachmentParameteriv");
+		qglBlitFramebuffer = (PFNglBlitFramebufferPROC) GPA("glBlitFramebuffer");
+		qglGenerateMipmap = (PFNglGenerateMipmapPROC) GPA("glGenerateMipmap");
+		
+		qglCreateShaderObjectARB = (PFNglCreateShaderObjectARBPROC) GPA("glCreateShaderObjectARB");
+		qglShaderSourceARB = (PFNglShaderSourceARBPROC) GPA("glShaderSourceARB");
+		qglCompileShaderARB = (PFNglCompileShaderARBPROC) GPA("glCompileShaderARB");
+		qglCreateProgramObjectARB = (PFNglCreateProgramObjectARBPROC) GPA("glCreateProgramObjectARB");
+		qglAttachObjectARB = (PFNglAttachObjectARBPROC) GPA("glAttachObjectARB");
+		qglLinkProgramARB = (PFNglLinkProgramARBPROC) GPA("glLinkProgramARB");
+		qglUseProgramObjectARB = (PFNglUseProgramObjectARBPROC) GPA("glUseProgramObjectARB");
+		qglUniform2fARB = (PFNglUniform2fARBPROC) GPA("glUniform2fARB");
+		qglUniform2fvARB = (PFNglUniform2fvARBPROC) GPA("glUniform2fvARB");
+		qglGetUniformLocationARB = (PFNglGetUniformLocationARBPROC) GPA("glGetUniformLocationARB");
+		
+		qglBindBuffer = (PFNglBindBufferPROC) GPA("glBindBuffer");
+		qglBindVertexArray = (PFNglBindVertexArrayPROC) GPA("glBindVertexArray");
+		
+		
+		// try to initialize hmd renderer
+		
+		PlatformInfo platformInfo;
+		platformInfo.WindowWidth = s_windowWidth;
+		platformInfo.WindowHeight = s_windowHeight;
+	
+		SDL_SysWMinfo sysInfo;
+		SDL_VERSION(&sysInfo.version); // initialize info structure with SDL version info
+		SDL_GetWindowWMInfo(s_pSdlWindow, &sysInfo);
 #ifdef LINUX
-        if (sysInfo.subsystem == SDL_SYSWM_X11)
-        {
-            platformInfo.pDisplay = sysInfo.info.x11.display;
-            platformInfo.WindowId = sysInfo.info.x11.window;
-        }
+		if (sysInfo.subsystem == SDL_SYSWM_X11)
+		{
+			platformInfo.pDisplay = sysInfo.info.x11.display;
+			platformInfo.WindowId = sysInfo.info.x11.window;
+		}
 #endif
 
 #ifdef _WINDOWS
@@ -890,19 +890,18 @@ static void GLW_InitExtensions( void )
 			platformInfo.DC = NULL;// GetDC(sysInfo.info.win.window);
 		}
 #endif
-        bool worked = pHmdRenderer->Init(s_windowWidth, s_windowHeight, platformInfo);
-        if (worked)
-        {  
-            pHmdRenderer->GetRenderResolution(glConfig.vidWidth, glConfig.vidHeight);
-        }
-        else
-        {
-            // renderer could not be initialized -> set NULL
-            pHmdRenderer = NULL;
-            ClientHmd::Get()->SetRenderer(NULL);
-        }
-    }
-    
+		bool worked = pHmdRenderer->Init(s_windowWidth, s_windowHeight, platformInfo);
+		if (worked)
+		{  
+			pHmdRenderer->GetRenderResolution(glConfig.vidWidth, glConfig.vidHeight);
+		}
+		else
+		{
+			// renderer could not be initialized -> set NULL
+			pHmdRenderer = NULL;
+			ClientHmd::Get()->SetRenderer(NULL);
+		}
+	}
 
 	// Figure out which texture rectangle extension to use.
 	bool bTexRectSupported = false;
@@ -998,24 +997,24 @@ void GLimp_EndFrame (void)
 		r_swapInterval->modified = qfalse;
 	}
 
-    bool doSwap = true;
-    
-    IHmdRenderer* pHmdRenderer = ClientHmd::Get()->GetRenderer();
-    if (pHmdRenderer != NULL)
-    {
-        pHmdRenderer->EndFrame();
-        doSwap = !pHmdRenderer->HandlesSwap();
-    }
+	bool doSwap = true;
+	
+	IHmdRenderer* pHmdRenderer = ClientHmd::Get()->GetRenderer();
+	if (pHmdRenderer != NULL)
+	{
+		pHmdRenderer->EndFrame();
+		doSwap = !pHmdRenderer->HandlesSwap();
+	}
+	
+	if (doSwap)
+	{
+		// don't flip if drawing to front buffer
+		//if ( stricmp( r_drawBuffer->string, "GL_FRONT" ) != 0 )
+		{
+			SDL_GL_SwapWindow(s_pSdlWindow);
+		}
+	}
 
-    if (doSwap)
-    {
-        // don't flip if drawing to front buffer
-        //if ( stricmp( r_drawBuffer->string, "GL_FRONT" ) != 0 )
-        {
-            SDL_GL_SwapWindow(s_pSdlWindow);
-        }    
-    }
-    
 	// check logging
 	QGL_EnableLogging( r_logFile->integer );
 }
@@ -1038,119 +1037,118 @@ SDL_GameController* pSdlGameController = NULL;
 
 void IN_StartupGameController( void )
 {
-    int joystickCount = SDL_NumJoysticks();
-    if (joystickCount <= 0)
-    {
-        return;
-    }
-    
-    
-    int joystickIndex = 0;
-    pSdlGameController = NULL;
-    for (int i = 0; i < joystickCount; ++i) 
-    {
-        if (SDL_IsGameController(i)) 
-        {
-            pSdlGameController = SDL_GameControllerOpen(i);
-            if (pSdlGameController) 
-            {
-                joystickIndex = i;
-                break;
-            }
-        }
-    }
-    
-    
-    if (pSdlGameController == NULL)
-    {
-        pSdlJoystick = SDL_JoystickOpen(joystickIndex);
-        if (!pSdlJoystick)
-        {
-            return;
-        }
-    }
+	int joystickCount = SDL_NumJoysticks();
+	if (joystickCount <= 0)
+	{
+		return;
+	}
+	
+	
+	int joystickIndex = 0;
+	pSdlGameController = NULL;
+	for (int i = 0; i < joystickCount; ++i) 
+	{
+		if (SDL_IsGameController(i)) 
+		{
+			pSdlGameController = SDL_GameControllerOpen(i);
+			if (pSdlGameController) 
+			{
+				joystickIndex = i;
+				break;
+			}
+		}
+	}
+	
+	
+	if (pSdlGameController == NULL)
+	{
+		pSdlJoystick = SDL_JoystickOpen(joystickIndex);
+		if (!pSdlJoystick)
+		{
+			return;
+		}
+	}
+	
+	if (pSdlJoystick)
+	{
+		VID_Printf (PRINT_ALL, "Opened Joystick %d\n", joystickIndex);
+		VID_Printf (PRINT_ALL,"Number of Axes: %d\n", SDL_JoystickNumAxes(pSdlJoystick));
+		VID_Printf (PRINT_ALL,"Number of Buttons: %d\n", SDL_JoystickNumButtons(pSdlJoystick));
+		VID_Printf (PRINT_ALL,"Number of Balls: %d\n", SDL_JoystickNumBalls(pSdlJoystick));        
+	}
+	else
+	{
+		VID_Printf (PRINT_ALL, "Opened GameController %d\n", joystickIndex);
+	}
 
-    if (pSdlJoystick)
-    {
-        VID_Printf (PRINT_ALL, "Opened Joystick %d\n", joystickIndex);
-        VID_Printf (PRINT_ALL,"Number of Axes: %d\n", SDL_JoystickNumAxes(pSdlJoystick));
-        VID_Printf (PRINT_ALL,"Number of Buttons: %d\n", SDL_JoystickNumButtons(pSdlJoystick));
-        VID_Printf (PRINT_ALL,"Number of Balls: %d\n", SDL_JoystickNumBalls(pSdlJoystick));        
-    }
-    else
-    {
-        VID_Printf (PRINT_ALL, "Opened GameController %d\n", joystickIndex);
-    }
-    
-    VID_Printf (PRINT_ALL,"Name: %s\n", SDL_JoystickNameForIndex(joystickIndex)); 
+	VID_Printf (PRINT_ALL,"Name: %s\n", SDL_JoystickNameForIndex(joystickIndex)); 
 }
 
 
 void IN_ShutdownGameController( void )
 {
-    if (pSdlJoystick)
-    {
-        if (SDL_JoystickGetAttached(pSdlJoystick)) 
-        {
-            SDL_JoystickClose(pSdlJoystick);
-        }
-    }
-    
-    if (pSdlGameController)
-    {
-        SDL_GameControllerClose(pSdlGameController);
-    }
-    
+	if (pSdlJoystick)
+	{
+		if (SDL_JoystickGetAttached(pSdlJoystick)) 
+		{
+			SDL_JoystickClose(pSdlJoystick);
+		}
+	}
+	
+	if (pSdlGameController)
+	{
+		SDL_GameControllerClose(pSdlGameController);
+	}
 }
 
 void InitHmdDevice()
 {
-    // try to create a hmd device
-    ClientHmd::Get()->SetDevice(NULL);
-    ClientHmd::Get()->SetRenderer(NULL);
-
-    cvar_t* pHmdEnabled = Cvar_Get("hmd_enabled", "1", CVAR_ARCHIVE);
-    if (pHmdEnabled->integer == 1)
-    {
-        cvar_t* pHmdLib = Cvar_Get("hmd_forceLibrary", "", CVAR_ARCHIVE);
-        std::string hmdLibName = pHmdLib->string;
-        std::transform(hmdLibName.begin(), hmdLibName.end(), hmdLibName.begin(), ::tolower);
-
-        FactoryHmdDevice::HmdLibrary lib = FactoryHmdDevice::LIB_UNDEFINED;
-        if (hmdLibName == "ovr")
-        {
-            lib = FactoryHmdDevice::LIB_OVR;
-        }
-        else if (hmdLibName == "openhmd")
-        {
-            lib = FactoryHmdDevice::LIB_OPENHMD;
-        }
-        else if (hmdLibName == "mouse_dummy")
-        {
-            lib = FactoryHmdDevice::LIB_MOUSE_DUMMY;
-        }
-
-        cvar_t* pAllowDummyDevice = Cvar_Get ("hmd_allowdummydevice", "0", CVAR_ARCHIVE);
-        bool allowDummyDevice = pAllowDummyDevice->integer;
-
-        IHmdDevice* pHmdDevice = FactoryHmdDevice::CreateHmdDevice(lib, allowDummyDevice);
-        if (pHmdDevice)
-        {
-            VID_Printf(PRINT_ALL, "HMD Device found: %s\n", pHmdDevice->GetInfo().c_str());
-            ClientHmd::Get()->SetDevice(pHmdDevice);
-
-            Cvar_Set("cg_useHmd", "1");
-            Cvar_Set("cg_thirdPerson", "0");
-
-            IHmdRenderer* pHmdRenderer = FactoryHmdDevice::CreateRendererForDevice(pHmdDevice);
-
-            if (pHmdRenderer)
-            {
-                VID_Printf(PRINT_ALL, "HMD Renderer created: %s\n", pHmdRenderer->GetInfo().c_str());
-                ClientHmd::Get()->SetRenderer(pHmdRenderer);
-            }
-        }
-    }
+	// try to create a hmd device
+	ClientHmd::Get()->SetDevice(NULL);
+	ClientHmd::Get()->SetRenderer(NULL);
+	
+	cvar_t* pHmdEnabled = Cvar_Get("hmd_enabled", "1", CVAR_ARCHIVE);
+	if (pHmdEnabled->integer == 1)
+	{
+		cvar_t* pHmdLib = Cvar_Get("hmd_forceLibrary", "", CVAR_ARCHIVE);
+		std::string hmdLibName = pHmdLib->string;
+		std::transform(hmdLibName.begin(), hmdLibName.end(), hmdLibName.begin(), ::tolower);
+	
+		FactoryHmdDevice::HmdLibrary lib = FactoryHmdDevice::LIB_UNDEFINED;
+		if (hmdLibName == "ovr")
+		{
+			lib = FactoryHmdDevice::LIB_OVR;
+		}
+		else if (hmdLibName == "openhmd")
+		{
+			lib = FactoryHmdDevice::LIB_OPENHMD;
+		}
+		else if (hmdLibName == "mouse_dummy")
+		{
+			lib = FactoryHmdDevice::LIB_MOUSE_DUMMY;
+		}
+	
+		cvar_t* pAllowDummyDevice = Cvar_Get ("hmd_allowdummydevice", "0", CVAR_ARCHIVE);
+		bool allowDummyDevice = pAllowDummyDevice->integer;
+	
+		IHmdDevice* pHmdDevice = FactoryHmdDevice::CreateHmdDevice(lib, allowDummyDevice);
+		if (pHmdDevice)
+		{
+			VID_Printf(PRINT_ALL, "HMD Device found: %s\n", pHmdDevice->GetInfo().c_str());
+			ClientHmd::Get()->SetDevice(pHmdDevice);
+	
+			Cvar_Set("cg_useHmd", "1");
+			Cvar_Set("cg_thirdPerson", "0");
+	
+			IHmdRenderer* pHmdRenderer = FactoryHmdDevice::CreateRendererForDevice(pHmdDevice);
+	
+			if (pHmdRenderer)
+			{
+				VID_Printf(PRINT_ALL, "HMD Renderer created: %s\n", pHmdRenderer->GetInfo().c_str());
+				ClientHmd::Get()->SetRenderer(pHmdRenderer);
+			}
+		}
+	}
 }
 
 /*
@@ -1175,9 +1173,9 @@ void GLimp_Init( void )
 
 	InitSig();
 
-    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER);
+	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER);
 
-    InitHmdDevice();
+	InitHmdDevice();
 
 
 	//r_allowSoftwareGL = ri.Cvar_Get( "r_allowSoftwareGL", "0", CVAR_LATCH );
@@ -1257,8 +1255,8 @@ void GLimp_Init( void )
 
 	GLW_InitExtensions();
 	InitSig();
-    
-    IN_StartupGameController();
+
+	IN_StartupGameController();
 	SDL_StartTextInput();
 }
 
@@ -1291,14 +1289,14 @@ void GLimp_Shutdown( void )
 	// restore gamma.  We do this first because 3Dfx's extension needs a valid OGL subsystem
 	WG_RestoreGamma();
 
-    
+
 	IN_DeactivateMouse();
 
-    SDL_SetRelativeMouseMode(SDL_FALSE);
-    
-    //SDL_DestroyRenderer(s_pSdlRenderer);
-    SDL_GL_DeleteContext(sGlContext);
-    SDL_DestroyWindow(s_pSdlWindow);
+	SDL_SetRelativeMouseMode(SDL_FALSE);
+	
+	//SDL_DestroyRenderer(s_pSdlRenderer);
+	SDL_GL_DeleteContext(sGlContext);
+	SDL_DestroyWindow(s_pSdlWindow);
 
 	// close the r_logFile
 	if ( glw_state.log_fp )
@@ -1307,32 +1305,31 @@ void GLimp_Shutdown( void )
 		glw_state.log_fp = 0;
 	}
 
-    IN_ShutdownGameController();
-    
-    IHmdRenderer* pHmdRenderer = ClientHmd::Get()->GetRenderer();
-    if (pHmdRenderer != NULL)
-    {
-        ClientHmd::Get()->SetRenderer(NULL);
-        
-        pHmdRenderer->Shutdown();
-        delete pHmdRenderer;
-        pHmdRenderer = NULL;
-    }
-    
-    IHmdDevice* pHmdDevice = ClientHmd::Get()->GetDevice();
-    if (pHmdDevice != NULL)
-    {
-        ClientHmd::Get()->SetDevice(NULL);
-        
-        pHmdDevice->Shutdown();
-        delete pHmdDevice;
-        pHmdDevice = NULL;
-    }
-    
+	IN_ShutdownGameController();
+	
+	IHmdRenderer* pHmdRenderer = ClientHmd::Get()->GetRenderer();
+	if (pHmdRenderer != NULL)
+	{
+		ClientHmd::Get()->SetRenderer(NULL);
+		
+		pHmdRenderer->Shutdown();
+		delete pHmdRenderer;
+		pHmdRenderer = NULL;
+	}
+	
+	IHmdDevice* pHmdDevice = ClientHmd::Get()->GetDevice();
+	if (pHmdDevice != NULL)
+	{
+		ClientHmd::Get()->SetDevice(NULL);
+		
+		pHmdDevice->Shutdown();
+		delete pHmdDevice;
+		pHmdDevice = NULL;
+	}
+	
+	
+	SDL_Quit();
 
-    SDL_Quit();    
-   
-    
 	// shutdown QGL subsystem
 	QGL_Shutdown();
 
@@ -1367,7 +1364,7 @@ static char *XLateKey(const SDL_Keysym& keysym, int *key)
 	buf[0] = 0;
 	*key = 0;
 
-    //const char* keyName = SDL_GetKeyName(keysym.sym);
+	//const char* keyName = SDL_GetKeyName(keysym.sym);
 	
 	if (keysym.sym < 0x40000000)
 	{
@@ -1381,7 +1378,7 @@ static char *XLateKey(const SDL_Keysym& keysym, int *key)
 
 		//Com_Printf("key: %s (%d)\n", buf, *buf);
 	}
-    
+
 	switch(keysym.scancode)
 	{
 		//case XK_KP_Page_Up:	
@@ -1477,7 +1474,7 @@ static char *XLateKey(const SDL_Keysym& keysym, int *key)
 		case SDL_SCANCODE_KP_PLUS:  *key = A_KP_PLUS; break;
 		case SDL_SCANCODE_KP_MINUS: *key = A_KP_MINUS; break;
 		//case XK_KP_Divide: *key = K_KP_SLASH; break;
-        case SDL_SCANCODE_SPACE: *key = A_SPACE; break;
+		case SDL_SCANCODE_SPACE: *key = A_SPACE; break;
 
 		default:
 			*key = *(unsigned char *)buf;
@@ -1500,73 +1497,72 @@ float JoyToF( int value, float threshold) {
 
 	// convert range from -32768..32767 to -1..1 
 	fValue = (float)value / 32768.0;
-    float sign = fValue >= 0 ? 1.0f : -1.0f;
-    
-    // remove the threshold
-    fValue = fabs(fValue) - threshold;
-    fValue = max(fValue, 0.0f);
-    
-    // scale the value to the full range
-    fValue *= (1.0f / (1.0f - threshold));
-    fValue = min(fValue, 1.0f);
-    
-    fValue *= sign;
-    
+	float sign = fValue >= 0 ? 1.0f : -1.0f;
+	
+	// remove the threshold
+	fValue = fabs(fValue) - threshold;
+	fValue = max(fValue, 0.0f);
+	
+	// scale the value to the full range
+	fValue *= (1.0f / (1.0f - threshold));
+	fValue = min(fValue, 1.0f);
+	
+	fValue *= sign;
+
 	return fValue;
 }
 
 int joyDirectionKeys[16] = {
-     A_CURSOR_LEFT, A_CURSOR_RIGHT,
-     A_CURSOR_UP, A_CURSOR_DOWN,
-     A_JOY16, A_JOY17,
-     A_JOY18, A_JOY19,
-     A_JOY20, A_JOY21,
-     A_JOY22, A_JOY23,
-
-     A_JOY24, A_JOY25,
-     A_JOY26, A_JOY27
+	A_CURSOR_LEFT, A_CURSOR_RIGHT,
+	A_CURSOR_UP, A_CURSOR_DOWN,
+	A_JOY16, A_JOY17,
+	A_JOY18, A_JOY19,
+	A_JOY20, A_JOY21,
+	A_JOY22, A_JOY23,
+	
+	A_JOY24, A_JOY25,
+	A_JOY26, A_JOY27
 };
 
 
 
 
 void IN_GameControllerMove(int axis, int value) {
-    float	fAxisValue;
-    long	buttonstate, povstate;
-    int		x, y;
+	float	fAxisValue;
+	long	buttonstate, povstate;
+	int		x, y;
+	
+	int i = axis;
+	float threshold = 0.15f; //joy_threshold->value;
+	
+	// get the floating point zero-centered, potentially-inverted data for the current axis
+	fAxisValue = JoyToF(value, threshold);
+	
+	if (i == 0) {
+		QueKeyEvent(0, SE_JOYSTICK_AXIS, AXIS_SIDE, (int) (fAxisValue*127.0), 0, NULL );
+	}
+	
+	if (i == 1) {
+		QueKeyEvent(0, SE_JOYSTICK_AXIS, AXIS_FORWARD, (int) -(fAxisValue*127.0), 0, NULL );
+	}
+	
+	if (i == 2) {
+		QueKeyEvent( 0, SE_JOYSTICK_AXIS, AXIS_YAW, (int) -(fAxisValue*127.0), 0, NULL );
+	}
+	
+	if (i == 3) {
+		QueKeyEvent( 0, SE_JOYSTICK_AXIS, AXIS_PITCH, (int) (fAxisValue*127.0), 0, NULL );
+	}
+	
 
-    int i = axis;
-    float threshold = 0.15f; //joy_threshold->value;
-    
-    // get the floating point zero-centered, potentially-inverted data for the current axis
-    fAxisValue = JoyToF(value, threshold);
-    
-    if (i == 0) {
-        QueKeyEvent(0, SE_JOYSTICK_AXIS, AXIS_SIDE, (int) (fAxisValue*127.0), 0, NULL );
-    }
-    
-    if (i == 1) {
-        QueKeyEvent(0, SE_JOYSTICK_AXIS, AXIS_FORWARD, (int) -(fAxisValue*127.0), 0, NULL );
-    }
-    
-    if (i == 2) {
-        QueKeyEvent( 0, SE_JOYSTICK_AXIS, AXIS_YAW, (int) -(fAxisValue*127.0), 0, NULL );
-    }      
-    
-    if (i == 3) {
-        QueKeyEvent( 0, SE_JOYSTICK_AXIS, AXIS_PITCH, (int) (fAxisValue*127.0), 0, NULL );
-    }       
-    
-  
-    
+
 //    if ( fAxisValue < -threshold) {
 //        povstate |= (1<<(i*2));
 //    } else if ( fAxisValue > threshold) {
 //        povstate |= (1<<(i*2+1));
 //    }
-    
-   
- 
+
+
 //    // determine which bits have changed and key an auxillary event for each change
 //    for (i=0 ; i < 16 ; i++) {
 //        if ( (povstate & (1<<i)) && !(joy.oldpovstate & (1<<i)) ) {
@@ -1582,55 +1578,55 @@ void IN_GameControllerMove(int axis, int value) {
 
 void IN_JoyMove_Old(SDL_JoyAxisEvent event)
 {
-  /* Store instantaneous joystick state. Hack to get around
-   * event model used in Linux joystick driver.
+	/* Store instantaneous joystick state. Hack to get around
+	* event model used in Linux joystick driver.
 	 */
-  static int axes_state[16];
-  /* Old bits for Quake-style input compares. */
-  static unsigned int old_axes = 0;
-  /* Our current goodies. */
-  
-  float threshold = 0.15f;//joy_threshold->value;
-  
-  unsigned int axes = 0;
-  int i = 0;
-
-    if( event.axis < 16 ) {
-      axes_state[event.axis] = event.value;
-    } 
-
-
-
-
-  /* Translate our instantaneous state to bits. */
-  for( i = 0; i < 16; i++ ) {
-    float f = ( (float) axes_state[i] ) / 32767.0f;
-
-    if( f < -threshold ) 
-    {
-      axes |= ( 1 << ( i * 2 ) );
-    } 
-    else if( f > threshold ) 
-    {
-      axes |= ( 1 << ( ( i * 2 ) + 1 ) );
-    }
-
-  }
-
-  /* Time to update axes state based on old vs. new. */
-  for( i = 0; i < 16; i++ ) {
-
-    if( ( axes & ( 1 << i ) ) && !( old_axes & ( 1 << i ) ) ) {
-      QueKeyEvent( 0, SE_KEY, joyDirectionKeys[i], qtrue, 0, NULL );
-    }
-
-    if( !( axes & ( 1 << i ) ) && ( old_axes & ( 1 << i ) ) ) {
-      QueKeyEvent( 0, SE_KEY, joyDirectionKeys[i], qfalse, 0, NULL );
-    }
-  }
-
-  /* Save for future generations. */
-  old_axes = axes;
+	static int axes_state[16];
+	/* Old bits for Quake-style input compares. */
+	static unsigned int old_axes = 0;
+	/* Our current goodies. */
+	
+	float threshold = 0.15f;//joy_threshold->value;
+	
+	unsigned int axes = 0;
+	int i = 0;
+	
+	if( event.axis < 16 ) {
+		axes_state[event.axis] = event.value;
+	}
+	
+	
+	/* Translate our instantaneous state to bits. */
+	for( i = 0; i < 16; i++ ) {
+	float f = ( (float) axes_state[i] ) / 32767.0f;
+	
+	if( f < -threshold ) 
+	{
+		axes |= ( 1 << ( i * 2 ) );
+	} 
+	else if( f > threshold ) 
+	{
+		axes |= ( 1 << ( ( i * 2 ) + 1 ) );
+	}
+	
+	}
+	
+	/* Time to update axes state based on old vs. new. */
+	for( i = 0; i < 16; i++ ) 
+	{
+		if( ( axes & ( 1 << i ) ) && !( old_axes & ( 1 << i ) ) ) 
+		{
+			QueKeyEvent( 0, SE_KEY, joyDirectionKeys[i], qtrue, 0, NULL );
+		}
+		
+		if( !( axes & ( 1 << i ) ) && ( old_axes & ( 1 << i ) ) ) 
+		{
+			QueKeyEvent( 0, SE_KEY, joyDirectionKeys[i], qfalse, 0, NULL );
+		}
+	}
+	
+	/* Save for future generations. */
+	old_axes = axes;
 }
 
 
@@ -1659,35 +1655,35 @@ static void HandleEvents(void)
 	int mwx = glConfig.vidWidth/2;
 	int mwy = glConfig.vidHeight/2;
 
-    qboolean forceRelMouse = qfalse;
+	qboolean forceRelMouse = qfalse;
 #ifdef __APPLE__
-    forceRelMouse = qtrue;
+	forceRelMouse = qtrue;
 #endif
 	char *p;
-   
-    SDL_Event event;
-    
-    while(SDL_PollEvent(&event)) 
-    {
-        switch(event.type)
-        {
-        case SDL_QUIT:
-            Com_Quit_f();
-            break;
-        
-        case SDL_KEYDOWN:
-            p = XLateKey(event.key.keysym, &key);
-            if (key)
-                QueKeyEvent( 0, SE_KEY, key, qtrue, 0, NULL );
+	
+	SDL_Event event;
+	
+	while(SDL_PollEvent(&event)) 
+	{
+		switch(event.type)
+		{
+		case SDL_QUIT:
+			Com_Quit_f();
+			break;
+		
+		case SDL_KEYDOWN:
+			p = XLateKey(event.key.keysym, &key);
+			if (key)
+				QueKeyEvent( 0, SE_KEY, key, qtrue, 0, NULL );
 			//handle control chars
-            while (*p)
-                QueKeyEvent( 0, SE_CHAR, *p++, 0, 0, NULL );
-            break;                
-        case SDL_KEYUP:
-            XLateKey(event.key.keysym, &key);
-            
-            QueKeyEvent( 0, SE_KEY, key, qfalse, 0, NULL );
-            break;
+			while (*p)
+				QueKeyEvent( 0, SE_CHAR, *p++, 0, 0, NULL );
+			break;                
+		case SDL_KEYUP:
+			XLateKey(event.key.keysym, &key);
+			
+			QueKeyEvent( 0, SE_KEY, key, qfalse, 0, NULL );
+			break;
 
 		case SDL_TEXTINPUT:
 			p = event.text.text;
@@ -1697,50 +1693,50 @@ static void HandleEvents(void)
 					QueKeyEvent(0, SE_CHAR, *p++, 0, 0, NULL);
 			}
 			break;
-        case SDL_MOUSEMOTION:
-            if (sVideoModeFullscreen || forceRelMouse)
-            {
-                mx += event.motion.xrel;
-                my += event.motion.yrel;
-            }
-            else
-            {
-                //VID_Printf (PRINT_ALL, "mxOld=%d myOld=%d mx=%d my=%d mwxOld=%d mwyOld=%d mwx=%d mwy=%d\n", mx, my, mx + event.motion.x -mwx, my + event.motion.y - mwy, mwx, mwy, event.motion.x, event.motion.y);
-                mx += (event.motion.x - mwx);
-                my += (event.motion.y - mwy);
-                mwx = event.motion.x;
-                mwy = event.motion.y;
-
-                if (mx || my)
-                {
-                    
-                    dowarp = qtrue;
-                }
-            }
-            
-            break;
-                
-        case SDL_MOUSEBUTTONDOWN:
-        {
-            //VID_Printf (PRINT_ALL, "button.y=%d\n", event.button.button);
-            
-            int buttonNr = event.button.button - 1;
-            if (buttonNr >= 0 && buttonNr < MAX_MOUSE_BUTTONS)
+		case SDL_MOUSEMOTION:
+			if (sVideoModeFullscreen || forceRelMouse)
+			{
+				mx += event.motion.xrel;
+				my += event.motion.yrel;
+			}
+			else
+			{
+				//VID_Printf (PRINT_ALL, "mxOld=%d myOld=%d mx=%d my=%d mwxOld=%d mwyOld=%d mwx=%d mwy=%d\n", mx, my, mx + event.motion.x -mwx, my + event.motion.y - mwy, mwx, mwy, event.motion.x, event.motion.y);
+				mx += (event.motion.x - mwx);
+				my += (event.motion.y - mwy);
+				mwx = event.motion.x;
+				mwy = event.motion.y;
+	
+				if (mx || my)
+				{
+					
+					dowarp = qtrue;
+				}
+			}
+			
+			break;
+				
+		case SDL_MOUSEBUTTONDOWN:
+		{
+			//VID_Printf (PRINT_ALL, "button.y=%d\n", event.button.button);
+			
+			int buttonNr = event.button.button - 1;
+			if (buttonNr >= 0 && buttonNr < MAX_MOUSE_BUTTONS)
 			{
 				QueKeyEvent( 0, SE_KEY, mouseConvert[buttonNr], qtrue, 0, NULL );
 			}
-            break;
-        }
-        case SDL_MOUSEBUTTONUP:
-        {
-            int buttonNr = event.button.button - 1;
+			break;
+		}
+		case SDL_MOUSEBUTTONUP:
+		{
+			int buttonNr = event.button.button - 1;
 			if (buttonNr >= 0 && buttonNr < MAX_MOUSE_BUTTONS)
 			{
 				QueKeyEvent( 0, SE_KEY, mouseConvert[buttonNr], qfalse, 0, NULL );
-			}		
+			}
 
-            break;
-        }
+			break;
+		}
 // mouse wheel is handled as mouse buttons            
 //        case SDL_MOUSEWHEEL:        
 //            if (event.wheel.y != 0)
@@ -1757,66 +1753,66 @@ static void HandleEvents(void)
                
 //            }
 //            break;
-        
-        case SDL_JOYBUTTONDOWN:
-            if (pSdlJoystick)
-            {
-                QueKeyEvent( 0, SE_KEY, A_JOY0 + event.jbutton.button, qtrue, 0, NULL );
-            }
-            break;            
-        case SDL_JOYBUTTONUP:
-            if (pSdlJoystick)
-            {
-                QueKeyEvent( 0, SE_KEY, A_JOY0 + event.jbutton.button, qfalse, 0, NULL );
-            }
-            break;
-        case SDL_JOYAXISMOTION:
-            if (pSdlJoystick)
-            {
-                IN_GameControllerMove(event.jaxis.axis, event.jaxis.value);
-            }
-            break;
-            
-        case SDL_CONTROLLERBUTTONDOWN:
-            QueKeyEvent( 0, SE_KEY, A_JOY0 + event.cbutton.button, qtrue, 0, NULL );
-            break;            
-        case SDL_CONTROLLERBUTTONUP:
-            QueKeyEvent( 0, SE_KEY, A_JOY0 + event.cbutton.button, qfalse, 0, NULL );
-            break;
-        case SDL_CONTROLLERAXISMOTION:
-            IN_GameControllerMove(event.caxis.axis, event.caxis.value);
-            break;            
-            
-        case SDL_WINDOWEVENT:
-            switch (event.window.event)
-            {
-            case SDL_WINDOWEVENT_FOCUS_GAINED:
-                //VID_Printf (PRINT_ALL, "SDL_WINDOWEVENT_FOCUS_GAINED\n");
-                sWindowHasFocus = true;
-                SDL_ShowCursor(0);
-                break;
-            case SDL_WINDOWEVENT_FOCUS_LOST:
-                //VID_Printf (PRINT_ALL, "SDL_WINDOWEVENT_FOCUS_LOST\n");
-                sWindowHasFocus = false;
-                SDL_ShowCursor(1);
-                break;
-            }
-            break;
-        
-        }
-        
-        
-    }
+
+		case SDL_JOYBUTTONDOWN:
+			if (pSdlJoystick)
+			{
+				QueKeyEvent( 0, SE_KEY, A_JOY0 + event.jbutton.button, qtrue, 0, NULL );
+			}
+			break;            
+		case SDL_JOYBUTTONUP:
+			if (pSdlJoystick)
+			{
+				QueKeyEvent( 0, SE_KEY, A_JOY0 + event.jbutton.button, qfalse, 0, NULL );
+			}
+			break;
+		case SDL_JOYAXISMOTION:
+			if (pSdlJoystick)
+			{
+				IN_GameControllerMove(event.jaxis.axis, event.jaxis.value);
+			}
+			break;
+			
+		case SDL_CONTROLLERBUTTONDOWN:
+			QueKeyEvent( 0, SE_KEY, A_JOY0 + event.cbutton.button, qtrue, 0, NULL );
+			break;            
+		case SDL_CONTROLLERBUTTONUP:
+			QueKeyEvent( 0, SE_KEY, A_JOY0 + event.cbutton.button, qfalse, 0, NULL );
+			break;
+		case SDL_CONTROLLERAXISMOTION:
+			IN_GameControllerMove(event.caxis.axis, event.caxis.value);
+			break;            
+			
+		case SDL_WINDOWEVENT:
+			switch (event.window.event)
+			{
+			case SDL_WINDOWEVENT_FOCUS_GAINED:
+				//VID_Printf (PRINT_ALL, "SDL_WINDOWEVENT_FOCUS_GAINED\n");
+				sWindowHasFocus = true;
+				SDL_ShowCursor(0);
+				break;
+			case SDL_WINDOWEVENT_FOCUS_LOST:
+				//VID_Printf (PRINT_ALL, "SDL_WINDOWEVENT_FOCUS_LOST\n");
+				sWindowHasFocus = false;
+				SDL_ShowCursor(1);
+				break;
+			}
+			break;
+		
+		}
+		
+		
+	}
 
 	if (dowarp && sWindowHasFocus) {
-        SDL_WarpMouseInWindow(s_pSdlWindow, (glConfig.vidWidth/2),(glConfig.vidHeight/2));
+		SDL_WarpMouseInWindow(s_pSdlWindow, (glConfig.vidWidth/2),(glConfig.vidHeight/2));
 	}
-    
-    if (!sVideoModeFullscreen && !sWindowHasFocus)
-    {
-        mx = 0;
-        my = 0;
-    }
+	
+	if (!sVideoModeFullscreen && !sWindowHasFocus)
+	{
+		mx = 0;
+		my = 0;
+	}
 
 }
 
@@ -1848,7 +1844,7 @@ void IN_DeactivateMouse( void )
 void IN_Init(void)
 {
 	// mouse variables
-    in_mouse = Cvar_Get ("in_mouse", "1", CVAR_ARCHIVE);
+	in_mouse = Cvar_Get ("in_mouse", "1", CVAR_ARCHIVE);
 
 	if (in_mouse->value)
 		mouse_avail = qtrue;

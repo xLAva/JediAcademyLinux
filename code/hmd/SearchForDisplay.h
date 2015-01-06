@@ -16,7 +16,7 @@ public:
     };
     
     static bool GetDisplayPosition(std::string displayName, int resolutionW, int resolutionH, DisplayInfo& rInfo);
-	static bool GetDisplayPosition(int posX, int posY, int resolutionW, int resolutionH, DisplayInfo& rInfo);
+    static bool GetDisplayPosition(int posX, int posY, int resolutionW, int resolutionH, DisplayInfo& rInfo);
     
     
 };

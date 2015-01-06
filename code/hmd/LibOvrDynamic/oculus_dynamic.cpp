@@ -34,7 +34,7 @@ extern ovr_dynamic_load_result oculus_dynamic_load(const char** failed_function)
     }
 
 #define OVRFUNC(need, r, f, p)                                          \
-	d_##f = (pfn_##f)SDL_LoadFunction(oculus_library_handle, #f);       \
+    d_##f = (pfn_##f)SDL_LoadFunction(oculus_library_handle, #f);       \
     if (need && !d_##f) {                                               \
         if (failed_function)                                            \
             *failed_function = #f;                                      \

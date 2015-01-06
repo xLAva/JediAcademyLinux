@@ -19,8 +19,8 @@ public:
 #endif
 
 #ifdef _WINDOWS
-	HWND Window;
-	HDC  DC;
+    HWND Window;
+    HDC  DC;
 #endif
 };
 

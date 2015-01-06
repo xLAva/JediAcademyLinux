@@ -3,12 +3,12 @@
 
 qboolean SNDDMA_Init(void)
 {
-    return false;
+	return false;
 }
 
 int SNDDMA_GetDMAPos(void)
 {
-    return 0;
+	return 0;
 }
 
 void SNDDMA_Shutdown(void)
