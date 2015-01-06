@@ -20,7 +20,12 @@ https://github.com/xLAva/JediAcademyLinux/tree/HMD-DK2/binary/win32
 
 https://github.com/xLAva/JediAcademyLinux/tree/HMD-DK2/binary/linux_i386
 
-Copy all the files from the Windows or Linux platform folder into the root directory of your "Jedi Knight III: Jedi Academy" installation and start the "jasphmd" executable.
+Copy all the files from the Windows or Linux platform folder into the root directory of your "Jedi Knight III: Jedi Academy" installation.
+
+
+### Original Patch:
+
+For those not having the Steam version: you'll need the 1.01 update from here http://help.starwars.com/articles/en_US/FAQ/Where-do-I-find-the-latest-patch-for-Jedi-Knight-Jedi-Academy?section=Star-Wars#patch 
 
 
 ### Additional Asset File (optional):
@@ -47,6 +52,8 @@ sudo apt-get install libsdl2-2.0-0 libopenal1
 
 Needed libraries on Ubuntu 14.04 64bit:
 sudo apt-get install libsdl2-2.0-0:i386 libopenal1:i386 libgl1-mesa-glx:i386
+
+Be sure to mark "jasphmd" as executable and start the game with it.
 
 
 ## Changes and new Features for the Oculus Rift:

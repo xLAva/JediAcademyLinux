@@ -20,6 +20,8 @@ https://github.com/xLAva/OculusSDK
 Needed packages on Ubuntu 14.04 64bit:
 --------------------------------------
 
+I'm using a 64bit system, but this port is still a 32 bit program!
+
 sudo apt-get install cmake g++-multilib libsdl2-dev:i386 libglm-dev libhidapi-dev:i386 libopenal-dev:i386 libhidapi-libusb0:i386
 
 
