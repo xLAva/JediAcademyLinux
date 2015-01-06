@@ -1557,8 +1557,8 @@ public:
 			qglEnable(GL_POINT_SPRITE_NV);
 
 			qglPointSize(mWidth);
-			qglPointParameterfEXT( GL_POINT_SIZE_MIN_EXT, 4.0f );
-			qglPointParameterfEXT( GL_POINT_SIZE_MAX_EXT, 2047.0f );
+            qglPointParameterfEXT( GL_POINT_SIZE_MIN_ARB, 4.0f );
+            qglPointParameterfEXT( GL_POINT_SIZE_MAX_ARB, 2047.0f );
 
 			qglTexEnvi(GL_POINT_SPRITE_NV, GL_COORD_REPLACE_NV, GL_TRUE);
 		}

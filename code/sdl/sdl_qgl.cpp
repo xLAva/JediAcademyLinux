@@ -15,7 +15,7 @@
 #include <float.h>
 #include "../renderer/tr_local.h"
 #include "sdl_glw.h"
-#ifdef LINUX
+#if defined(LINUX) || defined(__APPLE__)
 #include <SDL2/SDL.h>
 #else
 #include <SDL.h>
@@ -23,6 +23,7 @@
 
 #endif
 
+#ifndef __APPLE__
 
 
 void QGL_EnableLogging( qboolean enable );
@@ -4240,3 +4241,4 @@ void QGL_EnableLogging( qboolean enable )
 
 
 
+#endif

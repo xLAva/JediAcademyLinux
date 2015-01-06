@@ -10,7 +10,7 @@
 #include "sdl_local.h"
 #include <stdint.h>
 
-#ifdef LINUX
+#if defined(LINUX) || defined(__APPLE__)
 #include <SDL2/SDL.h>
 #else
 #include <SDL.h>

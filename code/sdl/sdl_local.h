@@ -1,6 +1,6 @@
 #include "sdl_glw.h"
 
-#ifdef LINUX
+#if defined(LINUX) || defined(__APPLE__)
 #include <SDL2/SDL.h>
 #else
 #include <SDL.h>

@@ -849,6 +849,17 @@ void QDECL Com_sprintf( char *dest, int size, const char *fmt, ...) {
 	Q_strncpyz (dest, bigbuffer, size );
 }
 
+#ifdef __APPLE__
+void	QDECL Com_Error( int level, const char *error, ... )
+{
+    
+}
+
+void	QDECL Com_Printf( const char *msg, ... )
+{
+    
+}
+#endif
 
 /*
 ============

@@ -859,10 +859,15 @@ if(USE_SDL2)
 
                 set(SSF_MACOS ${SSF_MACOS}
                         sdl/sdl_console.cpp
-                        mac/mac_main.c
+                        mac/mac_main.cpp
                 )
 
-                set(EXTRA_LIBS ${EXTRA_LIBS} SDL2)
+
+               include_directories( /Library/Frameworks )
+               FIND_LIBRARY(SDL2_LIBRARY SDL2)
+               MARK_AS_ADVANCED (SDL2_LIBRARY)
+               set(EXTRA_LIBS ${EXTRA_LIBS} ${SDL2_LIBRARY})
+
         else()
         # linux sdl
 
@@ -954,6 +959,7 @@ else()
     endif()
 
     if(PLATFORM_MACOS)
+        include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/glm")
         add_definitions(-arch i386)
         set(ldflags "${ldflags} -arch i386")
     endif()

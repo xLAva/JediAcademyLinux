@@ -27,7 +27,7 @@
 #include "../hmd/HmdRenderer/HmdRendererOculusSdk.h"
 #endif
 
-#ifdef LINUX
+#if defined(LINUX) || defined(__APPLE__)
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
 #else

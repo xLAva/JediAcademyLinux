@@ -50,7 +50,7 @@ void RenderTool::ClearFBO(FrameBufferInfo info)
 }
 
 
-void RenderTool::DrawFbos(FrameBufferInfo* pFbos, int fboCount, int windowWidth, int windowHeight, unsigned int shaderProg)
+void RenderTool::DrawFbos(FrameBufferInfo* pFbos, int fboCount, int windowWidth, int windowHeight, GLhandleARB shaderProg)
 {
     if (pFbos == NULL)
     {

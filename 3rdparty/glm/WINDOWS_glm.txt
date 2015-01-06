@@ -1,4 +1,4 @@
-WINDOWS:
+WINDOWS and MACOS:
 
 Get the sources here:
 http://sourceforge.net/projects/ogl-math/files/latest/download?source=files
