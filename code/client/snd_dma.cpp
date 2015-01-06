@@ -13,7 +13,7 @@
 #include "cl_mp3.h"
 #include "snd_music.h"
 
-#ifdef LINUX
+#if defined(LINUX) || defined(__APPLE__)
 #define EAX_DISABLED 1
 #endif
 
@@ -467,7 +467,7 @@ void S_Init( void ) {
 
 	s_CPUType = Cvar_Get("sys_cpuid","",0);
 
-#if !(defined __linux__ && defined __i386__)
+#if !((defined __linux__ || defined __APPLE__) && defined __i386__)
 #if	!id386
 #else
 	extern unsigned int uiMMXAvailable;
@@ -501,7 +501,7 @@ void S_Init( void ) {
 
 	if (s_UseOpenAL)
 	{	
-		#ifdef __linux__
+        #if defined(LINUX) || defined(__APPLE__)
 		ALCDevice = alcOpenDevice(NULL); //LAvaPort
 		#else
 		ALCDevice = alcOpenDevice("DirectSound3D"); 

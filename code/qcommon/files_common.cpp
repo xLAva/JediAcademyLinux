@@ -300,8 +300,8 @@ void	FS_CreatePath (char *OSPath) {
 		return;
 	}
 	
-	#ifndef LINUX
-	strlwr(OSPath);
+    #if defined(LINUX) || defined(__APPLE__)
+    strlwr(OSPath);
 	#endif
 
 	for (ofs = OSPath+1 ; *ofs ; ofs++) {

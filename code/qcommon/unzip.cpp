@@ -19,7 +19,7 @@
 #define ZIP_fread	fread
 #define ZIP_ftell	ftell
 
-#ifdef LINUX
+#if defined(LINUX) || defined(__APPLE__)
 #include <zlib.h>
 #define ZF_STORED					0
 #define ZF_DEFLATED					8
@@ -73,7 +73,7 @@
 typedef unsigned char  Byte;  /* 8 bits */
 typedef unsigned int   uInt;  /* 16 bits or more */
 typedef unsigned long  uLong; /* 32 bits or more */
-#ifndef LINUX
+#if !defined(LINUX) && !defined(__APPLE__)
 typedef Byte    *voidp;
 #endif
 
@@ -83,7 +83,7 @@ typedef Byte    *voidp;
 #  define SEEK_END        2       /* Set file pointer to EOF plus "offset" */
 #endif
 
-#ifndef LINUX
+#if !defined(LINUX) && !defined(__APPLE__)
 typedef voidp gzFile;
 #endif
 
@@ -1027,7 +1027,7 @@ extern int unzOpenCurrentFile (unzFile file)
 
 	pfile_in_zip_read_info->stream.total_out = 0;
 	
-	#ifdef LINUX
+    #if defined(LINUX) || defined(__APPLE__)
 	pfile_in_zip_read_info->stream.zalloc = Z_NULL;
 	pfile_in_zip_read_info->stream.zfree = Z_NULL;
 	pfile_in_zip_read_info->stream.opaque = Z_NULL;
@@ -1037,7 +1037,7 @@ extern int unzOpenCurrentFile (unzFile file)
 
 	if (!Store)
 	{
-		#ifdef LINUX
+        #if defined(LINUX) || defined(__APPLE__)
 	  err=inflateInit2(&(pfile_in_zip_read_info->stream), -MAX_WBITS);
 	  #else
 		err=inflateInit(&pfile_in_zip_read_info->stream, Z_SYNC_FLUSH, 1);
@@ -1174,7 +1174,7 @@ extern int unzReadCurrentFile  (unzFile file, void *buf, unsigned len)
 				(pfile_in_zip_read_info->rest_read_compressed == 0))
 				flush = Z_FINISH;
 			*/
-			#ifdef LINUX
+            #if defined(LINUX) || defined(__APPLE__)
 			err=inflate(&pfile_in_zip_read_info->stream, Z_SYNC_FLUSH);
 			#else
 			err=inflate(&pfile_in_zip_read_info->stream);			

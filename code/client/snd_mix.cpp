@@ -15,7 +15,7 @@ short	*snd_out;
 
 
 
-#if !(defined __linux__ && defined __i386__)
+#if !((defined __linux__ || defined __APPLE__) && defined __i386__)
 #if	!id386
 
 

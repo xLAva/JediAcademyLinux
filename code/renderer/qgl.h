@@ -23,7 +23,9 @@
 
 #elif defined( __APPLE__ ) && defined( __MACH__ )
   
-#include <MesaGL/gl.h>
+#include <OpenGL/glext.h>
+#include <OpenGL/gl.h>
+//#include <MesaGL/gl.h>
 
 #elif defined( __linux__ )
 

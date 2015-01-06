@@ -6,7 +6,7 @@
 #include "../qcommon/qcommon.h"
 
 
-#ifdef LINUX
+#if defined(LINUX) || defined(__APPLE__)
 #include <zlib.h>
 #define Z_FAST_COMPRESSION_HIGH 3
 #else
@@ -421,7 +421,7 @@ bool PNG_Unpack(const byte *data, const ulong datasize, png_image_t *image)
 //	MD_PushTag(TAG_ZIP_TEMP);
 
 	memset(&zdata, 0, sizeof(z_stream));
-	#ifdef LINUX
+    #if defined(LINUX) || defined(__APPLE__)
 	if(inflateInit(&zdata) != Z_OK)
 	#else
 	if(inflateInit(&zdata, Z_SYNC_FLUSH) != Z_OK)
@@ -443,7 +443,7 @@ bool PNG_Unpack(const byte *data, const ulong datasize, png_image_t *image)
 		// Inflate a row of data
 		zdata.next_out = &filter;
 		zdata.avail_out = 1;
-		#ifdef LINUX		
+        #if defined(LINUX) || defined(__APPLE__)
 		if(inflate(&zdata, Z_SYNC_FLUSH) != Z_OK)
 		#else
 		if(inflate(&zdata) != Z_OK)		
@@ -456,7 +456,7 @@ bool PNG_Unpack(const byte *data, const ulong datasize, png_image_t *image)
 		}
 		zdata.next_out = out;
 		zdata.avail_out = rowbytes;
-		#ifdef LINUX
+        #if defined(LINUX) || defined(__APPLE__)
 		zerror = inflate(&zdata, Z_SYNC_FLUSH);
 		#else
 		zerror = inflate(&zdata);		

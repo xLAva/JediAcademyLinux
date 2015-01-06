@@ -30,7 +30,7 @@ static int (*syscallBack)( int arg, ... ) = (int (*)( int, ...))-1;
 #ifdef _XBOX
 void cg_dllEntry( int (*syscallptr)( int arg,... ) ) {
 #else
-#ifdef __linux__
+#if defined(LINUX) || defined(__APPLE__)
 extern "C" {
 #endif
 void dllEntry( int (*syscallptr)( int arg,... ) ) {
@@ -38,7 +38,7 @@ void dllEntry( int (*syscallptr)( int arg,... ) ) {
 	syscallBack = syscallptr;
 	CG_PreInit();
 }
-#ifdef __linux__
+#if defined(LINUX) || defined(__APPLE__)
 }
 #endif
 

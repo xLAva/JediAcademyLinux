@@ -7,7 +7,7 @@
 #if !defined(CM_DRAW_H_INC)
 #define CM_DRAW_H_INC
 
-#ifdef LINUX
+#if defined(LINUX) || defined(__APPLE__)
 typedef struct tagPOINT {
    long x;
    long y;

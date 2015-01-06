@@ -64,7 +64,7 @@
 #if !defined(FINAL_BUILD)
 	#if !defined(RAGL_PROFILE_INC) && !defined(_XBOX)
 		#define  RAGL_PROFILE_INC
-		#if !defined(LINUX)
+        #if !defined(LINUX) && !defined(__APPLE__)
 			#include "Windows.h"
 		#endif
 	#endif

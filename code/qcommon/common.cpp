@@ -142,7 +142,7 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 	Sys_Print( msg );
 
 #ifdef OUTPUT_TO_BUILD_WINDOW
-#ifndef LINUX
+#if !defined(LINUX) && !defined(__APPLE__)
 	OutputDebugString(msg);
 #endif
 #endif

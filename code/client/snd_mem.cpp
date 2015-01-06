@@ -8,7 +8,7 @@
 #include "snd_local.h"
 #include "cl_mp3.h"
 
-#ifdef LINUX
+#if defined(LINUX) || defined(__APPLE__)
 #include <string>
 #endif
 

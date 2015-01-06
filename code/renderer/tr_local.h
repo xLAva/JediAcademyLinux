@@ -23,7 +23,7 @@ typedef unsigned int glIndex_t;
 #endif
 
 // fast float to int conversion
-#if id386 && !(defined __linux__ && defined __i386__)
+#if id386 && !((defined __linux__ || defined __APPLE__) && defined __i386__)
 long myftol( float f );
 #else
 #define	myftol(x) ((int)(x))
@@ -1685,7 +1685,7 @@ struct shaderCommands_s
 };
 
 
-#ifdef LINUX
+#if defined(LINUX) || defined(__APPLE__)
 typedef shaderCommands_s	shaderCommands_t; //LAvaPort -> check this later
 #else
 typedef __declspec(align(16)) shaderCommands_s	shaderCommands_t;

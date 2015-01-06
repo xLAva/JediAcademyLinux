@@ -14,7 +14,7 @@
 
 typedef int wfhandle_t;
 #else
-#ifdef LINUX
+#if defined(LINUX) || defined(__APPLE__)
 #include <zlib.h>
 #else
 #include "../zlib32/zip.h"

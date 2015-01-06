@@ -209,7 +209,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////
 	int			index_to_handle(int index) const
 	{
-		assert(index>=0 && index<CAPACITY && is_used_index(index)); //disallowing this on stale handles
+		assert(index>=0 && index<CAPACITY && this->is_used_index(index)); //disallowing this on stale handles
 		return (mHandles[index]);
 	}
 

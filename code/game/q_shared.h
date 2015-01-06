@@ -36,7 +36,7 @@
 #endif
 
 #ifndef FINAL_BUILD
-#ifndef LINUX
+#if !defined(LINUX) && !defined(__APPLE__)
 #define G2_PERFORMANCE_ANALYSIS
 #endif
 #endif
@@ -169,7 +169,11 @@ void Sys_PumpEvents( void );
 
 #define	PATH_SEP '/'
 
-#ifdef __linux__
+
+
+#endif
+
+#if defined(LINUX) || defined(__APPLE__)
 
 
 #define __cdecl
@@ -187,8 +191,6 @@ char* strlwr(char* s);
 
 #include <math.h>
 #define _isnan isnan
-
-#endif
 
 #endif
 
@@ -237,7 +239,7 @@ typedef int		clipHandle_t;
 
 
 #define	MAX_QPATH			64		// max length of a quake game pathname
-#ifdef LINUX
+#if defined(LINUX) || defined(__APPLE__)
 #define	MAX_OSPATH			4096		// max length of a filesystem pathname
 #else
 #define	MAX_OSPATH			260		// max length of a filesystem pathname

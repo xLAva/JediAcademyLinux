@@ -29,7 +29,7 @@ typedef unsigned char byte;
 #endif
 #endif
 
-#ifdef LINUX
+#if defined(LINUX) || defined(__APPLE__)
 #ifndef byte
 typedef unsigned char byte;
 #endif

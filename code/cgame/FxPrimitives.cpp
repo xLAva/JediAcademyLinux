@@ -7,11 +7,11 @@
 
 #include "cg_media.h"
 
-#ifdef __linux__
+#if defined(LINUX) || defined(__APPLE__)
 static long myftol (float f)
 {
   static int tmp;
-  __asm__ __volatile__ ("fld %1; fistp %0;" : "=m" (tmp) : "m" (f));
+  __asm__ __volatile__ ("flds %1; fistpl %0;" : "=m" (tmp) : "m" (f));
   return tmp;
 }
 #else

@@ -73,7 +73,7 @@
 #define STRING_H_INC
 #endif
 
-#ifdef LINUX
+#if defined(LINUX) || defined(__APPLE__)
 #define __cdecl
 #define stricmp strcasecmp
 #define strcmpi strcasecmp

@@ -11,7 +11,7 @@
 #include <algorithm>
 #pragma warning (pop)
 
-#ifdef LINUX
+#if defined(LINUX) || defined(__APPLE__)
 #include <string.h>
 #include <stdio.h>
 #endif

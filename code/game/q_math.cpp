@@ -629,7 +629,7 @@ int BoxOnPlaneSide2 (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 ==================
 */
 
-#if !(defined __linux__ && defined __i386__) || defined __LCC__
+#if !((defined __linux__ || defined __APPLE__) && defined __i386__) || defined __LCC__
 #if !id386
 
 int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *p)

@@ -1,4 +1,4 @@
-#ifndef LINUX
+#if !defined(LINUX) && !defined(__APPLE__)
 class timing_c
 {
 private:

@@ -116,6 +116,6 @@
   ((size_t) fwrite((const void *) (buf), (size_t) 1, (size_t) (sizeofbuf), (file)))
 
 
-#ifdef LINUX
+#if defined(LINUX) || defined(__APPLE__)
 #define INT32 int
 #endif

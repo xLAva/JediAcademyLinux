@@ -8,7 +8,7 @@
 
 #include "../qcommon/stringed_ingame.h"
 
-#ifdef LINUX
+#if defined(LINUX) || defined(__APPLE__)
 #include <string>
 #include <limits.h>
 #endif

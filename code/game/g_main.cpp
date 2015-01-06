@@ -872,7 +872,7 @@ and global variables
 =================
 */
 extern int PM_ValidateAnimRange( const int startFrame, const int endFrame, const float animSpeed );
-#ifdef __linux__
+#if defined(LINUX) || defined(__APPLE__)
 extern "C" {
 #endif
 game_export_t *GetGameAPI( game_import_t *import ) {
@@ -918,7 +918,7 @@ game_export_t *GetGameAPI( game_import_t *import ) {
 
 	return &globals;
 }
-#ifdef __linux__
+#if defined(LINUX) || defined(__APPLE__)
 }
 #endif
 

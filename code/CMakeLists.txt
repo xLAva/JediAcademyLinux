@@ -18,6 +18,23 @@ set(USE_OPENHMD 1)
 set(USE_SDL2 1)
 
 
+
+set(PLATFORM_WIN32 0)
+set(PLATFORM_MACOS 0)
+set(PLATFORM_LINUX 0)
+
+message("system name: ${CMAKE_SYSTEM_NAME}")
+
+if(WIN32)
+    set(PLATFORM_WIN32 1)
+elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+    set(PLATFORM_MACOS 1)
+elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+    set(PLATFORM_LINUX 1)
+endif()
+
+message("Win32:${PLATFORM_WIN32} MacOS:${PLATFORM_MACOS} Linux:${PLATFORM_LINUX}")
+
 if(CMAKE_BUILD_TYPE STREQUAL "")
     set(CMAKE_BUILD_TYPE "RELEASE")
 endif()
@@ -686,7 +703,7 @@ if(USE_OCULUS_SDK)
     set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DUSE_OVR")
 
 
-	if(WIN32)
+        if(PLATFORM_WIN32)
         include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/LibOVR/Src")
 
 		link_directories("C:/WinDDK/7600.16385.1/lib/ATL/i386")
@@ -695,7 +712,7 @@ if(USE_OCULUS_SDK)
 		set(EXTRA_LIBS ${EXTRA_LIBS} debug ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/LibOVR/Lib/Win32/VS2013/libovrd.lib)
 		set(EXTRA_LIBS ${EXTRA_LIBS} optimized ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/LibOVR/Lib/Win32/VS2013/libovr.lib)
 
-	else()
+        elseif(PLATFORM_LINUX)
         include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/ovr_sdk_linux_0.4.3/LibOVR/Src")
 
 		if(CMAKE_BUILD_TYPE STREQUAL "DEBUG")
@@ -706,6 +723,17 @@ if(USE_OCULUS_SDK)
 
 		set(EXTRA_LIBS ${EXTRA_LIBS} udev)
 		set(EXTRA_LIBS ${EXTRA_LIBS} Xinerama)
+        elseif(PLATFORM_MACOS)
+        include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/LibOVR/Src")
+
+                if(CMAKE_BUILD_TYPE STREQUAL "DEBUG")
+                        set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/LibOVR/Lib/MacOS/Debug/i386/libovr.a)
+                else()
+                        set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/LibOVR/Lib/MacOS/Release/i386/libovr.a)
+                endif()
+
+                set(EXTRA_LIBS ${EXTRA_LIBS} udev)
+                set(EXTRA_LIBS ${EXTRA_LIBS} Xinerama)
 	endif()
 
 endif()
@@ -725,15 +753,21 @@ if(USE_OPENHMD)
     include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OpenHMD/src")
 
 
-    if(WIN32)
-    add_library(imp_openhmd STATIC IMPORTED)
+    if(PLATFORM_WIN32)
+        add_library(imp_openhmd STATIC IMPORTED)
         set_property(TARGET imp_openhmd PROPERTY IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OpenHMD/msvc/Release/openhmd.lib")
         set(EXTRA_LIBS ${EXTRA_LIBS} imp_openhmd)
-    else()
+    elseif(PLATFORM_LINUX)
         if(CMAKE_BUILD_TYPE STREQUAL "DEBUG")
             set(EXTRA_LIBS ${EXTRA_LIBS} "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OpenHMD/linux/debug/i386/libopenhmd.a")
         else()
             set(EXTRA_LIBS ${EXTRA_LIBS} "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OpenHMD/linux/release/i386/libopenhmd.a")
+        endif()
+    elseif(PLATFORM_MACOS)
+        if(CMAKE_BUILD_TYPE STREQUAL "DEBUG")
+            set(EXTRA_LIBS ${EXTRA_LIBS} "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OpenHMD/macos/debug/i386/libopenhmd.a")
+        else()
+            set(EXTRA_LIBS ${EXTRA_LIBS} "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OpenHMD/macos/release/i386/libopenhmd.a")
         endif()
     endif()
 
@@ -805,7 +839,7 @@ if(USE_SDL2)
 
     set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DUSE_SDL2")
 
-        if(WIN32)
+        if(PLATFORM_WIN32)
         # windows sdl
 
 		set(SSF_WIN32 ${SSF_WIN32}
@@ -820,7 +854,16 @@ if(USE_SDL2)
 		set_property(TARGET imp_sdl2 PROPERTY IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/SDL2-2.0.3/lib/x86/SDL2.lib")
 
 		set(EXTRA_LIBS ${EXTRA_LIBS} imp_sdl2)
-	else()		
+        elseif(PLATFORM_MACOS)
+        # mac sdl
+
+                set(SSF_MACOS ${SSF_MACOS}
+                        sdl/sdl_console.cpp
+                        mac/mac_main.c
+                )
+
+                set(EXTRA_LIBS ${EXTRA_LIBS} SDL2)
+        else()
         # linux sdl
 
 		set(SSF_LINUX ${SSF_LINUX}
@@ -831,7 +874,7 @@ if(USE_SDL2)
 		set(EXTRA_LIBS ${EXTRA_LIBS} SDL2)
 	endif()
 else()
-    if(UNIX)
+    if(PLATFORM_LINUX)
         set(SSF_LINUX ${SSF_LINUX}
             linux/linux_local.h
             linux/linux_glw.h
@@ -846,7 +889,7 @@ else()
     endif()
 endif()
 
-if(WIN32)
+if(PLATFORM_WIN32)
     # we only need this on windows
 
 	set(SSF_ZLIB32
@@ -866,9 +909,19 @@ endif()
 # add platform specific files
 source_group(win32 FILES ${SSF_WIN32})
 source_group(linux FILES ${SSF_LINUX})
-set(STARWARS_SOURCE_FILES ${STARWARS_SOURCE_FILES} ${SSF_WIN32} ${SSF_LINUX})
+source_group(mac FILES ${SSF_MACOS})
+set(STARWARS_SOURCE_FILES ${STARWARS_SOURCE_FILES} ${SSF_WIN32} ${SSF_LINUX} ${SSF_MACOS})
 
-
+IF(APPLE)
+   INCLUDE_DIRECTORIES ( /System/Library/Frameworks )
+   FIND_LIBRARY(COCOA_LIBRARY Cocoa)
+   FIND_LIBRARY(GLUT_LIBRARY GLUT )
+   FIND_LIBRARY(OpenGL_LIBRARY OpenGL )
+   MARK_AS_ADVANCED (COCOA_LIBRARY
+                     GLUT_LIBRARY
+                     OpenGL_LIBRARY)
+   SET(EXTRA_LIBS "${EXTRA_LIBS} ${COCOA_LIBRARY} ${GLUT_LIBRARY} ${OpenGL_LIBRARY}")
+ENDIF (APPLE)
 
 # finally set the compiler flags
 
@@ -885,15 +938,24 @@ if(MSVC)
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${CMAKE_CXX_FLAGS_RELEASE}")
 
 else()
-    set(DISABLE_WARNINGS_C "-Wno-write-strings -Wno-pointer-arith -Wno-multichar -Wno-int-to-pointer-cast -Wno-enum-compare -Wno-cpp -Wno-overflow")
-    set(DISABLE_WARNINGS_CXX "-Wno-write-strings -Wno-pointer-arith -Wno-multichar -Wno-int-to-pointer-cast -Wno-enum-compare -Wno-cpp -Wno-overflow -Wno-conversion-null")
+    set(DISABLE_WARNINGS_C "-Wno-write-strings -Wno-pointer-arith -Wno-multichar -Wno-int-to-pointer-cast -Wno-enum-compare -Wno-overflow")
+    set(DISABLE_WARNINGS_CXX "-Wno-write-strings -Wno-pointer-arith -Wno-multichar -Wno-int-to-pointer-cast -Wno-enum-compare -Wno-overflow -Wno-conversion-null")
 
     set(COMPILER_FLAGS_C "-m32 -fexceptions -ffast-math")
     set(COMPILER_FLAGS_CXX "-m32 -fexceptions -ffast-math -fno-operator-names ")
 
-    if(UNIX)
+    if(PLATFORM_LINUX)
         #set NDEBUG even on debug builds - asserts are killing us otherwise
         set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DLINUX -DNDEBUG")
+
+        set(DISABLE_WARNINGS_C "${DISABLE_WARNINGS_C} -Wno-cpp")
+        set(DISABLE_WARNINGS_CXX "${DISABLE_WARNINGS_CXX} -Wno-cpp")
+
+    endif()
+
+    if(PLATFORM_MACOS)
+        add_definitions(-arch i386)
+        set(ldflags "${ldflags} -arch i386")
     endif()
 
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${CUSTOM_COMPILE_FLAGS_ALL} ${DISABLE_WARNINGS_C} ${COMPILER_FLAGS_C}")
@@ -908,23 +970,26 @@ endif()
 add_library(jagamehmdx86 SHARED ${GAME_SOURCE_FILES})
 set_target_properties(jagamehmdx86 PROPERTIES PREFIX "")
 
-if(WIN32)
+if(PLATFORM_WIN32)
 	set (EXECUTABLE_FLAG WIN32)
 	set (EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/OpenAL32.lib)
 	set (EXTRA_LIBS ${EXTRA_LIBS} winmm.lib)
 	set (EXTRA_LIBS ${EXTRA_LIBS} wsock32.lib)
 	#set (EXTRA_LIBS ${EXTRA_LIBS} ALut.lib)
 else()
-	set (EXTRA_LIBS ${EXTRA_LIBS} dl)
-	set (EXTRA_LIBS ${EXTRA_LIBS} openal)
-	set (EXTRA_LIBS ${EXTRA_LIBS} GL)
-	set (EXTRA_LIBS ${EXTRA_LIBS} X11)
-	set (EXTRA_LIBS ${EXTRA_LIBS} Xxf86vm)
-	set (EXTRA_LIBS ${EXTRA_LIBS} Xrandr)
-	set (EXTRA_LIBS ${EXTRA_LIBS} rt)
-	set (EXTRA_LIBS ${EXTRA_LIBS} pthread)
-	set (EXTRA_LIBS ${EXTRA_LIBS} z)
-	set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "-m32")
+    if(PLATFORM_LINUX)
+        set (EXTRA_LIBS ${EXTRA_LIBS} X11)
+        set (EXTRA_LIBS ${EXTRA_LIBS} Xxf86vm)
+        set (EXTRA_LIBS ${EXTRA_LIBS} Xrandr)
+    endif()
+
+    set (EXTRA_LIBS ${EXTRA_LIBS} dl)
+    set (EXTRA_LIBS ${EXTRA_LIBS} openal)
+    set (EXTRA_LIBS ${EXTRA_LIBS} GL)
+    set (EXTRA_LIBS ${EXTRA_LIBS} rt)
+    set (EXTRA_LIBS ${EXTRA_LIBS} pthread)
+    set (EXTRA_LIBS ${EXTRA_LIBS} z)
+    set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "-m32")
 endif()
 
 

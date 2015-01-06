@@ -5,7 +5,7 @@
 
 //#include "q_shared.h"
 
-#ifdef __linux__
+#if defined(LINUX) || defined(__APPLE__)
 char* strupr(char* s)
 {
   char* start = s;

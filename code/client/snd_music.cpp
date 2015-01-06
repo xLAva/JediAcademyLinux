@@ -17,7 +17,7 @@
 #include "cl_mp3.h"
 #endif
 
-#ifdef LINUX
+#if defined(LINUX) || defined(__APPLE__)
 #include <string>
 #endif
 
