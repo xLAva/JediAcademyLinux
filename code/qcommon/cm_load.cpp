@@ -233,7 +233,7 @@ void CMod_LoadBrushes( lump_t *l, clipMap_t &cm ) {
 	}
 	count = l->filelen / sizeof(*in);
 
-	cm.brushes = (cbrush_t *) Z_Malloc( ( BOX_BRUSHES + count ) * sizeof( *cm.brushes ), TAG_BSP, qfalse);
+	cm.brushes = (cbrush_t *) Z_Malloc( ( BOX_BRUSHES + count ) * sizeof( *cm.brushes ), TAG_BSP, qtrue);
 	cm.numBrushes = count;
 
 	out = cm.brushes;
