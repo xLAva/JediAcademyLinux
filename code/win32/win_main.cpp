@@ -1218,7 +1218,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 #ifdef _DEBUG
 		if (!g_wv.activeApp)
 		{
-			Sleep(50);
+			//Sleep(50);
 		}
 #endif // _DEBUG
 
