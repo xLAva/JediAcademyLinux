@@ -2,7 +2,7 @@ How to build the code
 =====================
 
 Checkout the code from the git repository:
-https://github.com/xLAva/JediAcademyLinux/tree/HMD-DK2
+https://github.com/xLAva/JediAcademyLinux/tree/HmdSupportDK2
 
 Checkout OpenHmd from my git repository into the 3rdparty/OpenHmd folder (inside the JediAcademy folder structure)
 https://github.com/xLAva/OpenHmd

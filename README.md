@@ -3,7 +3,7 @@ Oculus Rift support for Jedi Academy
 
 I want to share my new project: Oculus Rift DK1 & DK2 support for Jedi Academy (for Windows and Linux)
 
-https://github.com/xLAva/JediAcademyLinux/tree/HMD-DK2
+https://github.com/xLAva/JediAcademyLinux/tree/HmdSupportDK2
 
 This project was on my mind since the source code was released last year. Finally I had some time this summer to get started.
 
@@ -16,9 +16,9 @@ This Oculus Rift support implementation is designed for first person game play. 
 
 There are binaries for Linux and Windows checked into the Github repository, so if you want to just play the Oculus Rift version, download the binary files and start playing right away.
 
-https://github.com/xLAva/JediAcademyLinux/tree/HMD-DK2/binary/win32
+https://github.com/xLAva/JediAcademyLinux/tree/HmdSupportDK2/binary/win32
 
-https://github.com/xLAva/JediAcademyLinux/tree/HMD-DK2/binary/linux_i386
+https://github.com/xLAva/JediAcademyLinux/tree/HmdSupportDK2/binary/linux_i386
 
 Copy all the files from the Windows or Linux platform folder into the root directory of your "Jedi Knight III: Jedi Academy" installation.
 
@@ -36,7 +36,7 @@ The game runs fine without this asset file.
 
 If you want to use it, download the additional asset file and place it on your "base" folder of the "Jedi Knight III: Jedi Academy" insallation folder.
 
-https://github.com/xLAva/JediAcademyLinux/tree/HMD-DK2/binary/base/assets4.pk3
+https://github.com/xLAva/JediAcademyLinux/tree/HmdSupportDK2/binary/base/assets4.pk3
 
 
 ### Platform Specific:

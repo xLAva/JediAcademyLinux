@@ -65,6 +65,7 @@ static cvar_t	*r_fakeFullscreen;
 
 static bool sWindowHasFocus = qtrue;
 static qboolean sVideoModeFullscreen = qfalse;
+static bool sRelativeMouseMode = false;
 
 // Whether the current hardware supports dynamic glows/flares.
 extern bool g_bDynamicGlowSupported;
@@ -182,7 +183,6 @@ int GLW_SetMode(int mode, qboolean fullscreen )
 	
 	bool fixedDeviceResolution = false;
 	bool fullscreenWindow = false;
-	bool fullscreenDesktopRes = false;
 	
 	bool useWindowPosition = false;
 	int xPos = 0;
@@ -212,14 +212,11 @@ int GLW_SetMode(int mode, qboolean fullscreen )
 			glConfig.vidHeight = deviceHeight;
 						
 			useWindowPosition = pHmdDevice->GetDisplayPos(xPos, yPos);
-			//useWindowPosition = false;
 			
 			#ifdef LINUX
 				fullscreen = true;
 			#else
 				fullscreen = false;
-				fullscreenWindow = false;            
-				//fullscreenDesktopRes = true;            
 			#endif
 
 			VID_Printf( PRINT_ALL, "hmd display: %s\n", pHmdDevice->GetDisplayDeviceName().c_str());    
@@ -230,7 +227,7 @@ int GLW_SetMode(int mode, qboolean fullscreen )
 		}
 	}
 	
-	sVideoModeFullscreen = fullscreen || fullscreenWindow || fullscreenDesktopRes;
+	sVideoModeFullscreen = fullscreen || fullscreenWindow;
 	mx = 0;
 	my = 0;
 
@@ -271,9 +268,9 @@ int GLW_SetMode(int mode, qboolean fullscreen )
 	
 	
 	int windowFlags = SDL_WINDOW_OPENGL;
-	if (fullscreen || fullscreenDesktopRes)
+	if (fullscreen)
 	{
-		windowFlags |= (fullscreen ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_FULLSCREEN_DESKTOP);
+		windowFlags |= SDL_WINDOW_FULLSCREEN;
 		windowFlags |= SDL_WINDOW_INPUT_GRABBED;
 	}
 	
@@ -330,38 +327,24 @@ int GLW_SetMode(int mode, qboolean fullscreen )
 	}
 #endif
 
+	sRelativeMouseMode = false;
 	sWindowHasFocus = true;
 	if (sVideoModeFullscreen)
 	{
-		SDL_SetRelativeMouseMode(SDL_TRUE);
+		VID_Printf( PRINT_ALL, "set relative mouse.");
+		int mouseError = SDL_SetRelativeMouseMode(SDL_TRUE);
+		if (mouseError != 0)
+		{
+			VID_Printf( PRINT_ALL, "set relative mouse motion failed: %s\n", SDL_GetError());
+		}
+		else
+		{
+			sRelativeMouseMode = true;
+		}
 	}
 
 	sGlContext = SDL_GL_CreateContext(s_pSdlWindow);
 	
-	//int rendererFlags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
-	//
-	//int rendererCount = SDL_GetNumRenderDrivers();
-	//for (int i=0; i<rendererCount; i++)
-	//{
-	//    SDL_RendererInfo renderInfo;
-	//    int ret = SDL_GetRenderDriverInfo(i, &renderInfo);
-	//    if (ret == 0)
-	//    {
-	//        //VID_Printf( PRINT_ALL, "renderer found: %s\n", renderInfo.name);
-	//        if (strcmp(renderInfo.name, "opengl") == 0)
-	//        {
-	//            s_pSdlRenderer = SDL_CreateRenderer(s_pSdlWindow, i, rendererFlags);
-	//            break;
-	//        }
-	//    }
-	//}
-	//
-	//if (!s_pSdlRenderer)
-	//{
-	//    VID_Printf( PRINT_ALL, "CreateRenderer failed: %s\n", SDL_GetError());
-	//    return RSERR_UNKNOWN;
-	//}
-	   
 	
 	SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &redbits);
 	SDL_GL_GetAttribute(SDL_GL_GREEN_SIZE, &greenbits);
@@ -1657,7 +1640,7 @@ static void HandleEvents(void)
 
 	qboolean forceRelMouse = qfalse;
 #ifdef __APPLE__
-	forceRelMouse = qtrue;
+	//forceRelMouse = qtrue;
 #endif
 	char *p;
 	
@@ -1694,7 +1677,7 @@ static void HandleEvents(void)
 			}
 			break;
 		case SDL_MOUSEMOTION:
-			if (sVideoModeFullscreen || forceRelMouse)
+			if (sRelativeMouseMode || forceRelMouse)
 			{
 				mx += event.motion.xrel;
 				my += event.motion.yrel;
@@ -1808,7 +1791,7 @@ static void HandleEvents(void)
 		SDL_WarpMouseInWindow(s_pSdlWindow, (glConfig.vidWidth/2),(glConfig.vidHeight/2));
 	}
 	
-	if (!sVideoModeFullscreen && !sWindowHasFocus)
+	if (!sRelativeMouseMode && !sWindowHasFocus)
 	{
 		mx = 0;
 		my = 0;
