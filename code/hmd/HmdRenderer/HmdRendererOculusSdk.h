@@ -75,6 +75,7 @@ private:
     float mGuiOffsetFactorX;
 
     bool mDismissHealthSafetyWarning;
+    bool mAllowZooming;
 
     HmdDeviceOculusSdk* mpDevice;
     ovrHmd mpHmd;

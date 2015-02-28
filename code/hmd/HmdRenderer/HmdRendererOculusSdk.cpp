@@ -30,6 +30,7 @@ HmdRendererOculusSdk::HmdRendererOculusSdk(HmdDeviceOculusSdk* pHmdDeviceOculusS
     ,mGuiScale(1.0f)
     ,mGuiOffsetFactorX(0)
     ,mDismissHealthSafetyWarning(false)
+    ,mAllowZooming(false)
     ,mpDevice(pHmdDeviceOculusSdk)
     ,mpHmd(NULL)
 {
@@ -67,6 +68,7 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     {
         mGuiScale = 0.50f;
         mGuiOffsetFactorX = 0;
+        mAllowZooming = true;
     }
     
     if (mpHmd->Type == ovrHmd_DK1)
@@ -443,8 +445,10 @@ bool HmdRendererOculusSdk::GetCustomProjectionMatrix(float* rProjectionMatrix, f
     ovrFovPort fovPort = mEyeRenderDesc[mEyeId].Fov;
     
     // ugly hardcoded default value
-    if (fov < 124)
+    if (mAllowZooming && fov < 124)
     {
+        // this calculation only works on DK2 at the moment
+        
         // something needs zooming
         float fovRad = DEG2RAD(fov);
         float tanVal = tanf(fovRad * 0.5f);
