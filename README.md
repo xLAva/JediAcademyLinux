@@ -1,4 +1,4 @@
-Oculus Rift support for Jedi Academy
+Oculus Rift support for Jedi Academy (DK1 & DK2)
 ====================================
 
 I want to share my new project: Oculus Rift DK1 & DK2 support for Jedi Academy (for Windows and Linux)
@@ -30,8 +30,8 @@ For those not having the Steam version: you'll need the 1.01 update from here ht
 
 ### Additional Asset File (optional):
 
-The additional asset file just contains a new default config with the gamepad already setup (including hmd recenter using the start button). 
-Also a small translation string was added for the resolution selection (not needed in HMD mode).
+The additional asset file just contains a new default config with the gamepad already setup (including Head-Mounted-Device recenter using the start button). 
+Also a small translation string was added for the resolution selection.
 The game runs fine without this asset file.
 
 If you want to use it, download the additional asset file and place it on your "base" folder of the "Jedi Knight III: Jedi Academy" insallation folder.
@@ -76,7 +76,7 @@ This time around I used cmake instead of Code::Blocks. It is configured to work 
 For the DK2 support I had to use the OculusSDK. The OpenHMD library just doesn't support all the features. It is still possible to build the game with OpenHMD support. Just follow the instructions in the Build.md file.
 The OculusSDK library is loaded during runtime and the game also works fine without the library. 
 
-This version can also be played without any HMD device. All HMD tweaks will be disabled and the game should behave like the original version.
+This version can also be played without any Head Mounted Device. All HMD tweaks will be disabled and the game should behave like the original version.
 
 Before I started this project, I had a look at the rift support implementation from LeeN (mtbs3d forum). This helped me to get started. Thx LeeN.
 
