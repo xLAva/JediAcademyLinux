@@ -17,7 +17,7 @@ set(FORCE_STATIC_OCULUS_SDK 0)
 
 set(USE_OPENHMD 0)
 
-# needed for HMD support and Windows support
+# doesn't work without SDL2 at the moment
 set(USE_SDL2 1)
 
 
@@ -742,13 +742,12 @@ if(USE_OCULUS_SDK)
 			set(EXTRA_LIBS ${EXTRA_LIBS} debug ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Win32/VS2013/libovrd.lib)
 			set(EXTRA_LIBS ${EXTRA_LIBS} optimized ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Win32/VS2013/libovr.lib)
 
-			endif()
-
         elseif(PLATFORM_LINUX)
+
 			if(CMAKE_BUILD_TYPE STREQUAL "DEBUG")
-				set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Linux/Debug/i386/libovr.a)
+				set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/libovr_linux/lib/i386/debug/libovr.a)
 			else()
-				set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Linux/Release/i386/libovr.a)
+				set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/libovr_linux/lib/i386/release/libovr.a)
 			endif()
 
 			set(EXTRA_LIBS ${EXTRA_LIBS} udev)
@@ -760,6 +759,7 @@ if(USE_OCULUS_SDK)
                 else()
                         set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/MacOS/Release/i386/libovr.a)
                 endif()
+        endif()
 	endif()
 
 endif()
