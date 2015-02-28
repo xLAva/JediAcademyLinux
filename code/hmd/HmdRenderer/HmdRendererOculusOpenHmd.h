@@ -33,7 +33,7 @@ public:
     virtual void EndFrame();
 
     virtual bool GetCustomProjectionMatrix(float* rProjectionMatrix, float zNear, float zFar, float fov);
-    virtual bool GetCustomViewMatrix(float* rViewMatrix, float &xPos, float &yPos, float &zPos, float bodyYaw);
+    virtual bool GetCustomViewMatrix(float* rViewMatrix, float &xPos, float &yPos, float &zPos, float bodyYaw, bool noPosition);
 
     virtual bool Get2DViewport(int& rX, int& rY, int& rW, int& rH);
 

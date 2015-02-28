@@ -216,7 +216,7 @@ bool HmdRendererOculusOpenHmd::GetCustomProjectionMatrix(float* rProjectionMatri
     return true;
 }
 
-bool HmdRendererOculusOpenHmd::GetCustomViewMatrix(float* rViewMatrix, float& xPos, float& yPos, float& zPos, float bodyYaw)
+bool HmdRendererOculusOpenHmd::GetCustomViewMatrix(float* rViewMatrix, float& xPos, float& yPos, float& zPos, float bodyYaw, bool noPosition)
 {
     if (!mIsInitialized)
     {
@@ -242,7 +242,7 @@ bool HmdRendererOculusOpenHmd::GetCustomViewMatrix(float* rViewMatrix, float& xP
     // create view matrix
     glm::mat4 viewMatrix = hmdRotationMat * glm::mat4_cast(bodyYawRotation) * bodyPosition;
 
-    float meterToGame = 26.2464f;// (3.2808f * 8.0f); // meter to feet * game factor 8
+    float meterToGame = 52.4928f;// (3.2808f * 8.0f * 2.0f); // meter to feet * QuakeIII engine factor 8 * JA level factor 2
     // apply ipd
     float halfIPD = mInterpupillaryDistance * 0.5f * meterToGame * (mCurrentFbo == 0 ? 1.0f : -1.0f);
 
