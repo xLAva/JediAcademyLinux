@@ -43,6 +43,12 @@ https://github.com/xLAva/JediAcademyLinux/tree/HmdSupportDK2/binary/base/assets4
 
 The version was tested on Ubuntu 14.04 and Windows 7.
 
+#### Windows:
+
+Direct Mode and Extended Mode are supported for DK2.
+Make sure you set the DK1 to Extended Desktop Mode. The current OculusSDK doesn't work with Direct Mode, OpenGL and DK1.
+
+
 #### Ubuntu: 
 
 The universe repository has to be activated (Software & Updates)

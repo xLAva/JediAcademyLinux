@@ -17,6 +17,7 @@ set(FORCE_STATIC_OCULUS_SDK 0)
 
 set(USE_OPENHMD 0)
 
+# needed for HMD support and Windows support
 set(USE_SDL2 1)
 
 
