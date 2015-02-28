@@ -1012,7 +1012,7 @@ inline int Q_irand(int min, int max) {
 	//return ((rand() * (max - min)) >> 15) + min;
 	//int r = ((rand() * (max - min)) >> 15) + min;
 	
-	if (max == min)
+	if (max <= min)
 	{
 		return min;
 	}
