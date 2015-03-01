@@ -39,11 +39,11 @@ Needed packages on Windows:
 Visual Studio C++ (Express is enough)
 
 Place this libraries in the 3rdparty folder:
-SDL2: https://www.libsdl.org/release/SDL2-2.0.3-win32-x86.zip
-GLM: http://sourceforge.net/projects/ogl-math/files/latest/download?source=files
+* SDL2: https://www.libsdl.org/release/SDL2-2.0.3-win32-x86.zip
+* GLM: http://sourceforge.net/projects/ogl-math/files/latest/download?source=files
 
 Only needed for OpenHmd:
-hidapi: https://github.com/downloads/signal11/hidapi/hidapi-0.7.0.zip
+* hidapi: https://github.com/downloads/signal11/hidapi/hidapi-0.7.0.zip
 
 
 Start building the project:
@@ -56,11 +56,11 @@ cmake ../HmdSupportDK2/code
 
 After cmake is finished follow the last step.
 
-On Linux:
+#### On Linux:
 make
 
-On Windows: 
+#### On Windows: 
 Open the VisualStudio solution and build the project
 
-On Mac:
+#### On Mac:
 ... sorry. Mac is not supported at the moment.
