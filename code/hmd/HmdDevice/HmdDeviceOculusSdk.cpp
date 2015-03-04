@@ -16,6 +16,7 @@
 #ifdef _WINDOWS
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <windows.h>
 #endif
 
 using namespace std;
