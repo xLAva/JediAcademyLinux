@@ -2360,7 +2360,7 @@ static void CG_PlaceCrosshairInWorld(vec3_t worldPoint, float crosshairEntDist, 
     VectorCopy(worldPoint, ent.origin);
 
     // scale the crosshair so it appears the same size for all distances
-    ent.radius = size / 640 * xmax * crosshairEntDist;
+    ent.radius = size / 1280 * xmax * crosshairEntDist;
     ent.customShader = hShader;
     ent.shaderRGBA[0] = ecolor[0]*255;
     ent.shaderRGBA[1] = ecolor[1]*255;
