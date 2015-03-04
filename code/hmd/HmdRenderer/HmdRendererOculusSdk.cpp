@@ -76,15 +76,14 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
         mAllowZooming = true;
     }
     
-    if (mpHmd->Type == ovrHmd_DK1)
-    {
-        // Configure Stereo settings.
-        ovrSizei recommenedTex0Size = d_ovrHmd_GetFovTextureSize(mpHmd, ovrEye_Left, mpHmd->DefaultEyeFov[0], 1.0f);
-        ovrSizei recommenedTex1Size = d_ovrHmd_GetFovTextureSize(mpHmd, ovrEye_Right, mpHmd->DefaultEyeFov[1], 1.0f);
-        
-        mRenderWidth = max(recommenedTex0Size.w, recommenedTex1Size.w);
-        mRenderHeight = max(recommenedTex0Size.h, recommenedTex1Size.h);
-    }
+
+    // Configure Stereo settings.
+    ovrSizei recommenedTex0Size = d_ovrHmd_GetFovTextureSize(mpHmd, ovrEye_Left, mpHmd->DefaultEyeFov[0], 1.0f);
+    ovrSizei recommenedTex1Size = d_ovrHmd_GetFovTextureSize(mpHmd, ovrEye_Right, mpHmd->DefaultEyeFov[1], 1.0f);
+    
+    mRenderWidth = max(recommenedTex0Size.w, recommenedTex1Size.w);
+    mRenderHeight = max(recommenedTex0Size.h, recommenedTex1Size.h);
+
 
     printf("HmdRendererOculusSdk: target texture size (%dx%d)\n", mRenderWidth, mRenderHeight);
     flush(std::cout);
