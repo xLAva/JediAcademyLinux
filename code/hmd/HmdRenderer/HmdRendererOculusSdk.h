@@ -55,6 +55,7 @@ protected:
 private:
     bool FrameNeedsRendering();
     void HandleSafetyWarning();
+    void PreparePlatform();
     
     static const int FBO_COUNT = 2;
     RenderTool::FrameBufferInfo mFboInfos[FBO_COUNT];

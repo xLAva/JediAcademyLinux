@@ -13,6 +13,10 @@
 #include <iostream>
 #include <algorithm>
 
+#ifdef _WINDOWS
+#include <stdlib.h>
+#include <dwmapi.h>
+#endif
 
 using namespace OVR;
 using namespace std;
@@ -49,6 +53,7 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
         return false;
     }
 
+    PreparePlatform();
 
     mWindowWidth = windowWidth;
     mWindowHeight = windowHeight;
@@ -126,6 +131,11 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
 
     
     unsigned hmdCaps = ovrHmdCap_LowPersistence | ovrHmdCap_DynamicPrediction;
+#ifdef LINUX
+    // improve performance on Linux by setting NoVSync until the SDK handles this better
+    hmdCaps |= ovrHmdCap_NoVSync;
+#endif
+
     d_ovrHmd_SetEnabledCaps(mpHmd, hmdCaps);
     
     
@@ -602,4 +612,27 @@ void HmdRendererOculusSdk::ConvertMatrix(const ovrMatrix4f& from, float* rTo)
     rTo[7] = from.M[3][1];
     rTo[11] = from.M[3][2];
     rTo[15] = from.M[3][3];
+}
+
+void HmdRendererOculusSdk::PreparePlatform()
+{
+#ifdef _WINDOWS
+    // disable composition on windows (because of some OpenGL issues)
+    typedef HRESULT (WINAPI *PFNDWMENABLECOMPOSITIONPROC) (UINT);
+    PFNDWMENABLECOMPOSITIONPROC DwmEnableComposition;
+
+    HINSTANCE HInstDwmapi = LoadLibraryW( L"dwmapi.dll" );
+
+    if (HInstDwmapi)
+    {
+        DwmEnableComposition = (PFNDWMENABLECOMPOSITIONPROC)GetProcAddress( HInstDwmapi, "DwmEnableComposition" );
+        if (DwmEnableComposition)
+        {
+            DwmEnableComposition(DWM_EC_DISABLECOMPOSITION);
+        }
+
+        FreeLibrary(HInstDwmapi);
+        HInstDwmapi = NULL;
+    }
+#endif
 }
