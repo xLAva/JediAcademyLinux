@@ -1,7 +1,6 @@
 #include "HmdDeviceOculusSdk.h"
 #include "../SearchForDisplay.h"
 
-
 #ifdef FORCE_STATIC_OCULUS_SDK
 #define OVR_OS_CONSOLE
 #include "Kernel/OVR_Threads.h"
@@ -60,10 +59,12 @@ bool HmdDeviceOculusSdk::Init(bool allowDummyDevice)
     }
 #endif
 
-#if defined(FORCE_STATIC_OCULUS_SDK) && defined(OVR_OS_WIN32)
-    OVR::Thread::SetCurrentPriority(OVR::Thread::HighestPriority);
+#if defined(OVR_OS_WIN32)
+    //OVR::Thread::SetCurrentPriority(OVR::Thread::HighestPriority);
+    SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
 
-    if(OVR::Thread::GetCPUCount() >= 4) // Don't do this unless there are at least 4 processors, otherwise the process could hog the machine.
+    //if(OVR::Thread::GetCPUCount() >= 4) // Don't do this unless there are at least 4 processors, otherwise the process could hog the machine.
+    if (GetCpuCount() >= 4)
     {
         SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
     }
@@ -339,4 +340,23 @@ void HmdDeviceOculusSdk::ConvertQuatToEuler(const float* quat, float& rYaw, floa
         rPitch = asin(test);
     }
 }
+
+int HmdDeviceOculusSdk::GetCpuCount()
+{
+#if defined(OVR_OS_WIN32)
+        SYSTEM_INFO sysInfo;
+
+        #if defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0501)
+            GetNativeSystemInfo(&sysInfo);
+        #else
+            GetSystemInfo(&sysInfo);
+        #endif
+
+        return (int) sysInfo.dwNumberOfProcessors;
+#else
+    return 1;
+#endif
+}
+
+
 

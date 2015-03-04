@@ -49,6 +49,7 @@ private:
     HmdDeviceOculusSdk& operator=(const HmdDeviceOculusSdk&);
 
     void ConvertQuatToEuler(const float* quat, float& rYaw, float& rPitch, float& rRoll);
+    int GetCpuCount();
     
     bool mIsInitialized;
     bool mUsingDebugHmd;
