@@ -22,7 +22,7 @@ https://github.com/xLAva/JediAcademyLinux/tree/HmdSupportDK2/binary/linux_i386
 
 Copy all the files from the Windows or Linux platform folder into the following directory of your "Jedi Knight III: Jedi Academy" installation:
 
-<Jedi Academy Install Folder>/GameData/
+[Jedi Academy Install Folder]/GameData/
 
 
 ### Original Patch:
@@ -40,7 +40,7 @@ If you want to use it, download the additional asset file and place it into the 
 
 https://github.com/xLAva/JediAcademyLinux/tree/HmdSupportDK2/binary/base/assets4.pk3 ->
 
-<Jedi Academy Install Folder>/GameData/base/
+[Jedi Academy Install Folder]/GameData/base/
 
 
 ### Platform Specific:
@@ -52,12 +52,14 @@ The version was tested on Ubuntu 14.04 and Windows 7.
 ##### Oculus Rift DK2:
 
 Extended Mode and Direct Mode are supported.
+
 Use Extended Mode for best performance. There are still some issues with OpenGL and Direct Mode.
 
 
 ##### Oculus Rift DK1:
 
 Make sure you set the DK1 to Extended Desktop Mode.
+
 The current OculusSDK doesn't work with Direct Mode, OpenGL and DK1.
 
 
