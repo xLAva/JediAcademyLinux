@@ -20,7 +20,9 @@ https://github.com/xLAva/JediAcademyLinux/tree/HmdSupportDK2/binary/win32
 
 https://github.com/xLAva/JediAcademyLinux/tree/HmdSupportDK2/binary/linux_i386
 
-Copy all the files from the Windows or Linux platform folder into the root directory of your "Jedi Knight III: Jedi Academy" installation.
+Copy all the files from the Windows or Linux platform folder into the following directory of your "Jedi Knight III: Jedi Academy" installation:
+
+<Jedi Academy Install Folder>/GameData/
 
 
 ### Original Patch:
@@ -34,9 +36,11 @@ The additional asset file just contains a new default config with the gamepad al
 Also a small translation string was added for the resolution selection.
 The game runs fine without this asset file.
 
-If you want to use it, download the additional asset file and place it on your "base" folder of the "Jedi Knight III: Jedi Academy" insallation folder.
+If you want to use it, download the additional asset file and place it into the folowing folder of your "Jedi Knight III: Jedi Academy" installation:
 
-https://github.com/xLAva/JediAcademyLinux/tree/HmdSupportDK2/binary/base/assets4.pk3
+https://github.com/xLAva/JediAcademyLinux/tree/HmdSupportDK2/binary/base/assets4.pk3 ->
+
+<Jedi Academy Install Folder>/GameData/base/
 
 
 ### Platform Specific:
@@ -45,8 +49,16 @@ The version was tested on Ubuntu 14.04 and Windows 7.
 
 #### Windows:
 
-Direct Mode and Extended Mode are supported for DK2.
-Make sure you set the DK1 to Extended Desktop Mode. The current OculusSDK doesn't work with Direct Mode, OpenGL and DK1.
+##### Oculus Rift DK2:
+
+Extended Mode and Direct Mode are supported.
+Use Extended Mode for best performance. There are still some issues with OpenGL and Direct Mode.
+
+
+##### Oculus Rift DK1:
+
+Make sure you set the DK1 to Extended Desktop Mode.
+The current OculusSDK doesn't work with Direct Mode, OpenGL and DK1.
 
 
 #### Ubuntu: 
