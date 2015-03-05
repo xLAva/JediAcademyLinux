@@ -162,7 +162,7 @@ bool HmdDeviceOpenHmd::GetDisplayPos(int& rX, int& rY)
     return true;
 }
 
-bool HmdDeviceOpenHmd::GetDeviceResolution(int& rWidth, int& rHeight, bool &rIsRotated)
+bool HmdDeviceOpenHmd::GetDeviceResolution(int& rWidth, int& rHeight, bool &rIsRotated, bool& rIsExtendedMode)
 {
     if (!mIsInitialized || mDisplayWidth <= 0)
     {
@@ -173,6 +173,7 @@ bool HmdDeviceOpenHmd::GetDeviceResolution(int& rWidth, int& rHeight, bool &rIsR
     rWidth = mDisplayWidth;
     rHeight = mDisplayHeight;
     rIsRotated = mDisplayIsRotated;
+    rIsExtendedMode = true;
 
     return true;
 }

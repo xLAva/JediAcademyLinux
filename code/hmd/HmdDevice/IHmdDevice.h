@@ -24,7 +24,7 @@ public:
     virtual bool GetDisplayPos(int& rX, int& rY) = 0;
 
     // return false if no display is used
-    virtual bool GetDeviceResolution(int& rWidth, int& rHeight, bool& rIsRotated) = 0;
+    virtual bool GetDeviceResolution(int& rWidth, int& rHeight, bool& rIsRotated, bool& rIsExtendedMode) = 0;
     virtual bool GetOrientationRad(float& rPitch, float& rYaw, float& rRoll) = 0;
     virtual bool GetPosition(float& rX, float& rY, float& rZ) = 0;
     

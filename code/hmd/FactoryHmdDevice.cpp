@@ -82,8 +82,9 @@ IHmdRenderer* FactoryHmdDevice::CreateRendererForDevice(IHmdDevice* pDevice)
     int width = 0;
     int height = 0;
     bool isRotated = false;
+    bool isExtendedMode = false;
 
-    bool needsRenderer = pDevice->GetDeviceResolution(width, height, isRotated);
+    bool needsRenderer = pDevice->GetDeviceResolution(width, height, isRotated, isExtendedMode);
     if (!needsRenderer)
     {
         return NULL;

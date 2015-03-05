@@ -220,7 +220,7 @@ bool HmdDeviceOculusSdk::GetDisplayPos(int& rX, int& rY)
     return true;
 }
 
-bool HmdDeviceOculusSdk::GetDeviceResolution(int& rWidth, int& rHeight, bool& rIsRotated)
+bool HmdDeviceOculusSdk::GetDeviceResolution(int& rWidth, int& rHeight, bool& rIsRotated, bool& rIsExtendedMode)
 {
     if (!mIsInitialized || mpHmd->Resolution.w <= 0)
     {
@@ -229,7 +229,8 @@ bool HmdDeviceOculusSdk::GetDeviceResolution(int& rWidth, int& rHeight, bool& rI
 
     rWidth = mpHmd->Resolution.w;
     rHeight = mpHmd->Resolution.h;
-	rIsRotated = mIsRotated;
+    rIsRotated = mIsRotated;
+    rIsExtendedMode = mpHmd->HmdCaps & ovrHmdCap_ExtendDesktop;
 
     return true;
 }

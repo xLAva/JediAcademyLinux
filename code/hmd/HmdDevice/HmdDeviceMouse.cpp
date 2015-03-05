@@ -54,7 +54,7 @@ bool HmdDeviceMouse::GetDisplayPos(int& rX, int& rY)
     return false;
 }
 
-bool HmdDeviceMouse::GetDeviceResolution(int& rWidth, int& rHeight, bool &rIsRotated)
+bool HmdDeviceMouse::GetDeviceResolution(int& rWidth, int& rHeight, bool &rIsRotated, bool& rIsExtendedMode)
 {
     return false;
 

@@ -199,7 +199,8 @@ int GLW_SetMode(int mode, qboolean fullscreen )
 			int deviceWidth = 0;
 			int deviceHeight = 0;
 			bool isRotated = false;
-			pHmdDevice->GetDeviceResolution(deviceWidth, deviceHeight, isRotated);
+			bool isExtendedMode = false;
+			pHmdDevice->GetDeviceResolution(deviceWidth, deviceHeight, isRotated, isExtendedMode);
 			
 			fixedDeviceResolution = true;
 			actualWidth = isRotated ? deviceHeight : deviceWidth;
@@ -207,17 +208,12 @@ int GLW_SetMode(int mode, qboolean fullscreen )
 	
 			s_windowWidth = actualWidth;
 			s_windowHeight = actualHeight;
-			
+
 			glConfig.vidWidth = deviceWidth / 2;
 			glConfig.vidHeight = deviceHeight;
 						
 			useWindowPosition = pHmdDevice->GetDisplayPos(xPos, yPos);
-			
-			#ifdef LINUX
-				fullscreen = true;
-			#else
-				fullscreen = false;
-			#endif
+			fullscreen = isExtendedMode;
 
 			VID_Printf( PRINT_ALL, "hmd display: %s\n", pHmdDevice->GetDisplayDeviceName().c_str());    
 			
