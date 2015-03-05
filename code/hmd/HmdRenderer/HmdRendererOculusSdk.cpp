@@ -103,8 +103,9 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
 #ifdef LINUX
     int dummyW = 0;
     int dummyH = 0;
-
-    mpDevice->GetDeviceResolution(dummyW, dummyH, isRotated);
+    bool isExtended = false;
+    
+    mpDevice->GetDeviceResolution(dummyW, dummyH, isRotated, isExtended);
 #endif
     
 
