@@ -2,8 +2,8 @@
 #include "../SearchForDisplay.h"
 
 #ifdef FORCE_STATIC_OCULUS_SDK
-#define OVR_OS_CONSOLE
-#include "Kernel/OVR_Threads.h"
+//#define OVR_OS_CONSOLE
+//#include "Kernel/OVR_Threads.h"
 #endif
 
 #include <cstring>

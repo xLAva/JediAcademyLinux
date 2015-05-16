@@ -3,10 +3,11 @@
 #include "../HmdDevice/HmdDeviceOculusSdk.h"
 #include "PlatformInfo.h"
 
+#include <OVR_CAPI_0_5_0.h>
 // stupid OVR include bug
-#define OVR_OS_CONSOLE
-#include <Kernel/OVR_Types.h>
-#include <Kernel/OVR_Math.h>
+//#define OVR_OS_CONSOLE
+//#include <Kernel/OVR_Types.h>
+#include <Extras/OVR_Math.h>
 #include <OVR_CAPI_GL.h>
 
 #include <math.h>
@@ -139,7 +140,7 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     d_ovrHmd_SetEnabledCaps(mpHmd, hmdCaps);
     
     
-    unsigned distortionCaps = ovrDistortionCap_Chromatic | ovrDistortionCap_Vignette | ovrDistortionCap_TimeWarp;
+    unsigned distortionCaps = ovrDistortionCap_Vignette | ovrDistortionCap_TimeWarp;
     
     bool PixelLuminanceOverdrive = (mpHmd->DistortionCaps & ovrDistortionCap_Overdrive) ? true : false;
     bool HqAaDistortion = (mpHmd->DistortionCaps & ovrDistortionCap_HqDistortion) ? true : false;

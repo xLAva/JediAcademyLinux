@@ -718,9 +718,9 @@ if(USE_OCULUS_SDK)
         hmd/HmdRenderer/HmdRendererOculusSdk.cpp
     )
 
-    set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DUSE_OVR")
+    set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DUSE_OVR -DOVR_DLL_IMPORT")
 
-    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Src")
+    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Include")
 
     if(NOT FORCE_STATIC_OCULUS_SDK)
         set(SSF_HMD_LIBOVRDYNAMIC ${SSF_HMD_LIBOVRDYNAMIC}
@@ -745,13 +745,17 @@ if(USE_OCULUS_SDK)
         elseif(PLATFORM_LINUX)
 
 			if(CMAKE_BUILD_TYPE STREQUAL "DEBUG")
-				set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/libovr_linux/lib/i386/debug/libovr.a)
+				set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVRKernel/Lib/Linux/i386/Debug/libOVRKernel.a)
+				set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Linux/i386/Debug/libOVR.a)
+				set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Linux/i386/Debug/libOVRRT32_0.so.5)
 			else()
-				set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/libovr_linux/lib/i386/release/libovr.a)
+				set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVRKernel/Lib/Linux/i386/Release/libOVRKernel.a)
+				set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Linux/i386/Release/libOVR.a)
+				set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Linux/i386/Release/libOVRRT32_0.so.5)
 			endif()
 
-			set(EXTRA_LIBS ${EXTRA_LIBS} udev)
-			set(EXTRA_LIBS ${EXTRA_LIBS} Xinerama)
+#			set(EXTRA_LIBS ${EXTRA_LIBS} udev)
+#			set(EXTRA_LIBS ${EXTRA_LIBS} Xinerama)
         elseif(PLATFORM_MACOS)
 
                 if(CMAKE_BUILD_TYPE STREQUAL "DEBUG")

@@ -10,7 +10,10 @@
 #include "IHmdRenderer.h"
 #include "../../renderer/qgl.h"
 
-#include <OVR_CAPI.h>
+
+
+#include <OVR_CAPI_0_5_0.h>
+#include <Extras/OVR_Math.h>
 
 #include "RenderTool.h"
 
