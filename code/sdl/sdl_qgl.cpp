@@ -3148,7 +3148,7 @@ qboolean QGL_Init( const char *dllname )
 
     if (!glw_state.OpenGLLib)
 	{
-        Com_Error(PRINT_ALL, "QGL_Init: Can't load OpenGL lib. Error=%d\n", ret);
+        Com_Error(PRINT_ALL, "QGL_Init: Can't load OpenGL lib. Error=%s\n", SDL_GetError());
         return qfalse;
 	}
 
