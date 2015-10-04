@@ -12,8 +12,9 @@ cmake_minimum_required(VERSION 2.6)
 
 project(jk3)
 
-set(USE_OCULUS_SDK 1)
-set(FORCE_STATIC_OCULUS_SDK 0)
+set(USE_OCULUS_SDK 0)
+set(USE_OCULUS_SDK_0.7 1)
+set(FORCE_STATIC_OCULUS_SDK 1)
 
 set(USE_OPENHMD 0)
 
@@ -708,7 +709,50 @@ set(SSF_HMD_QUAKE3
 )
 
 
-if(USE_OCULUS_SDK)
+if(USE_OCULUS_SDK_0.7)
+    set(SSF_HMD_DEVICE ${SSF_HMD_DEVICE}
+        hmd/HmdDevice/HmdDeviceOculusSdkWin.h
+        hmd/HmdDevice/HmdDeviceOculusSdkWin.cpp
+    )
+    set(SSF_HMD_RENDERER ${SSF_HMD_RENDERER}
+        hmd/HmdRenderer/HmdRendererOculusSdkWin.h
+        hmd/HmdRenderer/HmdRendererOculusSdkWin.cpp
+    )
+
+    set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DUSE_OVR_0_7 -DOVR_DLL_IMPORT")
+
+    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK_0.7/OculusSDK/LibOVR/Include")
+
+    if(NOT FORCE_STATIC_OCULUS_SDK)
+        set(SSF_HMD_LIBOVRDYNAMIC ${SSF_HMD_LIBOVRDYNAMIC}
+            hmd/LibOvrDynamic/oculus_dynamic.h
+            hmd/LibOvrDynamic/oculus_dynamic.cpp
+            hmd/LibOvrDynamic/ovr_dynamic_funcs.h
+        )
+    else()
+        set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DFORCE_STATIC_OCULUS_SDK")
+
+        if(PLATFORM_WIN32)
+            set(SSF_HMD_LIBOVRDYNAMIC ${SSF_HMD_LIBOVRDYNAMIC}
+                hmd/LibOvrDynamic/oculus_static.h
+            )
+            
+            link_directories("C:/WinDDK/7600.16385.1/lib/ATL/i386")
+            set(EXTRA_LIBS ${EXTRA_LIBS} wsock32 ws2_32)
+            
+            set(EXTRA_LIBS ${EXTRA_LIBS} debug ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK_0.7/OculusSDK/LibOVR/Lib/Win32/VS2013/libovrd.lib)
+            set(EXTRA_LIBS ${EXTRA_LIBS} optimized ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK_0.7/OculusSDK/LibOVR/Lib/Win32/VS2013/libovr.lib)
+
+        elseif(PLATFORM_LINUX)
+
+
+
+        elseif(PLATFORM_MACOS)
+
+
+        endif()
+    endif()
+elseif(USE_OCULUS_SDK)
     set(SSF_HMD_DEVICE ${SSF_HMD_DEVICE}
         hmd/HmdDevice/HmdDeviceOculusSdk.h
         hmd/HmdDevice/HmdDeviceOculusSdk.cpp
@@ -732,30 +776,28 @@ if(USE_OCULUS_SDK)
         set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DFORCE_STATIC_OCULUS_SDK")
 
         if(PLATFORM_WIN32)
-			set(SSF_HMD_LIBOVRDYNAMIC ${SSF_HMD_LIBOVRDYNAMIC}
-				hmd/LibOvrDynamic/oculus_static.h
-			)
-
-			link_directories("C:/WinDDK/7600.16385.1/lib/ATL/i386")
-			set(EXTRA_LIBS ${EXTRA_LIBS} wsock32 ws2_32)
-
-			set(EXTRA_LIBS ${EXTRA_LIBS} debug ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Win32/VS2013/libovrd.lib)
-			set(EXTRA_LIBS ${EXTRA_LIBS} optimized ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Win32/VS2013/libovr.lib)
+            set(SSF_HMD_LIBOVRDYNAMIC ${SSF_HMD_LIBOVRDYNAMIC}
+                hmd/LibOvrDynamic/oculus_static.h
+            )
+            
+            link_directories("C:/WinDDK/7600.16385.1/lib/ATL/i386")
+            set(EXTRA_LIBS ${EXTRA_LIBS} wsock32 ws2_32)
+            
+            set(EXTRA_LIBS ${EXTRA_LIBS} debug ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Win32/VS2013/libovrd.lib)
+            set(EXTRA_LIBS ${EXTRA_LIBS} optimized ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Win32/VS2013/libovr.lib)
 
         elseif(PLATFORM_LINUX)
 
-			if(CMAKE_BUILD_TYPE STREQUAL "DEBUG")
-				set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVRKernel/Lib/Linux/i386/Debug/libOVRKernel.a)
-				set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Linux/i386/Debug/libOVR.a)
-				set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Linux/i386/Debug/libOVRRT32_0.so.5)
-			else()
-				set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVRKernel/Lib/Linux/i386/Release/libOVRKernel.a)
-				set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Linux/i386/Release/libOVR.a)
-				set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Linux/i386/Release/libOVRRT32_0.so.5)
-			endif()
+            if(CMAKE_BUILD_TYPE STREQUAL "DEBUG")
+                set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVRKernel/Lib/Linux/i386/Debug/libOVRKernel.a)
+                set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Linux/i386/Debug/libOVR.a)
+                set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Linux/i386/Debug/libOVRRT32_0.so.5)
+            else()
+                set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVRKernel/Lib/Linux/i386/Release/libOVRKernel.a)
+                set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Linux/i386/Release/libOVR.a)
+                set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Linux/i386/Release/libOVRRT32_0.so.5)
+            endif()
 
-#			set(EXTRA_LIBS ${EXTRA_LIBS} udev)
-#			set(EXTRA_LIBS ${EXTRA_LIBS} Xinerama)
         elseif(PLATFORM_MACOS)
 
                 if(CMAKE_BUILD_TYPE STREQUAL "DEBUG")
@@ -764,8 +806,7 @@ if(USE_OCULUS_SDK)
                         set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/MacOS/Release/i386/libovr.a)
                 endif()
         endif()
-	endif()
-
+    endif()
 endif()
 
 if(USE_OPENHMD)
@@ -979,7 +1020,7 @@ else()
     set(DISABLE_WARNINGS_CXX "-Wno-write-strings -Wno-pointer-arith -Wno-multichar -Wno-int-to-pointer-cast -Wno-enum-compare -Wno-overflow -Wno-conversion-null")
 
     set(COMPILER_FLAGS_C "-m32 -fexceptions -ffast-math")
-    set(COMPILER_FLAGS_CXX "-m32 -fexceptions -ffast-math -fno-operator-names ")
+    set(COMPILER_FLAGS_CXX "-m32 -fexceptions -ffast-math -fno-operator-names -std=c++11")
 
     if(PLATFORM_LINUX)
         #set NDEBUG even on debug builds - asserts are killing us otherwise

@@ -1,4 +1,4 @@
-
+#ifdef USE_OVR
 #define d_ovr_Initialize ovr_Initialize
 #define d_ovr_InitializeRenderingShim ovr_InitializeRenderingShim
 #define d_ovr_Shutdown ovr_Shutdown
@@ -52,3 +52,15 @@
 #define d_ovrHmd_RegisterPostDistortionCallback ovrHmd_RegisterPostDistortionCallback
 #define d_ovrHmd_AddDistortionTimeMeasurement ovrHmd_AddDistortionTimeMeasurement
 #define d_ovrHmd_GetLatencyTestDrawColor ovrHmd_GetLatencyTestDrawColor
+
+#elif USE_OVR_0_7
+#define d_ovr_Initialize ovr_Initialize
+#define d_ovr_Create ovr_Create
+#define d_ovr_Shutdown ovr_Shutdown
+#define d_ovr_GetHmdDesc ovr_GetHmdDesc
+#define d_ovr_Destroy ovr_Destroy
+#define d_ovr_ConfigureTracking ovr_ConfigureTracking
+#define d_ovr_GetTrackingState ovr_GetTrackingState
+#define d_ovr_RecenterPose ovr_RecenterPose
+#define d_ovr_GetFovTextureSize ovr_GetFovTextureSize
+#endif
