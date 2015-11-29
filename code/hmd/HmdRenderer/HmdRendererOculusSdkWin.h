@@ -14,7 +14,7 @@
 
 #include <OVR_CAPI_0_8_0.h>
 #include <Extras/OVR_Math.h>
-
+//#include <Util/Util_GL_Blitter.h>
 #include "RenderTool.h"
 
 #define GLM_FORCE_RADIANS
@@ -57,7 +57,7 @@ protected:
 
 private:
     bool FrameNeedsRendering();
-    void HandleSafetyWarning();
+    //void HandleSafetyWarning();
     void PreparePlatform();
     
     static const int FBO_COUNT = 2;
@@ -91,7 +91,8 @@ private:
     ovrSwapTextureSet* mEyeTextureSet[2];
     int mEyeTextureSetIndex[2];
     
-    
+    ovrTexture* mpMirrorTexture;
+    GLuint ReadFBO;
     
     ovrEyeType mEyes[2];
     ovrPosef mEyePoses[2];
@@ -100,7 +101,7 @@ private:
     //glm::quat mCurrentOrientations[2];
     //glm::vec3 mCurrentPosition[2];
 
-
+    //OVR::GLUtil::Blitter* mpBlitter;
 };
 
 #endif

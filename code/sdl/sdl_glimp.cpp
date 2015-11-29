@@ -27,6 +27,10 @@
 #include "../hmd/HmdRenderer/HmdRendererOculusSdk.h"
 #endif
 
+#ifdef USE_OVR_0_8
+#include "../hmd/HmdRenderer/HmdRendererOculusSdkWin.h"
+#endif
+
 #if defined(LINUX) || defined(__APPLE__)
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
@@ -206,8 +210,8 @@ int GLW_SetMode(int mode, qboolean fullscreen )
 			actualWidth = isRotated ? deviceHeight : deviceWidth;
 			actualHeight = isRotated ? deviceWidth : deviceHeight;
 	
-			s_windowWidth = actualWidth;
-			s_windowHeight = actualHeight;
+			s_windowWidth = actualWidth/2;
+			s_windowHeight = actualHeight/2;
 
 			glConfig.vidWidth = deviceWidth / 2;
 			glConfig.vidHeight = deviceHeight;
@@ -283,8 +287,8 @@ int GLW_SetMode(int mode, qboolean fullscreen )
 	//putenv("SDL_VIDEO_X11_LEGACY_FULLSCREEN=1");
 	#endif
 	
-	VID_Printf( PRINT_ALL, "Create Window %dx%d at %dx%d\n", actualWidth, actualHeight, displayPosX, displayPosY);
-	s_pSdlWindow = SDL_CreateWindow("Jasp HMD", displayPosX, displayPosY, actualWidth, actualHeight, windowFlags);
+    VID_Printf(PRINT_ALL, "Create Window %dx%d at %dx%d\n", s_windowWidth, s_windowHeight, displayPosX, displayPosY);
+    s_pSdlWindow = SDL_CreateWindow("Jasp HMD", displayPosX, displayPosY, s_windowWidth, s_windowHeight, windowFlags);
 	
 
 	if (!s_pSdlWindow)

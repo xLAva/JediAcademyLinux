@@ -10,6 +10,11 @@
 #include "HmdRenderer/HmdRendererOculusSdk.h"
 #endif
 
+#ifdef USE_OVR_0_8
+#include "HmdDevice/HmdDeviceOculusSdkWin.h"
+#include "HmdRenderer/HmdRendererOculusSdkWin.h"
+#endif
+
 #include "HmdRenderer/HmdRendererOculus.h"
 
 #include <vector>
@@ -22,7 +27,7 @@ IHmdDevice* FactoryHmdDevice::CreateHmdDevice(HmdLibrary library, bool allowDumm
     vector<IHmdDevice*> devices;
 
 
-#ifdef USE_OVR
+#if defined(USE_OVR) || defined(USE_OVR_0_8)
     if (library == LIB_OVR || library == LIB_UNDEFINED)
     {
         devices.push_back(new HmdDeviceOculusSdk());
@@ -93,7 +98,7 @@ IHmdRenderer* FactoryHmdDevice::CreateRendererForDevice(IHmdDevice* pDevice)
 
 
 
-#ifdef USE_OVR
+#if defined(USE_OVR) || defined(USE_OVR_0_8)
     HmdDeviceOculusSdk* pOculusSdk = dynamic_cast<HmdDeviceOculusSdk*>(pDevice);
     if (pOculusSdk != NULL)
     {
