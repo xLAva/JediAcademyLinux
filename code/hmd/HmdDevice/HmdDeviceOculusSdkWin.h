@@ -4,8 +4,8 @@
  *  Copyright 2014 by Jochen Leopold <jochen.leopold@model-view.com>
  */
 
-#ifndef HMDDEVICEOCULUSSDK_H
-#define HMDDEVICEOCULUSSDK_H
+#ifndef HMDDEVICEOCULUSSDKWIN_H
+#define HMDDEVICEOCULUSSDKWIN_H
 
 #include "IHmdDevice.h"
 
@@ -39,7 +39,7 @@ public:
     virtual void Recenter();
 
 
-    ovrHmd GetHmd() { return mpHmd; }
+    ovrSession GetHmd() { return mpHmd; }
     ovrHmdDesc GetHmdDesc() { return mDesc; }
     ovrGraphicsLuid GetGraphicsLuid() { return mLuid; }
     
@@ -58,7 +58,7 @@ private:
     bool mUsingDebugHmd;
     bool mPositionTrackingEnabled;
     bool mIsRotated;
-    ovrHmd mpHmd;
+    ovrSession mpHmd;
     ovrHmdDesc mDesc;
     ovrGraphicsLuid mLuid;
 

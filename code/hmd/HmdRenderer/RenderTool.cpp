@@ -44,8 +44,13 @@ bool RenderTool::CreateFrameBuffer(FrameBufferInfo& rInfo, int width, int height
 
 void RenderTool::ClearFBO(FrameBufferInfo info)
 {
-    qglViewport(0, 0, info.Width, info.Height);
-    qglScissor(0, 0, info.Width, info.Height);
+    Clear(info.Width, info.Height);
+}
+
+void RenderTool::Clear(int width, int height)
+{
+    qglViewport(0, 0, width, height);
+    qglScissor(0, 0, width, height);
     qglClear(GL_COLOR_BUFFER_BIT);
 }
 

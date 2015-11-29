@@ -197,7 +197,7 @@ bool HmdDeviceOculusSdk::GetOrientationRad(float& rPitch, float& rYaw, float& rR
     }
 
     // Query the HMD for the sensor state at a given time.
-    ovrTrackingState ts  = d_ovr_GetTrackingState(mpHmd, ovr_GetTimeInSeconds());
+    ovrTrackingState ts  = d_ovr_GetTrackingState(mpHmd, ovr_GetTimeInSeconds(), false);
     if ((ts.StatusFlags & ovrStatus_OrientationTracked))
     {
         ovrQuatf orientation = ts.HeadPose.ThePose.Orientation;
@@ -228,7 +228,7 @@ bool HmdDeviceOculusSdk::GetPosition(float &rX, float &rY, float &rZ)
     }
 
     // Query the HMD for the sensor state at a given time.
-    ovrTrackingState ts  = d_ovr_GetTrackingState(mpHmd, ovr_GetTimeInSeconds());
+    ovrTrackingState ts  = d_ovr_GetTrackingState(mpHmd, ovr_GetTimeInSeconds(), false);
     if ((ts.StatusFlags & ovrStatus_PositionTracked))
     {
         ovrVector3f pos = ts.HeadPose.ThePose.Position;

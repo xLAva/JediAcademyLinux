@@ -13,7 +13,7 @@ cmake_minimum_required(VERSION 2.6)
 project(jk3)
 
 set(USE_OCULUS_SDK 0)
-set(USE_OCULUS_SDK_0.7 1)
+set(USE_OCULUS_SDK_0.8 1)
 set(FORCE_STATIC_OCULUS_SDK 1)
 
 set(USE_OPENHMD 0)
@@ -709,7 +709,7 @@ set(SSF_HMD_QUAKE3
 )
 
 
-if(USE_OCULUS_SDK_0.7)
+if(USE_OCULUS_SDK_0.8)
     set(SSF_HMD_DEVICE ${SSF_HMD_DEVICE}
         hmd/HmdDevice/HmdDeviceOculusSdkWin.h
         hmd/HmdDevice/HmdDeviceOculusSdkWin.cpp
@@ -719,9 +719,9 @@ if(USE_OCULUS_SDK_0.7)
         hmd/HmdRenderer/HmdRendererOculusSdkWin.cpp
     )
 
-    set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DUSE_OVR_0_7 -DOVR_DLL_IMPORT")
+    set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DUSE_OVR_0_8 -DOVR_DLL_IMPORT")
 
-    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK_0.7/OculusSDK/LibOVR/Include")
+    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK_0.8/OculusSDK/LibOVR/Include")
 
     if(NOT FORCE_STATIC_OCULUS_SDK)
         set(SSF_HMD_LIBOVRDYNAMIC ${SSF_HMD_LIBOVRDYNAMIC}

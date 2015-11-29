@@ -248,7 +248,7 @@ const char* HmdRendererOculus::GetPixelShader()
         "                {\n"
         "                    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);\n"
         "                    return;\n"
-        "                }\n"
+        "                }\nCurrentFbo"
         "            \n"
         "                tc.x = gl_FragCoord.x < 640 ? (2.0 * tc.x) : (2.0 * (tc.x - 0.5));\n"
         "                gl_FragColor = texture2D(warpTexture, tc);\n"

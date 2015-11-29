@@ -1,14 +1,16 @@
-#include "HmdRendererOculusSdk.h"
+#include "HmdRendererOculusSdkWin.h"
 #include "../../renderer/tr_local.h"
 #include "../HmdDevice/HmdDeviceOculusSdkWin.h"
 #include "PlatformInfo.h"
 
-#include <OVR_CAPI_0_7_0.h>
+#include <OVR_CAPI.h>
 // stupid OVR include bug
 //#define OVR_OS_CONSOLE
 //#include <Kernel/OVR_Types.h>
 #include <Extras/OVR_Math.h>
 #include <OVR_CAPI_GL.h>
+
+#include <GL/gl.h> 
 
 #include <math.h>
 #include <iostream>
@@ -80,21 +82,22 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     
 
     // Configure Stereo settings.
-    ovrSizei recommenedTex0Size = d_ovrHmd_GetFovTextureSize(mpHmd, ovrEye_Left, mpHmd->DefaultEyeFov[0], 1.0f);
-    ovrSizei recommenedTex1Size = d_ovrHmd_GetFovTextureSize(mpHmd, ovrEye_Right, mpHmd->DefaultEyeFov[1], 1.0f);
+
+    ovrSizei recommenedTex0Size = d_ovr_GetFovTextureSize(mpHmd, ovrEye_Left, desc.DefaultEyeFov[0], 1.0f);
+    ovrSizei recommenedTex1Size = d_ovr_GetFovTextureSize(mpHmd, ovrEye_Right, desc.DefaultEyeFov[1], 1.0f);
     
     mRenderWidth = max(recommenedTex0Size.w, recommenedTex1Size.w);
     mRenderHeight = max(recommenedTex0Size.h, recommenedTex1Size.h);
 
     ovrSizei bufferSize;
-    bufferSize.w  = recommenedTex0Size.w + recommenedTex1Size.w;
-    bufferSize.h = max ( recommenedTex0Size.h, recommenedTex1Size.h );
+    bufferSize.w  = mRenderWidth;
+    bufferSize.h = mRenderHeight;
     
     
     printf("HmdRendererOculusSdk: target texture size (%dx%d)\n", mRenderWidth, mRenderHeight);
     flush(std::cout);
 
-
+    
     for (int i=0; i<FBO_COUNT; i++)
     {
         bool worked = RenderTool::CreateFrameBuffer(mFboInfos[i], mRenderWidth, mRenderHeight);
@@ -103,95 +106,36 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
             return false;
         }
     }
-
-
-    ovrGLConfig cfg;
-    memset(&cfg, 0, sizeof(cfg));
-    cfg.OGL.Header.API = ovrRenderAPI_OpenGL;
-    cfg.OGL.Header.BackBufferSize.w = !isRotated ? desc.Resolution.w : desc.Resolution.h;
-    cfg.OGL.Header.BackBufferSize.h = !isRotated ? desc.Resolution.h : desc.Resolution.w;
-    cfg.OGL.Header.Multisample = 1;
-
-#ifdef LINUX
-    cfg.OGL.Disp = platformInfo.pDisplay;
-#endif
-
-#ifdef _WINDOWS
-    cfg.OGL.Window = platformInfo.Window;
-    cfg.OGL.DC = platformInfo.DC;
-#endif
-
-    ovrFovPort eyeFov[2];
-    eyeFov[0] = mpHmd->DefaultEyeFov[0];
-    eyeFov[1] = mpHmd->DefaultEyeFov[1];
-
-    
-    unsigned hmdCaps = ovrHmdCap_LowPersistence | ovrHmdCap_DynamicPrediction;
-#ifdef LINUX
-    // improve performance on Linux by setting NoVSync until the SDK handles this better
-    hmdCaps |= ovrHmdCap_NoVSync;
-#endif
-
-    d_ovrHmd_SetEnabledCaps(mpHmd, hmdCaps);
     
     
-    unsigned distortionCaps = ovrDistortionCap_Vignette | ovrDistortionCap_TimeWarp;
-    
-    bool PixelLuminanceOverdrive = (mpHmd->DistortionCaps & ovrDistortionCap_Overdrive) ? true : false;
-    bool HqAaDistortion = (mpHmd->DistortionCaps & ovrDistortionCap_HqDistortion) ? true : false;
-
-    if (PixelLuminanceOverdrive)
+    for (int i=0; i<FBO_COUNT; i++)
     {
-        distortionCaps |= ovrDistortionCap_Overdrive;
-    }
-    
-    if (HqAaDistortion)
-    {
-        distortionCaps |= ovrDistortionCap_HqDistortion;
-    }
-
-#ifdef LINUX
-    if (isRotated)
-    {
-        distortionCaps |= ovrDistortionCap_LinuxDevFullscreen;
-    }
-#endif
-    
-
-    bool worked = d_ovrHmd_ConfigureRendering(mpHmd, &cfg.Config, distortionCaps, eyeFov, mEyeRenderDesc);
-    qglUseProgramObjectARB(0);
-    if (!worked)
-    {
-        return false;
+        mEyeTextureSetIndex[i] = 0;
+        ovrResult worked = d_ovr_CreateSwapTextureSetGL(mpHmd, GL_SRGB8_ALPHA8, mRenderWidth, mRenderHeight, &(mEyeTextureSet[i]));
+        if (worked != ovrSuccess)
+        {
+            return false;
+        }
     }
 
 
-    qglBindBuffer(GL_ARRAY_BUFFER, 0);
-    qglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-
-    ovrSizei texSize;
-    texSize.w = mRenderWidth;
-    texSize.h = mRenderHeight;
-
-    ovrRecti renderViewport;
-    renderViewport.Pos.x = 0;
-    renderViewport.Pos.y = 0;
-    renderViewport.Size.w = mRenderWidth;
-    renderViewport.Size.h = mRenderHeight;
-    
-    
-    ovrGLTextureData* texData = (ovrGLTextureData*)&EyeTexture[0];
-    texData->Header.API            = ovrRenderAPI_OpenGL;
-    texData->Header.TextureSize    = texSize;
-    texData->Header.RenderViewport = renderViewport;
-    texData->TexId                 = mFboInfos[0].ColorBuffer;
-
-    texData = (ovrGLTextureData*)&EyeTexture[1];
-    texData->Header.API            = ovrRenderAPI_OpenGL;
-    texData->Header.TextureSize    = texSize;
-    texData->Header.RenderViewport = renderViewport;
-    texData->TexId                 = mFboInfos[1].ColorBuffer;
+    // Initialize VR structures, filling out description.
+   ovrEyeRenderDesc eyeRenderDesc[2];
+   eyeRenderDesc[0] = ovr_GetRenderDesc(mpHmd, ovrEye_Left, desc.DefaultEyeFov[0]);
+   eyeRenderDesc[1] = ovr_GetRenderDesc(mpHmd, ovrEye_Right, desc.DefaultEyeFov[1]);
+   mHmdToEyeViewOffset[0] = eyeRenderDesc[0].HmdToEyeViewOffset;
+   mHmdToEyeViewOffset[1] = eyeRenderDesc[1].HmdToEyeViewOffset;
+   
+   // Initialize our single full screen Fov layer.
+   mLayerMain.Header.Type      = ovrLayerType_EyeFov;
+   mLayerMain.Header.Flags     = 0;
+   mLayerMain.ColorTexture[0]  = mEyeTextureSet[0];
+   mLayerMain.ColorTexture[1]  = mEyeTextureSet[1];
+   mLayerMain.Fov[0]           = eyeRenderDesc[0].Fov;
+   mLayerMain.Fov[1]           = eyeRenderDesc[1].Fov;
+   mLayerMain.Viewport[0]      = Recti(0, 0,                bufferSize.w / 2, bufferSize.h);
+   mLayerMain.Viewport[1]      = Recti(bufferSize.w / 2, 0, bufferSize.w / 2, bufferSize.h);
+   // ld.RenderPose and ld.SensorSampleTime are updated later per frame.
 
 
     mStartedRendering = false;
@@ -239,9 +183,8 @@ bool HmdRendererOculusSdk::GetRenderResolution(int& rWidth, int& rHeight)
 void HmdRendererOculusSdk::StartFrame()
 {
     mStartedFrame = true;
+    
 
-    mFrameStartTime = d_ovr_GetTimeInSeconds();
-    mFrameTiming = d_ovrHmd_BeginFrame(mpHmd, 0);
 }
 
 
@@ -264,35 +207,40 @@ void HmdRendererOculusSdk::BeginRenderingForEye(bool leftEye)
     {
         // render begin
         mStartedRendering = true;
-
-        ovrTrackingState hmdState;
-        ovrVector3f hmdToEyeViewOffset[2] = { mEyeRenderDesc[0].HmdToEyeViewOffset, mEyeRenderDesc[1].HmdToEyeViewOffset };
-        d_ovrHmd_GetEyePoses(mpHmd, 0, hmdToEyeViewOffset, mEyePoses, &hmdState);
         
+        double displayMidpointSeconds = d_ovr_GetPredictedDisplayTime(mpHmd, 0);
+        ovrTrackingState hmdState = d_ovr_GetTrackingState(mpHmd, displayMidpointSeconds, ovrTrue);
+        d_ovr_CalcEyePoses(hmdState.HeadPose.ThePose, mHmdToEyeViewOffset, mLayerMain.RenderPose);
+                
         for (int i=0; i<FBO_COUNT; i++)
         {
+            mEyeTextureSet[i]->CurrentIndex = (mEyeTextureSet[i]->CurrentIndex + 1) % mEyeTextureSet[i]->TextureCount;
+            ovrGLTexture* pTex = (ovrGLTexture*)&mEyeTextureSet[i]->Textures[mEyeTextureSet[i]->CurrentIndex];
+            
             qglBindFramebuffer(GL_FRAMEBUFFER, mFboInfos[i].Fbo);
+            qglFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,  pTex->OGL.TexId, 0);
+
             RenderTool::ClearFBO(mFboInfos[i]);
 
-            ovrQuatf orientation = mEyePoses[i].Orientation;
-            mCurrentOrientations[i] = glm::quat(orientation.w, orientation.x, orientation.y, orientation.z);
+            //ovrQuatf orientation = mEyePoses[i].Orientation;
+            //mCurrentOrientations[i] = glm::quat(orientation.w, orientation.x, orientation.y, orientation.z);
             
-            ovrVector3f position = mEyePoses[i].Position;
-            mCurrentPosition[i] = glm::vec3(position.x, position.y, position.z);
+            //ovrVector3f position = mEyePoses[i].Position;
+            //mCurrentPosition[i] = glm::vec3(position.x, position.y, position.z);
         }
 
         qglBindBuffer(GL_ARRAY_BUFFER, 0);
         qglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         qglBindVertexArray(0);
         qglUseProgramObjectARB(0);
-        qglDisable(GL_FRAMEBUFFER_SRGB);
+        //qglDisable(GL_FRAMEBUFFER_SRGB);
         qglFrontFace(GL_CCW);
+        
+        glEnable(GL_FRAMEBUFFER_SRGB);
     }
 
     // bind framebuffer
     qglBindFramebuffer(GL_FRAMEBUFFER, mFboInfos[mEyeId].Fbo);
-
-
 }
 
 void HmdRendererOculusSdk::EndFrame()
@@ -332,8 +280,9 @@ void HmdRendererOculusSdk::EndFrame()
         qglDisableClientState(GL_COLOR_ARRAY);
         qglDisableClientState(GL_VERTEX_ARRAY);
 
+        ovrLayerHeader* layers =  &mLayerMain.Header;
+        ovrResult result = ovr_SubmitFrame(mpHmd, 0, nullptr, &layers, 1);
 
-        d_ovrHmd_EndFrame(mpHmd, mEyePoses, EyeTexture);
 
 
         // restore the old state
@@ -410,36 +359,7 @@ bool HmdRendererOculusSdk::FrameNeedsRendering()
     return updateRenderedView;
 }
 
-void HmdRendererOculusSdk::HandleSafetyWarning()
-{
-    // Health and Safety Warning display state.
-    ovrHSWDisplayState hswDisplayState;
-    d_ovrHmd_GetHSWDisplayState(mpHmd, &hswDisplayState);
-    if (hswDisplayState.Displayed)
-    {
-        // Dismiss the warning if the user pressed the appropriate key or if the user
-        // is tapping the side of the HMD.
-        // If the user has requested to dismiss the warning via keyboard or controller input...
-        if (mDismissHealthSafetyWarning)
-            d_ovrHmd_DismissHSWDisplay(mpHmd);
-        else
-        {
-            // Detect a moderate tap on the side of the HMD.
-            ovrTrackingState ts = d_ovrHmd_GetTrackingState(mpHmd, d_ovr_GetTimeInSeconds());
-            if (ts.StatusFlags & ovrStatus_OrientationTracked)
-            {
-                const glm::vec3 v(ts.RawSensorData.Accelerometer.x,
-                ts.RawSensorData.Accelerometer.y,
-                ts.RawSensorData.Accelerometer.z);
-                
-                float lengthSq = glm::length2(v);
-                // Arbitrary value and representing moderate tap on the side of the DK2 Rift.
-                if (lengthSq > 250.f)
-                    d_ovrHmd_DismissHSWDisplay(mpHmd);
-            }
-        }
-    }
-}
+
 
 bool HmdRendererOculusSdk::GetCustomProjectionMatrix(float* rProjectionMatrix, float zNear, float zFar, float fov)
 {
@@ -448,7 +368,7 @@ bool HmdRendererOculusSdk::GetCustomProjectionMatrix(float* rProjectionMatrix, f
         return false;
     }
 
-    ovrFovPort fovPort = mEyeRenderDesc[mEyeId].Fov;
+    ovrFovPort fovPort = mLayerMain.Fov[mEyeId];
     
     // ugly hardcoded default value
     if (mAllowZooming && fov < 124)
@@ -479,9 +399,14 @@ bool HmdRendererOculusSdk::GetCustomViewMatrix(float* rViewMatrix, float& xPos, 
         return false;
     }
 
+    ovrQuatf orientation = mLayerMain.RenderPose[mEyeId].Orientation;
+    glm::quat currentOrientation = glm::quat(orientation.w, orientation.x, orientation.y, orientation.z);
+    
+    ovrVector3f position = mLayerMain.RenderPose[mEyeId].Position;
+    glm::vec3 currentPosition = glm::vec3(position.x, position.y, position.z);
     
     // get current hmd rotation 
-    glm::quat hmdRotation = glm::inverse(mCurrentOrientations[mEyeId]);
+    glm::quat hmdRotation = glm::inverse(currentOrientation);
 
     // change hmd orientation to game coordinate system
     glm::quat convertHmdToGame = glm::rotate(glm::quat(1.0f,0.0f,0.0f,0.0f), (float)DEG2RAD(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -497,9 +422,9 @@ bool HmdRendererOculusSdk::GetCustomViewMatrix(float* rViewMatrix, float& xPos, 
     
     float meterToGame = 52.4928f;// (3.2808f * 8.0f * 2.0f); // meter to feet * QuakeIII engine factor 8 * JA level factor 2
     glm::vec3 hmdPos;
-    hmdPos.x = mCurrentPosition[mEyeId].z * meterToGame;
-    hmdPos.y = mCurrentPosition[mEyeId].x * meterToGame;
-    hmdPos.z = mCurrentPosition[mEyeId].y * -meterToGame;
+    hmdPos.x = currentPosition.z * meterToGame;
+    hmdPos.y = currentPosition.x * meterToGame;
+    hmdPos.z = currentPosition.y * -meterToGame;
     
     glm::mat4 hmdPosition = glm::translate(glm::mat4(1.0f), hmdPos);    
     

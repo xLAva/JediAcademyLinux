@@ -53,7 +53,7 @@
 #define d_ovrHmd_AddDistortionTimeMeasurement ovrHmd_AddDistortionTimeMeasurement
 #define d_ovrHmd_GetLatencyTestDrawColor ovrHmd_GetLatencyTestDrawColor
 
-#elif USE_OVR_0_7
+#elif USE_OVR_0_8
 #define d_ovr_Initialize ovr_Initialize
 #define d_ovr_Create ovr_Create
 #define d_ovr_Shutdown ovr_Shutdown
@@ -63,4 +63,8 @@
 #define d_ovr_GetTrackingState ovr_GetTrackingState
 #define d_ovr_RecenterPose ovr_RecenterPose
 #define d_ovr_GetFovTextureSize ovr_GetFovTextureSize
+#define d_ovr_CreateSwapTextureSetGL ovr_CreateSwapTextureSetGL
+#define d_ovr_CalcEyePoses ovr_CalcEyePoses
+#define d_ovr_GetPredictedDisplayTime ovr_GetPredictedDisplayTime
+#define d_ovrMatrix4f_Projection ovrMatrix4f_Projection
 #endif

@@ -4,15 +4,15 @@
  *  Copyright 2014 by Jochen Leopold <jochen.leopold@model-view.com>
  */
 
-#ifndef HMDRENDEREROCULUSSDK_H
-#define HMDRENDEREROCULUSSDK_H
+#ifndef HMDRENDEREROCULUSSDKWIN_H
+#define HMDRENDEREROCULUSSDKWIN_H
 
 #include "IHmdRenderer.h"
 #include "../../renderer/qgl.h"
 
 
 
-#include <OVR_CAPI_0_7_0.h>
+#include <OVR_CAPI_0_8_0.h>
 #include <Extras/OVR_Math.h>
 
 #include "RenderTool.h"
@@ -82,16 +82,23 @@ private:
     bool mAllowZooming;
 
     HmdDeviceOculusSdk* mpDevice;
-    ovrHmd mpHmd;
+    ovrSession mpHmd;
+    ovrLayerEyeFov mLayerMain;
+    ovrVector3f mHmdToEyeViewOffset[2];
+    
     ovrEyeRenderDesc mEyeRenderDesc[2];
     ovrTexture EyeTexture[2];
-
+    ovrSwapTextureSet* mEyeTextureSet[2];
+    int mEyeTextureSetIndex[2];
+    
+    
+    
     ovrEyeType mEyes[2];
     ovrPosef mEyePoses[2];
-    ovrFrameTiming mFrameTiming;
+    //ovrFrameTiming mFrameTiming;
 
-    glm::quat mCurrentOrientations[2];
-    glm::vec3 mCurrentPosition[2];
+    //glm::quat mCurrentOrientations[2];
+    //glm::vec3 mCurrentPosition[2];
 
 
 };
