@@ -49,9 +49,6 @@
 #define d_ovrHmd_SetString ovrHmd_SetString
 #define d_ovrHmd_GetLatencyTest2DrawColor ovrHmd_GetLatencyTest2DrawColor
 
-#define d_ovrHmd_RegisterPostDistortionCallback ovrHmd_RegisterPostDistortionCallback
-#define d_ovrHmd_AddDistortionTimeMeasurement ovrHmd_AddDistortionTimeMeasurement
-#define d_ovrHmd_GetLatencyTestDrawColor ovrHmd_GetLatencyTestDrawColor
 
 #elif USE_OVR_CURRENT
 #define d_ovr_Initialize ovr_Initialize

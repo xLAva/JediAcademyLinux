@@ -772,11 +772,13 @@ elseif(USE_OCULUS_SDK_0.5)
 
     source_group(hmd\\OculusSdk_0.5 FILES ${SSF_HMD_OCULUS_0.5})
 
-    set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DUSE_OVR -DUSE_OVR_0_5 -DOVR_DLL_IMPORT")
+    set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DUSE_OVR -DUSE_OVR_0_5")
 
     include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Include")
 
     if(NOT FORCE_STATIC_OCULUS_SDK)
+        set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DOVR_DLL_IMPORT")
+
         set(SSF_HMD_LIBOVRDYNAMIC ${SSF_HMD_LIBOVRDYNAMIC}
             hmd/LibOvrDynamic/oculus_dynamic.h
             hmd/LibOvrDynamic/oculus_dynamic.cpp
@@ -794,8 +796,8 @@ elseif(USE_OCULUS_SDK_0.5)
             link_directories("C:/WinDDK/7600.16385.1/lib/ATL/i386")
             set(EXTRA_LIBS ${EXTRA_LIBS} wsock32 ws2_32)
             
-            set(EXTRA_LIBS ${EXTRA_LIBS} debug ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Win32/VS2013/libovrd.lib)
-            set(EXTRA_LIBS ${EXTRA_LIBS} optimized ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Win32/VS2013/libovr.lib)
+            set(EXTRA_LIBS ${EXTRA_LIBS} debug ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Windows/Win32/Debug/VS2013/libovr.lib)
+            set(EXTRA_LIBS ${EXTRA_LIBS} optimized ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Windows/Win32/Release/VS2013/libovr.lib)
 
         elseif(PLATFORM_LINUX)
 
