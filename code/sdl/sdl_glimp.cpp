@@ -1633,10 +1633,13 @@ static int mouseConvert[MAX_MOUSE_BUTTONS] =
 
 static void HandleEvents(void)
 {
+    const int mouseDefaultPosX = s_windowWidth / 2;
+    const int mouseDefaultPosY = s_windowHeight / 2;
 	int key;
 	qboolean dowarp = qfalse;
-	int mwx = glConfig.vidWidth/2;
-	int mwy = glConfig.vidHeight/2;
+
+    int lastMousePosX = mouseDefaultPosX;
+    int lastMousePosY = mouseDefaultPosY;
 
 	qboolean forceRelMouse = qfalse;
 #ifdef __APPLE__
@@ -1684,15 +1687,15 @@ static void HandleEvents(void)
 			}
 			else
 			{
-				//VID_Printf (PRINT_ALL, "mxOld=%d myOld=%d mx=%d my=%d mwxOld=%d mwyOld=%d mwx=%d mwy=%d\n", mx, my, mx + event.motion.x -mwx, my + event.motion.y - mwy, mwx, mwy, event.motion.x, event.motion.y);
-				mx += (event.motion.x - mwx);
-				my += (event.motion.y - mwy);
-				mwx = event.motion.x;
-				mwy = event.motion.y;
+                //VID_Printf(PRINT_ALL, "event x=%d y=%d motionx=%d motiony=%d\n", event.motion.x, event.motion.y, event.motion.xrel, event.motion.yrel);
+				//VID_Printf (PRINT_ALL, "mxOld=%d myOld=%d mx=%d my=%d lastMousePosX=%d lastMousePosX=%d\n", mx, my, mx + event.motion.x -lastMousePosX, my + event.motion.y - lastMousePosY, lastMousePosX, lastMousePosY);
+                mx += (event.motion.x - lastMousePosX);
+                my += (event.motion.y - lastMousePosY);
+                lastMousePosX = event.motion.x;
+                lastMousePosY = event.motion.y;
 	
 				if (mx || my)
 				{
-					
 					dowarp = qtrue;
 				}
 			}
@@ -1788,7 +1791,7 @@ static void HandleEvents(void)
 	}
 
 	if (dowarp && sWindowHasFocus) {
-		SDL_WarpMouseInWindow(s_pSdlWindow, (glConfig.vidWidth/2),(glConfig.vidHeight/2));
+        SDL_WarpMouseInWindow(s_pSdlWindow, mouseDefaultPosX, mouseDefaultPosY);
 	}
 	
 	if (!sRelativeMouseMode && !sWindowHasFocus)
