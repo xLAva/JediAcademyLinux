@@ -12,7 +12,7 @@ cmake_minimum_required(VERSION 2.6)
 
 project(jk3)
 
-set(USE_OCULUS_SDK_0.6 0)
+set(USE_OCULUS_SDK_0.5 0)
 set(USE_OCULUS_SDK_CURRENT 1)
 set(FORCE_STATIC_OCULUS_SDK 1)
 
@@ -760,19 +760,19 @@ if(USE_OCULUS_SDK_CURRENT)
 
         endif()
     endif()
-elseif(USE_OCULUS_SDK_0.6)
-    set(SSF_HMD_OCULUS_0.6 ${SSF_HMD_OCULUS_0.6}
-        hmd/OculusSdk_0.6/HmdDeviceOculusSdk.h
-        hmd/OculusSdk_0.6/HmdDeviceOculusSdk.cpp
+elseif(USE_OCULUS_SDK_0.5)
+    set(SSF_HMD_OCULUS_0.5 ${SSF_HMD_OCULUS_0.5}
+        hmd/OculusSdk_0.5/HmdDeviceOculusSdk.h
+        hmd/OculusSdk_0.5/HmdDeviceOculusSdk.cpp
     )
-    set(SSF_HMD_OCULUS_0.6 ${SSF_HMD_OCULUS_0.6}
-        hmd/OculusSdk_0.6/HmdRendererOculusSdk.h
-        hmd/OculusSdk_0.6/HmdRendererOculusSdk.cpp
+    set(SSF_HMD_OCULUS_0.5 ${SSF_HMD_OCULUS_0.5}
+        hmd/OculusSdk_0.5/HmdRendererOculusSdk.h
+        hmd/OculusSdk_0.5/HmdRendererOculusSdk.cpp
     )
 
-    source_group(hmd\\OculusSdk_0.6 FILES ${SSF_HMD_OCULUS_0.6})
+    source_group(hmd\\OculusSdk_0.5 FILES ${SSF_HMD_OCULUS_0.5})
 
-    set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DUSE_OVR -DUSE_OVR_0_6 -DOVR_DLL_IMPORT")
+    set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DUSE_OVR -DUSE_OVR_0_5 -DOVR_DLL_IMPORT")
 
     include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Include")
 
@@ -785,10 +785,11 @@ elseif(USE_OCULUS_SDK_0.6)
     else()
         set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DFORCE_STATIC_OCULUS_SDK")
 
+        set(SSF_HMD_LIBOVRDYNAMIC ${SSF_HMD_LIBOVRDYNAMIC}
+            hmd/LibOvrDynamic/oculus_static.h
+        )
+
         if(PLATFORM_WIN32)
-            set(SSF_HMD_LIBOVRDYNAMIC ${SSF_HMD_LIBOVRDYNAMIC}
-                hmd/LibOvrDynamic/oculus_static.h
-            )
             
             link_directories("C:/WinDDK/7600.16385.1/lib/ATL/i386")
             set(EXTRA_LIBS ${EXTRA_LIBS} wsock32 ws2_32)
@@ -901,7 +902,7 @@ set(STARWARS_SOURCE_FILES ${STARWARS_SOURCE_FILES}
     ${SSF_HMD_RENDERER}
     ${SSF_HMD_QUAKE3}
     ${SSF_HMD_LIBOVRDYNAMIC}
-    ${SSF_HMD_OCULUS_0.6}
+    ${SSF_HMD_OCULUS_0.5}
     ${SSF_HMD_OCULUS_CURRENT}
 )
 

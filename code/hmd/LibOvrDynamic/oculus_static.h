@@ -1,4 +1,4 @@
-#ifdef USE_OVR_0_6
+#ifdef USE_OVR_0_5
 #define d_ovr_Initialize ovr_Initialize
 #define d_ovr_InitializeRenderingShim ovr_InitializeRenderingShim
 #define d_ovr_Shutdown ovr_Shutdown

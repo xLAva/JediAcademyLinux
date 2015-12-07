@@ -5,9 +5,9 @@
 #include "HmdRenderer/HmdRendererOculusOpenHmd.h"
 #endif
 
-#ifdef USE_OVR_0_6
-#include "OculusSdk_0.6/HmdDeviceOculusSdk.h"
-#include "OculusSdk_0.6/HmdRendererOculusSdk.h"
+#ifdef USE_OVR_0_5
+#include "OculusSdk_0.5/HmdDeviceOculusSdk.h"
+#include "OculusSdk_0.5/HmdRendererOculusSdk.h"
 #endif
 
 #ifdef USE_OVR_CURRENT
