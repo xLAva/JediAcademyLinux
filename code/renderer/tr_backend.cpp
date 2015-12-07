@@ -1054,7 +1054,23 @@ void	RB_SetGL2D (void) {
 #ifdef _XBOX
 	qglOrtho (0, 640, 0, 480, 0, 1);
 #else
-	qglOrtho (0, 640, 480, 0, 0, 1);
+    if (pHmdRenderer)
+    {
+        double left;
+        double right;
+        double bottom;
+        double top;
+        double zNear;
+        double zFar;
+
+        pHmdRenderer->Get2DOrtho(left, right, bottom, top, zNear, zFar);
+
+        qglOrtho(left, right, bottom, top, zNear, zFar);
+    }
+    else
+    {
+        qglOrtho (0, 640, 480, 0, 0, 1);
+    }
 #endif
 	qglMatrixMode(GL_MODELVIEW);
     qglLoadIdentity ();

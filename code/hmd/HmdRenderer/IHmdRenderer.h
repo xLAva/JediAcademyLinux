@@ -34,6 +34,7 @@ public:
     virtual bool GetCustomViewMatrix(float* rViewMatrix, float &xPos, float &yPos, float &zPos, float bodyYaw, bool noPosition) = 0;
 
     virtual bool Get2DViewport(int& rX, int& rY, int& rW, int& rH) = 0;
+    virtual bool Get2DOrtho(double &rLeft, double &rRight, double &rBottom, double &rTop, double &rZNear, double &rZFar) = 0;
 
 };
 

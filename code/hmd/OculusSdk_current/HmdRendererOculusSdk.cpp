@@ -36,6 +36,7 @@ HmdRendererOculusSdk::HmdRendererOculusSdk(HmdDeviceOculusSdk* pHmdDeviceOculusS
     ,mGuiOffsetFactorX(0)
     ,mDismissHealthSafetyWarning(false)
     ,mAllowZooming(false)
+    ,mUseMirrorTexture(true)
     ,mpDevice(pHmdDeviceOculusSdk)
     ,mpHmd(NULL)
     ,mpMirrorTexture(nullptr)
@@ -174,6 +175,11 @@ std::string HmdRendererOculusSdk::GetInfo()
 
 bool HmdRendererOculusSdk::HandlesSwap()
 {
+    if (mUseMirrorTexture)
+    {
+        return false;
+    }
+
     return true;
 }
 
@@ -230,7 +236,7 @@ void HmdRendererOculusSdk::BeginRenderingForEye(bool leftEye)
             qglBindFramebuffer(GL_FRAMEBUFFER, mFboInfos[i].Fbo);
             qglFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,  pTex->OGL.TexId, 0);
 
-
+            RenderTool::ClearFBO(mFboInfos[i]);
 
             //ovrQuatf orientation = mEyePoses[i].Orientation;
             //mCurrentOrientations[i] = glm::quat(orientation.w, orientation.x, orientation.y, orientation.z);
@@ -251,7 +257,7 @@ void HmdRendererOculusSdk::BeginRenderingForEye(bool leftEye)
 
     // bind framebuffer
     qglBindFramebuffer(GL_FRAMEBUFFER, mFboInfos[mEyeId].Fbo);
-    RenderTool::ClearFBO(mFboInfos[mEyeId]);
+
 }
 
 void HmdRendererOculusSdk::EndFrame()
@@ -294,34 +300,28 @@ void HmdRendererOculusSdk::EndFrame()
         ovrLayerHeader* layers =  &mLayerMain.Header;
         ovrResult result = ovr_SubmitFrame(mpHmd, 0, nullptr, &layers, 1);
 
+        if (mUseMirrorTexture)
+        {
+
+            ovrGLTexture* pTex = (ovrGLTexture*)mpMirrorTexture;
+            // Get source texture dimensions
+            qglBindTexture(GL_TEXTURE_2D, pTex->OGL.TexId);
+
+            // setup read buffer
+            qglBindFramebuffer(GL_READ_FRAMEBUFFER, ReadFBO);
 
 
-
-        /*
-        ovrGLTexture* pTex = (ovrGLTexture*)mpMirrorTexture;
-        // Get source texture dimensions
-        qglBindTexture(GL_TEXTURE_2D, pTex->OGL.TexId);
-
-        //GLint sourceWidth = 0;
-        //GLint sourceHeight = 0;
-        //qglGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &sourceWidth);
-        //qglGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &sourceHeight);
-
-        //qglDrawBuffer(GL_BACK);
-
-        // setup read buffer
-        qglBindFramebuffer(GL_READ_FRAMEBUFFER, ReadFBO);
+            qglFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, pTex->OGL.TexId, 0);
+            qglFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
 
 
-        qglFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, pTex->OGL.TexId, 0);
-        qglFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
+            // Do the blt
+            qglBlitFramebuffer(0, mWindowHeight, mWindowWidth, 0,
+                0, 0, mWindowWidth, mWindowHeight,
+                GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
+        }
 
-        // Do the blt
-        qglBlitFramebuffer(0, mWindowHeight, mWindowWidth, 0,
-            0, 0, mWindowWidth, mWindowHeight,
-            GL_COLOR_BUFFER_BIT, GL_NEAREST);
-            */
         // restore the old state
         qglUseProgramObjectARB(0);
         
@@ -356,8 +356,10 @@ void HmdRendererOculusSdk::EndFrame()
         mStartedFrame = false;
         mStartedRendering = false;
 
+
         // keep for debugging
         //RenderTool::DrawFbos(&mFboInfos[0], FBO_COUNT, mWindowWidth, mWindowHeight);
+
     }
     
     mEyeId = -1;
@@ -521,6 +523,19 @@ bool HmdRendererOculusSdk::Get2DViewport(int& rX, int& rY, int& rW, int& rH)
     rX += xOff;
 
     rY = (mRenderHeight - rH) / 2;
+
+    return true;
+}
+
+
+bool HmdRendererOculusSdk::Get2DOrtho(double &rLeft, double &rRight, double &rBottom, double &rTop, double &rZNear, double &rZFar)
+{
+    rLeft = 0;
+    rRight = 640;
+    rBottom = 0;
+    rTop = 480;
+    rZNear = 0;
+    rZFar = 1;
 
     return true;
 }

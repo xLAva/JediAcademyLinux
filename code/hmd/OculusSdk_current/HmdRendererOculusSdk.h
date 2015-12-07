@@ -32,22 +32,23 @@ public:
     HmdRendererOculusSdk(HmdDeviceOculusSdk* pHmdDeviceOculusSdk);
     virtual ~HmdRendererOculusSdk();
 
-    virtual bool Init(int windowWidth, int windowHeight, PlatformInfo platformInfo);
-    virtual void Shutdown();
+    virtual bool Init(int windowWidth, int windowHeight, PlatformInfo platformInfo) override;
+    virtual void Shutdown() override;
 
-    virtual std::string GetInfo();
+    virtual std::string GetInfo() override;
 
-    virtual bool HandlesSwap();
-    virtual bool GetRenderResolution(int& rWidth, int& rHeight);
+    virtual bool HandlesSwap()override;
+    virtual bool GetRenderResolution(int& rWidth, int& rHeight) override;
 
-    virtual void StartFrame();
-    virtual void BeginRenderingForEye(bool leftEye);
-    virtual void EndFrame();
+    virtual void StartFrame() override;
+    virtual void BeginRenderingForEye(bool leftEye) override;
+    virtual void EndFrame() override;
 
-    virtual bool GetCustomProjectionMatrix(float* rProjectionMatrix, float zNear, float zFar, float fov);
-    virtual bool GetCustomViewMatrix(float* rViewMatrix, float& xPos, float& yPos, float& zPos, float bodyYaw, bool noPosition);
+    virtual bool GetCustomProjectionMatrix(float* rProjectionMatrix, float zNear, float zFar, float fov) override;
+    virtual bool GetCustomViewMatrix(float* rViewMatrix, float& xPos, float& yPos, float& zPos, float bodyYaw, bool noPosition) override;
 
-    virtual bool Get2DViewport(int& rX, int& rY, int& rW, int& rH);
+    virtual bool Get2DViewport(int& rX, int& rY, int& rW, int& rH) override;
+    virtual bool HmdRendererOculusSdk::Get2DOrtho(double &rLeft, double &rRight, double &rBottom, double &rTop, double &rZNear, double &rZFar) override;
 
     bool AttachToWindow(void* pWindowHandle);
     void DismissHealthSafetyWarning();
@@ -81,6 +82,8 @@ private:
     bool mDismissHealthSafetyWarning;
     bool mAllowZooming;
 
+    bool mUseMirrorTexture;
+
     HmdDeviceOculusSdk* mpDevice;
     ovrSession mpHmd;
     ovrLayerEyeFov mLayerMain;
@@ -96,12 +99,6 @@ private:
     
     ovrEyeType mEyes[2];
     ovrPosef mEyePoses[2];
-    //ovrFrameTiming mFrameTiming;
-
-    //glm::quat mCurrentOrientations[2];
-    //glm::vec3 mCurrentPosition[2];
-
-    //OVR::GLUtil::Blitter* mpBlitter;
 };
 
 #endif

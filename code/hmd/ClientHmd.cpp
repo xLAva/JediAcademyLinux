@@ -74,12 +74,10 @@ void ClientHmd::UpdateInputView(float yawDiff, float& rPitch, float& rYaw, float
     float yaw = 0;
     float roll = 0;
 
-    bool worked = GetOrientation(pitch, yaw, roll);
-
-    if (!worked)
-    {
-        return;
-    }
+    // ignore failed orientation
+    // it will alsow fail during rendering
+    // we need to keep render orientation and input orientation the same
+    GetOrientation(pitch, yaw, roll);
 
     rPitch = pitch;
 

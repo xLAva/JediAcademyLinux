@@ -382,7 +382,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 			Com_Error( ERR_FATAL, "SCR_DrawScreenField: bad cls.state" );
 			break;
 		case CA_CINEMATIC:
-			SCR_DrawCinematic();
+            SCR_DrawCinematic(stereoFrame);
 			break;
 		case CA_DISCONNECTED:
 			// force menu up
@@ -402,7 +402,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 		case CA_ACTIVE:
 			if (CL_IsRunningInGameCinematic() || CL_InGameCinematicOnStandBy())
 			{
-				SCR_DrawCinematic();				
+                SCR_DrawCinematic(stereoFrame);
 			}
 			else
 			{

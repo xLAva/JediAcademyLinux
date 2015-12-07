@@ -568,6 +568,19 @@ bool HmdRendererOculusSdk::Get2DViewport(int& rX, int& rY, int& rW, int& rH)
     return true;
 }
 
+bool HmdRendererOculusSdk::Get2DOrtho(double &rLeft, double &rRight, double &rBottom, double &rTop, double &rZNear, double &rZFar)
+{
+    rLeft = 0;
+    rRight = 640;
+    rBottom = 480;
+    rTop = 0;
+    rZNear = 0;
+    rZFar = 1;
+
+    return true;
+}
+
+
 bool HmdRendererOculusSdk::AttachToWindow(void* pWindowHandle)
 {
 #ifdef _WINDOWS
