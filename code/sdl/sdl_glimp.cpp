@@ -23,12 +23,12 @@
 #include "../hmd/HmdRenderer/IHmdRenderer.h"
 #include "../hmd/HmdRenderer/PlatformInfo.h"
 
-#ifdef USE_OVR
-#include "../hmd/HmdRenderer/HmdRendererOculusSdk.h"
+#ifdef USE_OVR_0_6
+#include "../hmd/OculusSdk_0.6/HmdRendererOculusSdk.h"
 #endif
 
-#ifdef USE_OVR_0_8
-#include "../hmd/HmdRenderer/HmdRendererOculusSdkWin.h"
+#ifdef USE_OVR_CURRENT
+#include "../hmd/OculusSdk_current/HmdRendererOculusSdk.h"
 #endif
 
 #if defined(LINUX) || defined(__APPLE__)
@@ -297,7 +297,7 @@ int GLW_SetMode(int mode, qboolean fullscreen )
 		return RSERR_UNKNOWN;
 	}
 	
-#ifdef USE_OVR
+#ifdef USE_OVR_0_6
 	HmdRendererOculusSdk* pHmdRenderer = dynamic_cast<HmdRendererOculusSdk*>(ClientHmd::Get()->GetRenderer());
 	if (pHmdRenderer)
 	{

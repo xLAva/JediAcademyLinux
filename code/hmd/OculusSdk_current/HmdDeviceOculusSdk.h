@@ -1,13 +1,13 @@
 /**
  * HMD extension for JediAcademy
  *
- *  Copyright 2014 by Jochen Leopold <jochen.leopold@model-view.com>
+ *  Copyright 2015 by Jochen Leopold <jochen.leopold@model-view.com>
  */
 
-#ifndef HMDDEVICEOCULUSSDKWIN_H
-#define HMDDEVICEOCULUSSDKWIN_H
+#ifndef HMDDEVICEOCULUSSDK_H
+#define HMDDEVICEOCULUSSDK_H
 
-#include "IHmdDevice.h"
+#include "../HmdDevice/IHmdDevice.h"
 
 #ifdef FORCE_STATIC_OCULUS_SDK
 #include <OVR_CAPI.h>

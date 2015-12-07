@@ -1,4 +1,4 @@
-#ifdef USE_OVR
+#ifdef USE_OVR_0_6
 #define d_ovr_Initialize ovr_Initialize
 #define d_ovr_InitializeRenderingShim ovr_InitializeRenderingShim
 #define d_ovr_Shutdown ovr_Shutdown
@@ -53,7 +53,7 @@
 #define d_ovrHmd_AddDistortionTimeMeasurement ovrHmd_AddDistortionTimeMeasurement
 #define d_ovrHmd_GetLatencyTestDrawColor ovrHmd_GetLatencyTestDrawColor
 
-#elif USE_OVR_0_8
+#elif USE_OVR_CURRENT
 #define d_ovr_Initialize ovr_Initialize
 #define d_ovr_Create ovr_Create
 #define d_ovr_Shutdown ovr_Shutdown

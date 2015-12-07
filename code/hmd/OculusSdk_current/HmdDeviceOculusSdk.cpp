@@ -1,4 +1,4 @@
-#include "HmdDeviceOculusSdkWin.h"
+#include "HmdDeviceOculusSdk.h"
 #include "../SearchForDisplay.h"
 
 #ifdef FORCE_STATIC_OCULUS_SDK

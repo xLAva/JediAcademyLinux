@@ -1,21 +1,21 @@
 /**
  * HMD extension for JediAcademy
  *
- *  Copyright 2014 by Jochen Leopold <jochen.leopold@model-view.com>
+ *  Copyright 2015 by Jochen Leopold <jochen.leopold@model-view.com>
  */
 
 #ifndef HMDRENDEREROCULUSSDK_H
 #define HMDRENDEREROCULUSSDK_H
 
-#include "IHmdRenderer.h"
+#include "../HmdRenderer/IHmdRenderer.h"
 #include "../../renderer/qgl.h"
 
 
 
-#include <OVR_CAPI_0_5_0.h>
+#include <OVR_CAPI_0_8_0.h>
 #include <Extras/OVR_Math.h>
-
-#include "RenderTool.h"
+//#include <Util/Util_GL_Blitter.h>
+#include "../HmdRenderer/RenderTool.h"
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
@@ -57,7 +57,7 @@ protected:
 
 private:
     bool FrameNeedsRendering();
-    void HandleSafetyWarning();
+    //void HandleSafetyWarning();
     void PreparePlatform();
     
     static const int FBO_COUNT = 2;
@@ -82,18 +82,26 @@ private:
     bool mAllowZooming;
 
     HmdDeviceOculusSdk* mpDevice;
-    ovrHmd mpHmd;
+    ovrSession mpHmd;
+    ovrLayerEyeFov mLayerMain;
+    ovrVector3f mHmdToEyeViewOffset[2];
+    
     ovrEyeRenderDesc mEyeRenderDesc[2];
     ovrTexture EyeTexture[2];
-
+    ovrSwapTextureSet* mEyeTextureSet[2];
+    int mEyeTextureSetIndex[2];
+    
+    ovrTexture* mpMirrorTexture;
+    GLuint ReadFBO;
+    
     ovrEyeType mEyes[2];
     ovrPosef mEyePoses[2];
-    ovrFrameTiming mFrameTiming;
+    //ovrFrameTiming mFrameTiming;
 
-    glm::quat mCurrentOrientations[2];
-    glm::vec3 mCurrentPosition[2];
+    //glm::quat mCurrentOrientations[2];
+    //glm::vec3 mCurrentPosition[2];
 
-
+    //OVR::GLUtil::Blitter* mpBlitter;
 };
 
 #endif

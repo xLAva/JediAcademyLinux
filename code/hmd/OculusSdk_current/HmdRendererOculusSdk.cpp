@@ -1,7 +1,7 @@
-#include "HmdRendererOculusSdkWin.h"
+#include "HmdRendererOculusSdk.h"
 #include "../../renderer/tr_local.h"
-#include "../HmdDevice/HmdDeviceOculusSdkWin.h"
-#include "PlatformInfo.h"
+#include "HmdDeviceOculusSdk.h"
+#include "../HmdRenderer/PlatformInfo.h"
 
 #include <OVR_CAPI.h>
 // stupid OVR include bug

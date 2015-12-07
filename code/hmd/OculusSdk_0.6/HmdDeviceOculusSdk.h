@@ -7,7 +7,7 @@
 #ifndef HMDDEVICEOCULUSSDK_H
 #define HMDDEVICEOCULUSSDK_H
 
-#include "IHmdDevice.h"
+#include "../HmdDevice/IHmdDevice.h"
 
 #ifdef FORCE_STATIC_OCULUS_SDK
 #include <OVR_CAPI.h>
