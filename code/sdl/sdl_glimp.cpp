@@ -185,6 +185,9 @@ int GLW_SetMode(int mode, qboolean fullscreen )
 	actualWidth = glConfig.vidWidth;
 	actualHeight = glConfig.vidHeight;
 	
+    s_windowWidth = actualWidth;
+    s_windowHeight = actualHeight;
+
 	bool fixedDeviceResolution = false;
 	bool fullscreenWindow = false;
 	
