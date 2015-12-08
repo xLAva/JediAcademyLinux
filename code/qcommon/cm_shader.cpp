@@ -244,7 +244,7 @@ infoParm_t	svInfoParms[] =
 	{"metalsteps",	-1,					SURF_METALSTEPS,0 },
 	{"nomiscents",	-1,					SURF_NOMISCENTS,0 },						/* No misc ents on this surface */
 	{"forcefield",	-1,					SURF_FORCEFIELD,0 },
-	{"forcesight",	-1,					SURF_FORCESIGHT,0 },						// only visible with force sight
+	{"forcesight",	-1,					SURF_FORCESIGHT,0 }							// only visible with force sight
 };
 
 void SV_ParseSurfaceParm( CCMShader * shader, const char **text ) 
