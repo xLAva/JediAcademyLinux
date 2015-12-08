@@ -229,7 +229,7 @@ infoParm_t	svInfoParms[] =
 	{"inside",		~(CONTENTS_SOLID|CONTENTS_OPAQUE),0,CONTENTS_INSIDE },			// volume is considered to be inside (i.e. indoors)
 																		
 	{"detail",		-1,					0,				CONTENTS_DETAIL },			// don't include in structural bsp
-	{"trans",		-1,					0,				CONTENTS_TRANSLUCENT },		// surface has an alpha component
+	{"trans",		-1,					0,	static_cast<int>(CONTENTS_TRANSLUCENT) },		// surface has an alpha component
 	
 	/* Game surface flags */
 	{"sky",			-1,					SURF_SKY,		0 },					   	/* emit light from an environment map */
@@ -244,7 +244,7 @@ infoParm_t	svInfoParms[] =
 	{"metalsteps",	-1,					SURF_METALSTEPS,0 },
 	{"nomiscents",	-1,					SURF_NOMISCENTS,0 },						/* No misc ents on this surface */
 	{"forcefield",	-1,					SURF_FORCEFIELD,0 },
-	{"forcesight",	-1,					SURF_FORCESIGHT,0 }							// only visible with force sight
+	{"forcesight",	-1,					SURF_FORCESIGHT,0 },						// only visible with force sight
 };
 
 void SV_ParseSurfaceParm( CCMShader * shader, const char **text ) 
