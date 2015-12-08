@@ -12,16 +12,26 @@ cmake_minimum_required(VERSION 2.6)
 
 project(jk3)
 
-set(USE_OCULUS_SDK_0.5 0)
-set(USE_OCULUS_SDK_CURRENT 1)
-set(FORCE_STATIC_OCULUS_SDK 1)
+if(NOT DEFINED USE_OCULUS_SDK_0.5)
+    set(USE_OCULUS_SDK_0.5 0)
+endif()
 
-set(USE_OPENHMD 0)
+if(NOT DEFINED USE_OCULUS_SDK_CURRENT)
+    set(USE_OCULUS_SDK_CURRENT 1)
+endif()
+
+if(NOT DEFINED FORCE_STATIC_OCULUS_SDK)
+    set(FORCE_STATIC_OCULUS_SDK 1)
+endif()
+
+if(NOT DEFINED USE_OPENHMD)
+    set(USE_OPENHMD 0)
+endif()
 
 # doesn't work without SDL2 at the moment
 set(USE_SDL2 1)
 
-
+message("Used Settings: Ovr0.5=${USE_OCULUS_SDK_0.5} OvrCurrent=${USE_OCULUS_SDK_CURRENT} OvrStatic=${FORCE_STATIC_OCULUS_SDK} OpenHMD=${USE_OPENHMD}")
 
 set(PLATFORM_WIN32 0)
 set(PLATFORM_MACOS 0)
