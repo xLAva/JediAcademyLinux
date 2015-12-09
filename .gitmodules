@@ -1,0 +1,3 @@
+[submodule "3rdparty/OculusSDK_0.5"]
+	path = 3rdparty/OculusSDK_0.5
+	url = ssh://lavapi/home/jochen/Documents/Server/git/oculussdk.git
