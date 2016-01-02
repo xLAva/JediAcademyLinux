@@ -102,14 +102,20 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     
     for (int i=0; i<FBO_COUNT; i++)
     {
-        bool worked = RenderTool::CreateFrameBuffer(mFboInfos[i], mRenderWidth, mRenderHeight);
-        if (!worked)
+        bool success = RenderTool::CreateFrameBuffer(mFboInfos[i], mRenderWidth, mRenderHeight);
+        if (!success)
         {
             return false;
         }
     }
     
+    bool success = RenderTool::CreateFrameBuffer(mFboMenuInfo, mRenderWidth, mRenderHeight);
+    if (!success)
+    {
+        return false;
+    }
     
+
     for (int i=0; i<FBO_COUNT; i++)
     {
         mEyeTextureSetIndex[i] = 0;
@@ -120,7 +126,18 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
         }
     }
 
-    ovrResult success = d_ovr_CreateMirrorTextureGL(mpHmd, GL_SRGB8_ALPHA8, mWindowWidth, mWindowHeight, &mpMirrorTexture);
+    mMenuTextureSetIndex = 0;
+    ovrResult worked = d_ovr_CreateSwapTextureSetGL(mpHmd, GL_SRGB8_ALPHA8, mRenderWidth, mRenderHeight, &(mMenuTextureSet));
+    if (worked != ovrSuccess)
+    {
+        return false;
+    }
+
+    worked = d_ovr_CreateMirrorTextureGL(mpHmd, GL_SRGB8_ALPHA8, mWindowWidth, mWindowHeight, &mpMirrorTexture);
+    if (worked != ovrSuccess)
+    {
+        return false;
+    }
     ovrGLTexture* pTex = (ovrGLTexture*)mpMirrorTexture;
 
     // setup read buffer
@@ -153,9 +170,25 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     mLayerMain.Fov[1]           = eyeRenderDesc[1].Fov;
     mLayerMain.Viewport[0] = Recti(0, 0, bufferSize.w, bufferSize.h);
     mLayerMain.Viewport[1] = Recti(0, 0, bufferSize.w, bufferSize.h);
-    // ld.RenderPose and ld.SensorSampleTime are updated later per frame.
 
 
+
+    mLayerMenu.Header.Type = ovrLayerType_Quad;
+    mLayerMenu.Header.Flags = ovrLayerFlag_TextureOriginAtBottomLeft | ovrLayerFlag_HighQuality;
+    mLayerMenu.ColorTexture = mMenuTextureSet;
+    mLayerMenu.Viewport = Recti(0, 0, bufferSize.w, bufferSize.h);
+
+    // fixed relative to their torso.
+    mLayerMenu.QuadPoseCenter.Position.x = 0.00f;
+    mLayerMenu.QuadPoseCenter.Position.y = 0.00f;
+    mLayerMenu.QuadPoseCenter.Position.z = -1.90f;
+    mLayerMenu.QuadPoseCenter.Orientation.x = 0;
+    mLayerMenu.QuadPoseCenter.Orientation.y = 0;
+    mLayerMenu.QuadPoseCenter.Orientation.z = 0;
+    mLayerMenu.QuadPoseCenter.Orientation.w = 1;
+
+    mLayerMenu.QuadSize.x = 2.0f;
+    mLayerMenu.QuadSize.y = 2.0f;
 
     mStartedRendering = false;
     mIsInitialized = true;
@@ -236,7 +269,7 @@ void HmdRendererOculusSdk::BeginRenderingForEye(bool leftEye)
         double displayMidpointSeconds = d_ovr_GetPredictedDisplayTime(mpHmd, 0);
         ovrTrackingState hmdState = d_ovr_GetTrackingState(mpHmd, displayMidpointSeconds, ovrTrue);
         d_ovr_CalcEyePoses(hmdState.HeadPose.ThePose, mHmdToEyeViewOffset, mLayerMain.RenderPose);
-                
+
         for (int i=0; i<FBO_COUNT; i++)
         {
             mEyeTextureSet[i]->CurrentIndex = (mEyeTextureSet[i]->CurrentIndex + 1) % mEyeTextureSet[i]->TextureCount;
@@ -246,13 +279,18 @@ void HmdRendererOculusSdk::BeginRenderingForEye(bool leftEye)
             qglFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,  pTex->OGL.TexId, 0);
 
             RenderTool::ClearFBO(mFboInfos[i]);
-
-            //ovrQuatf orientation = mEyePoses[i].Orientation;
-            //mCurrentOrientations[i] = glm::quat(orientation.w, orientation.x, orientation.y, orientation.z);
-            
-            //ovrVector3f position = mEyePoses[i].Position;
-            //mCurrentPosition[i] = glm::vec3(position.x, position.y, position.z);
         }
+
+
+        mMenuTextureSet->CurrentIndex = (mMenuTextureSet->CurrentIndex + 1) % mMenuTextureSet->TextureCount;
+        ovrGLTexture* pMenuTex = (ovrGLTexture*)&mMenuTextureSet->Textures[mMenuTextureSet->CurrentIndex];
+
+        qglBindFramebuffer(GL_FRAMEBUFFER, mFboMenuInfo.Fbo);
+        qglFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, pMenuTex->OGL.TexId, 0);
+
+        RenderTool::ClearFBO(mFboMenuInfo);
+
+
 
         qglBindBuffer(GL_ARRAY_BUFFER, 0);
         qglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -265,7 +303,22 @@ void HmdRendererOculusSdk::BeginRenderingForEye(bool leftEye)
     }
 
     // bind framebuffer
-    qglBindFramebuffer(GL_FRAMEBUFFER, mFboInfos[mEyeId].Fbo);
+
+    if (mCurrentUiMode == INGAME_HUD)
+    {
+        qglBindFramebuffer(GL_FRAMEBUFFER, mFboInfos[mEyeId].Fbo);
+    }
+    else
+    {
+        if (leftEye)
+        {
+            qglBindFramebuffer(GL_FRAMEBUFFER, mFboMenuInfo.Fbo);
+        }
+        else
+        {
+            qglBindFramebuffer(GL_FRAMEBUFFER, 0);
+        }
+    }
 
 }
 
@@ -306,8 +359,16 @@ void HmdRendererOculusSdk::EndFrame()
         qglDisableClientState(GL_COLOR_ARRAY);
         qglDisableClientState(GL_VERTEX_ARRAY);
 
-        ovrLayerHeader* layers =  &mLayerMain.Header;
-        ovrResult result = ovr_SubmitFrame(mpHmd, 0, nullptr, &layers, 1);
+        ovrLayerHeader* layers[1];
+        layers[0] = &mLayerMain.Header;
+        layers[1] = &mLayerMenu.Header;
+
+        //ovrViewScaleDesc viewScaleDesc;
+        //viewScaleDesc.HmdSpaceToWorldScaleInMeters = mRenderWidth;
+        //viewScaleDesc.HmdToEyeViewOffset[0] = mHmdToEyeViewOffset[0];
+        //viewScaleDesc.HmdToEyeViewOffset[1] = mHmdToEyeViewOffset[1];
+
+        ovrResult result = ovr_SubmitFrame(mpHmd, 0, nullptr, layers, 2);
 
         if (mUseMirrorTexture)
         {
@@ -438,12 +499,20 @@ bool HmdRendererOculusSdk::GetCustomViewMatrix(float* rViewMatrix, float& xPos, 
         return false;
     }
 
+
+
     ovrQuatf orientation = mLayerMain.RenderPose[mEyeId].Orientation;
     glm::quat currentOrientation = glm::quat(orientation.w, orientation.x, orientation.y, orientation.z);
     
     ovrVector3f position = mLayerMain.RenderPose[mEyeId].Position;
     glm::vec3 currentPosition = glm::vec3(position.x, position.y, position.z);
     
+    if (mCurrentUiMode == FULLSCREEN_MENU)
+    {
+        currentOrientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+        currentPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+    }
+
     // get current hmd rotation 
     glm::quat hmdRotation = glm::inverse(currentOrientation);
 
@@ -514,8 +583,10 @@ bool HmdRendererOculusSdk::Get2DViewport(int& rX, int& rY, int& rW, int& rH)
     // shrink the gui for the HMD display
     float aspect = 1.0f;
 
-    rW = mRenderWidth *mGuiScale;
-    rH = mRenderWidth *mGuiScale * aspect;
+    float guiScale = (mCurrentUiMode == FULLSCREEN_MENU) ? 1.0f : mGuiScale;
+
+    rW = mRenderWidth *guiScale;
+    rH = mRenderWidth *guiScale * aspect;
 
     rX = (mRenderWidth - rW)/2.0f;
     int xOff = mGuiOffsetFactorX > 0 ? (mRenderWidth / mGuiOffsetFactorX) : 0;
@@ -544,6 +615,17 @@ bool HmdRendererOculusSdk::Get2DOrtho(double &rLeft, double &rRight, double &rBo
 void HmdRendererOculusSdk::SetCurrentUiMode(UiMode mode)
 {
     mCurrentUiMode = mode;
+
+    if (mCurrentUiMode == INGAME_HUD)
+    {
+        mLayerMain.Header.Type = ovrLayerType_EyeFov;
+        mLayerMenu.Header.Type = ovrLayerType_Disabled;
+    }
+    else
+    {
+        mLayerMain.Header.Type = ovrLayerType_Disabled;
+        mLayerMenu.Header.Type = ovrLayerType_Quad;
+    }
 }
 
 bool HmdRendererOculusSdk::AttachToWindow(void* pWindowHandle)

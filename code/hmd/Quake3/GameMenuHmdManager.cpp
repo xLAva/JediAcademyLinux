@@ -8,6 +8,7 @@ GameMenuHmdManager::GameMenuHmdManager()
     ,mIsFullscreenMenuOpen(false)
 {
     mInGameHudNames.insert("mainhud");
+    mInGameHudNames.insert("loadscreen");
 }
 
 GameMenuHmdManager::~GameMenuHmdManager()
@@ -58,7 +59,7 @@ void GameMenuHmdManager::Update()
     bool isFullscreenMenuOpen = true;
     
     // if no map is loaded we are always in fullscreen menu mode
-    if (Cvar_VariableIntegerValue("sv_running"))
+    //if (Cvar_VariableIntegerValue("sv_running"))
     {
         isFullscreenMenuOpen = mCurrentOpenMenu.size() > 0;
     }

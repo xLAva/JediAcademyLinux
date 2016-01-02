@@ -65,6 +65,7 @@ private:
     
     static const int FBO_COUNT = 2;
     RenderTool::FrameBufferInfo mFboInfos[FBO_COUNT];
+    RenderTool::FrameBufferInfo mFboMenuInfo;
 
     bool mIsInitialized;
     bool mStartedFrame;
@@ -89,12 +90,15 @@ private:
     HmdDeviceOculusSdk* mpDevice;
     ovrSession mpHmd;
     ovrLayerEyeFov mLayerMain;
+    ovrLayerQuad mLayerMenu;
     ovrVector3f mHmdToEyeViewOffset[2];
     
     ovrEyeRenderDesc mEyeRenderDesc[2];
     ovrTexture EyeTexture[2];
     ovrSwapTextureSet* mEyeTextureSet[2];
+    ovrSwapTextureSet* mMenuTextureSet;
     int mEyeTextureSetIndex[2];
+    int mMenuTextureSetIndex;
     
     ovrTexture* mpMirrorTexture;
     GLuint mReadFBO;
