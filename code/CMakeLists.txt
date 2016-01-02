@@ -719,6 +719,8 @@ set(SSF_HMD_RENDERER
 )
 
 set(SSF_HMD_QUAKE3
+    hmd/Quake3/GameMenuHmdManager.h
+    hmd/Quake3/GameMenuHmdManager.cpp
     hmd/Quake3/ViewParamsHmdUtility.h
     hmd/Quake3/ViewParamsHmdUtility.cpp
 )
@@ -898,6 +900,7 @@ source_group(hmd FILES ${SSF_HMD})
 source_group(hmd\\HmdDevice FILES ${SSF_HMD_DEVICE})
 source_group(hmd\\HmdRenderer FILES ${SSF_HMD_RENDERER})
 source_group(hmd\\LibOvrDynamic FILES ${SSF_HMD_LIBOVRDYNAMIC})
+source_group(hmd\\Quake3 FILES ${SSF_HMD_QUAKE3})
 
 
 # combine all common source files for the game exe

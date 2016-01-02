@@ -5,7 +5,7 @@
 #include "../server/exe_headers.h"
 
 
-#include "../renderer/tr_local.h"
+#include "../game/q_shared.h"
 #include "../qcommon/qcommon.h"
 #include "sdl_local.h"
 #include <stdint.h>

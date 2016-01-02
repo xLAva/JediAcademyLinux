@@ -1,5 +1,6 @@
 #include "ClientHmd.h"
 #include "HmdDevice/IHmdDevice.h"
+#include "Quake3/GameMenuHmdManager.h"
 
 #include "../game/q_shared.h"
 #include "../client/vmachine.h"
@@ -18,7 +19,9 @@
 ClientHmd* ClientHmd::sClientHmd = NULL;
 
 ClientHmd::ClientHmd()
-    :mpDevice(NULL)
+    :mpDevice(nullptr)
+    ,mpRenderer(nullptr)
+    ,mpGameMenuHmdManager(nullptr)
     ,mIsInitialized(false)
     ,mLastViewangleYaw(0)
     ,mViewangleDiff(0)
@@ -28,7 +31,11 @@ ClientHmd::ClientHmd()
 
 ClientHmd::~ClientHmd()
 {
-
+    if (mpGameMenuHmdManager != nullptr)
+    {
+        delete(mpGameMenuHmdManager);
+        mpGameMenuHmdManager = nullptr;
+    }
 }
 
 ClientHmd* ClientHmd::Get()
@@ -93,6 +100,12 @@ void ClientHmd::UpdateGame()
     if (mpDevice == NULL)
     {
         return;
+    }
+
+    GameMenuHmdManager* pManager = GetGameMenuHmdManager();
+    if (pManager)
+    {
+        pManager->Update();
     }
 
     float angles[4];
@@ -186,4 +199,22 @@ bool ClientHmd::GetPosition(float& rX, float& rY, float& rZ)
     rZ = hmdPositionOffsetInGame.z;
 
     return true;
+}
+
+void ClientHmd::SetRenderer(IHmdRenderer* pRenderer) 
+{ 
+    mpRenderer = pRenderer; 
+
+    GameMenuHmdManager* pGameMenuHmdManager = GetGameMenuHmdManager();
+    pGameMenuHmdManager->SetHmdRenderer(pRenderer);
+}
+
+GameMenuHmdManager* ClientHmd::GetGameMenuHmdManager()
+{
+    if (mpGameMenuHmdManager == nullptr)
+    {
+        mpGameMenuHmdManager = new GameMenuHmdManager();
+    }
+
+    return mpGameMenuHmdManager;
 }

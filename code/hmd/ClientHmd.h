@@ -9,6 +9,7 @@
 
 class IHmdDevice;
 class IHmdRenderer;
+class GameMenuHmdManager;
 
 class ClientHmd
 {
@@ -28,9 +29,11 @@ public:
     void SetDevice(IHmdDevice* pDevice) { mpDevice = pDevice; }
 
     IHmdRenderer* GetRenderer() { return mpRenderer; }
-    void SetRenderer(IHmdRenderer* pRenderer) { mpRenderer = pRenderer; }
+    void SetRenderer(IHmdRenderer* pRenderer);
 
     float GetYawDiff() { return mViewangleDiff; }
+
+    GameMenuHmdManager* GetGameMenuHmdManager();
 
 private:
 
@@ -40,6 +43,7 @@ private:
 
     IHmdDevice* mpDevice;
     IHmdRenderer* mpRenderer;
+    GameMenuHmdManager* mpGameMenuHmdManager;
     bool mIsInitialized;
     float mLastViewangleYaw;
     float mViewangleDiff;

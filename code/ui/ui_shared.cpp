@@ -16,6 +16,9 @@
 #include "ui_shared.h"
 #include "menudef.h"
 
+#include "../hmd/ClientHmd.h"
+#include "../hmd/Quake3/GameMenuHmdManager.h"
+
 void		UI_LoadMenus(const char *menuFile, qboolean reset);
 
 #ifdef _XBOX
@@ -1589,6 +1592,12 @@ Menus_CloseByName
 */
 void Menus_CloseByName(const char *p) 
 {
+    GameMenuHmdManager* pGameMenuHmdManager = ClientHmd::Get()->GetGameMenuHmdManager();
+    if (pGameMenuHmdManager)
+    {
+        pGameMenuHmdManager->OnMenuClose(p);
+    }
+
 	menuDef_t *menu = Menus_FindByName(p);
 	
 	// If the menu wasnt found just exit
@@ -5314,6 +5323,12 @@ Menus_ActivateByName
 void Menu_HandleMouseMove(menuDef_t *menu, float x, float y);
 menuDef_t *Menus_ActivateByName(const char *p) 
 {
+    GameMenuHmdManager* pGameMenuHmdManager = ClientHmd::Get()->GetGameMenuHmdManager();
+    if (pGameMenuHmdManager)
+    {
+        pGameMenuHmdManager->OnMenuOpen(p);
+    }
+
 	int i;
 	menuDef_t *m = NULL;
 	menuDef_t *focus = Menu_GetFocused();
@@ -5892,6 +5907,12 @@ void  Menus_CloseAll(void)
 
 	// Clear the menu stack
 	openMenuCount = 0;
+
+    GameMenuHmdManager* pGameMenuHmdManager = ClientHmd::Get()->GetGameMenuHmdManager();
+    if (pGameMenuHmdManager)
+    {
+        pGameMenuHmdManager->OnCloseAllMenus();
+    }
 }
 
 /*
