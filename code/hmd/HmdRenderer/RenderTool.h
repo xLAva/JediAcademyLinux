@@ -22,6 +22,7 @@ public:
     static void ClearFBO(FrameBufferInfo info);
     static void Clear(int width, int height);
     static void DrawFbos(FrameBufferInfo* pFbos, int fboCount, int windowWidth, int windowHeight, GLhandleARB shaderProg = 0);
+    static void SetVSync(bool active);
 
     static GLhandleARB CreateShaderProgram(const char* pVertexShader, const char* pFragmentShader);
 

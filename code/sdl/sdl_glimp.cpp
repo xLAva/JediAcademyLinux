@@ -213,8 +213,8 @@ int GLW_SetMode(int mode, qboolean fullscreen )
 			actualWidth = isRotated ? deviceHeight : deviceWidth;
 			actualHeight = isRotated ? deviceWidth : deviceHeight;
 	
-			s_windowWidth = actualWidth/2;
-			s_windowHeight = actualHeight/2;
+			s_windowWidth = actualWidth;
+			s_windowHeight = actualHeight;
 
 			glConfig.vidWidth = deviceWidth / 2;
 			glConfig.vidHeight = deviceHeight;
@@ -347,8 +347,7 @@ int GLW_SetMode(int mode, qboolean fullscreen )
 	}
 
 	sGlContext = SDL_GL_CreateContext(s_pSdlWindow);
-	
-	
+
 	SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &redbits);
 	SDL_GL_GetAttribute(SDL_GL_GREEN_SIZE, &greenbits);
 	SDL_GL_GetAttribute(SDL_GL_BLUE_SIZE, &bluebits);

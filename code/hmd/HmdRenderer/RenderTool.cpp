@@ -1,7 +1,13 @@
 #include "RenderTool.h"
 #include "../../renderer/tr_local.h"
 
-
+#ifdef USE_SDL2
+#if defined(LINUX) || defined(__APPLE__)
+#include <SDL2/SDL.h>
+#else
+#include <SDL.h>
+#endif
+#endif
 
 bool RenderTool::CreateFrameBuffer(FrameBufferInfo& rInfo, int width, int height)
 {
@@ -228,3 +234,10 @@ GLhandleARB RenderTool::CreateShaderProgram(const char* pVertexShader, const cha
     return program;
 }
 
+void RenderTool::SetVSync(bool active)
+{
+#ifdef USE_SDL2
+    int interval = active ? 1 : 0;
+    SDL_GL_SetSwapInterval(interval);
+#endif
+}

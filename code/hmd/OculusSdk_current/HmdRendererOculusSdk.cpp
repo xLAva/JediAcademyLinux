@@ -120,7 +120,15 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     }
 
     ovrResult success = ovr_CreateMirrorTextureGL(mpHmd, GL_SRGB8_ALPHA8, mWindowWidth, mWindowHeight, &mpMirrorTexture);
+    ovrGLTexture* pTex = (ovrGLTexture*)mpMirrorTexture;
+
+    // setup read buffer
     qglGenFramebuffers(1, &ReadFBO);
+    qglBindFramebuffer(GL_READ_FRAMEBUFFER, ReadFBO);
+    qglFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, pTex->OGL.TexId, 0);
+    qglFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
+    qglBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+
 
     // Initialize VR structures, filling out description.
     ovrEyeRenderDesc eyeRenderDesc[2];
@@ -145,7 +153,6 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     mLayerMain.Viewport[0] = Recti(0, 0, bufferSize.w, bufferSize.h);
     mLayerMain.Viewport[1] = Recti(0, 0, bufferSize.w, bufferSize.h);
     // ld.RenderPose and ld.SensorSampleTime are updated later per frame.
-
 
     mStartedRendering = false;
     mIsInitialized = true;
@@ -175,12 +182,7 @@ std::string HmdRendererOculusSdk::GetInfo()
 
 bool HmdRendererOculusSdk::HandlesSwap()
 {
-    if (mUseMirrorTexture)
-    {
-        return false;
-    }
-
-    return true;
+    return false;
 }
 
 bool HmdRendererOculusSdk::GetRenderResolution(int& rWidth, int& rHeight)
@@ -302,24 +304,15 @@ void HmdRendererOculusSdk::EndFrame()
 
         if (mUseMirrorTexture)
         {
-
-            ovrGLTexture* pTex = (ovrGLTexture*)mpMirrorTexture;
-            // Get source texture dimensions
-            qglBindTexture(GL_TEXTURE_2D, pTex->OGL.TexId);
-
-            // setup read buffer
-            qglBindFramebuffer(GL_READ_FRAMEBUFFER, ReadFBO);
-
-
-            qglFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, pTex->OGL.TexId, 0);
-            qglFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
-
-
             // Do the blt
+            qglBindFramebuffer(GL_READ_FRAMEBUFFER, ReadFBO);
+            qglBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
             qglBlitFramebuffer(0, mWindowHeight, mWindowWidth, 0,
                 0, 0, mWindowWidth, mWindowHeight,
                 GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
+            qglBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
         }
 
         // restore the old state
@@ -589,23 +582,8 @@ void HmdRendererOculusSdk::ConvertMatrix(const ovrMatrix4f& from, float* rTo)
 
 void HmdRendererOculusSdk::PreparePlatform()
 {
-#ifdef _WINDOWS
-    // disable composition on windows (because of some OpenGL issues)
-    typedef HRESULT (WINAPI *PFNDWMENABLECOMPOSITIONPROC) (UINT);
-    PFNDWMENABLECOMPOSITIONPROC DwmEnableComposition;
-
-    HINSTANCE HInstDwmapi = LoadLibraryW( L"dwmapi.dll" );
-
-    if (HInstDwmapi)
-    {
-        DwmEnableComposition = (PFNDWMENABLECOMPOSITIONPROC)GetProcAddress( HInstDwmapi, "DwmEnableComposition" );
-        if (DwmEnableComposition)
-        {
-            DwmEnableComposition(DWM_EC_DISABLECOMPOSITION);
-        }
-
-        FreeLibrary(HInstDwmapi);
-        HInstDwmapi = NULL;
-    }
-#endif
+    // disable vsync
+    // this only affects the mirror display because the oculus sdk handles vsync internally
+    // we have to disable it so that the mirror display does not slow down rendering
+    RenderTool::SetVSync(false);
 }
