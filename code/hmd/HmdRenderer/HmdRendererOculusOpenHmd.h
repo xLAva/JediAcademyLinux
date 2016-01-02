@@ -38,6 +38,8 @@ public:
     virtual bool Get2DViewport(int& rX, int& rY, int& rW, int& rH);
     virtual bool Get2DOrtho(double &rLeft, double &rRight, double &rBottom, double &rTop, double &rZNear, double &rZFar);
 
+    virtual void SetCurrentUiMode(UiMode mode) {}
+
 private:
     const char* GetVertexShader();
     const char* GetPixelShader();

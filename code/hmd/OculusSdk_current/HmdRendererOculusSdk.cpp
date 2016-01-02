@@ -40,7 +40,8 @@ HmdRendererOculusSdk::HmdRendererOculusSdk(HmdDeviceOculusSdk* pHmdDeviceOculusS
     ,mpDevice(pHmdDeviceOculusSdk)
     ,mpHmd(NULL)
     ,mpMirrorTexture(nullptr)
-    ,ReadFBO(0)
+    ,mReadFBO(0)
+    ,mCurrentUiMode(INGAME_HUD)
 {
 
 }
@@ -119,12 +120,12 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
         }
     }
 
-    ovrResult success = ovr_CreateMirrorTextureGL(mpHmd, GL_SRGB8_ALPHA8, mWindowWidth, mWindowHeight, &mpMirrorTexture);
+    ovrResult success = d_ovr_CreateMirrorTextureGL(mpHmd, GL_SRGB8_ALPHA8, mWindowWidth, mWindowHeight, &mpMirrorTexture);
     ovrGLTexture* pTex = (ovrGLTexture*)mpMirrorTexture;
 
     // setup read buffer
-    qglGenFramebuffers(1, &ReadFBO);
-    qglBindFramebuffer(GL_READ_FRAMEBUFFER, ReadFBO);
+    qglGenFramebuffers(1, &mReadFBO);
+    qglBindFramebuffer(GL_READ_FRAMEBUFFER, mReadFBO);
     qglFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, pTex->OGL.TexId, 0);
     qglFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
     qglBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
@@ -168,9 +169,13 @@ void HmdRendererOculusSdk::Shutdown()
         return;
     }
 
-    qglDeleteFramebuffers(1, &ReadFBO);
+    qglDeleteFramebuffers(1, &mReadFBO);
+    mReadFBO = 0;
 
-    mpHmd = NULL;
+    d_ovr_DestroyMirrorTexture(mpHmd, mpMirrorTexture);
+    mpMirrorTexture = nullptr;
+
+    mpHmd = nullptr;
 
     mIsInitialized = false;
 }
@@ -305,7 +310,7 @@ void HmdRendererOculusSdk::EndFrame()
         if (mUseMirrorTexture)
         {
             // Do the blt
-            qglBindFramebuffer(GL_READ_FRAMEBUFFER, ReadFBO);
+            qglBindFramebuffer(GL_READ_FRAMEBUFFER, mReadFBO);
             qglBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
             qglBlitFramebuffer(0, mWindowHeight, mWindowWidth, 0,
@@ -531,6 +536,12 @@ bool HmdRendererOculusSdk::Get2DOrtho(double &rLeft, double &rRight, double &rBo
     rZFar = 1;
 
     return true;
+}
+
+
+void HmdRendererOculusSdk::SetCurrentUiMode(UiMode mode)
+{
+    mCurrentUiMode = mode;
 }
 
 bool HmdRendererOculusSdk::AttachToWindow(void* pWindowHandle)

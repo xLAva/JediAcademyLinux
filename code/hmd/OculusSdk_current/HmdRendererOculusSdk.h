@@ -48,7 +48,9 @@ public:
     virtual bool GetCustomViewMatrix(float* rViewMatrix, float& xPos, float& yPos, float& zPos, float bodyYaw, bool noPosition) override;
 
     virtual bool Get2DViewport(int& rX, int& rY, int& rW, int& rH) override;
-    virtual bool HmdRendererOculusSdk::Get2DOrtho(double &rLeft, double &rRight, double &rBottom, double &rTop, double &rZNear, double &rZFar) override;
+    virtual bool Get2DOrtho(double &rLeft, double &rRight, double &rBottom, double &rTop, double &rZNear, double &rZFar) override;
+
+    virtual void SetCurrentUiMode(UiMode mode) override;
 
     bool AttachToWindow(void* pWindowHandle);
     void DismissHealthSafetyWarning();
@@ -95,10 +97,12 @@ private:
     int mEyeTextureSetIndex[2];
     
     ovrTexture* mpMirrorTexture;
-    GLuint ReadFBO;
+    GLuint mReadFBO;
     
     ovrEyeType mEyes[2];
     ovrPosef mEyePoses[2];
+
+    UiMode mCurrentUiMode;
 };
 
 #endif
