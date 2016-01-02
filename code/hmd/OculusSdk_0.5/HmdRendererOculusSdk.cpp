@@ -633,16 +633,16 @@ void HmdRendererOculusSdk::PreparePlatform()
 #ifdef _WINDOWS
     // disable composition on windows (because of some OpenGL issues)
     typedef HRESULT (WINAPI *PFNDWMENABLECOMPOSITIONPROC) (UINT);
-    PFNDWMENABLECOMPOSITIONPROC DwmEnableComposition;
+    PFNDWMENABLECOMPOSITIONPROC pDwmEnableComposition;
 
     HINSTANCE HInstDwmapi = LoadLibraryW( L"dwmapi.dll" );
 
     if (HInstDwmapi)
     {
-        DwmEnableComposition = (PFNDWMENABLECOMPOSITIONPROC)GetProcAddress( HInstDwmapi, "DwmEnableComposition" );
-        if (DwmEnableComposition)
+        pDwmEnableComposition = (PFNDWMENABLECOMPOSITIONPROC)GetProcAddress(HInstDwmapi, "DwmEnableComposition");
+        if (pDwmEnableComposition)
         {
-            DwmEnableComposition(DWM_EC_DISABLECOMPOSITION);
+            pDwmEnableComposition(DWM_EC_DISABLECOMPOSITION);
         }
 
         FreeLibrary(HInstDwmapi);
