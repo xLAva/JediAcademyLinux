@@ -146,7 +146,7 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
    
     // Initialize our single full screen Fov layer.
     mLayerMain.Header.Type      = ovrLayerType_EyeFov;
-    mLayerMain.Header.Flags     = 0;
+    mLayerMain.Header.Flags = ovrLayerFlag_TextureOriginAtBottomLeft;
     mLayerMain.ColorTexture[0]  = mEyeTextureSet[0];
     mLayerMain.ColorTexture[1]  = mEyeTextureSet[1];
     mLayerMain.Fov[0]           = eyeRenderDesc[0].Fov;
@@ -154,6 +154,8 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     mLayerMain.Viewport[0] = Recti(0, 0, bufferSize.w, bufferSize.h);
     mLayerMain.Viewport[1] = Recti(0, 0, bufferSize.w, bufferSize.h);
     // ld.RenderPose and ld.SensorSampleTime are updated later per frame.
+
+
 
     mStartedRendering = false;
     mIsInitialized = true;
@@ -257,7 +259,7 @@ void HmdRendererOculusSdk::BeginRenderingForEye(bool leftEye)
         qglBindVertexArray(0);
         qglUseProgramObjectARB(0);
         //qglDisable(GL_FRAMEBUFFER_SRGB);
-        qglFrontFace(GL_CW);
+        qglFrontFace(GL_CCW);
         
         qglEnable(GL_FRAMEBUFFER_SRGB);
     }
@@ -530,8 +532,8 @@ bool HmdRendererOculusSdk::Get2DOrtho(double &rLeft, double &rRight, double &rBo
 {
     rLeft = 0;
     rRight = 640;
-    rBottom = 0;
-    rTop = 480;
+    rBottom = 480;
+    rTop = 0;
     rZNear = 0;
     rZFar = 1;
 
@@ -546,21 +548,7 @@ void HmdRendererOculusSdk::SetCurrentUiMode(UiMode mode)
 
 bool HmdRendererOculusSdk::AttachToWindow(void* pWindowHandle)
 {
-#ifdef _WINDOWS
-    //if (mpDevice == NULL || mpDevice->GetHmd() == NULL)
-    //{
-    //    return false;
-    //}
-    //
-    //if (!(mpDevice->GetHmd()->HmdCaps & ovrHmdCap_ExtendDesktop))
-    //{
-    //    d_ovrHmd_AttachToWindow(mpDevice->GetHmd(), pWindowHandle, NULL, NULL);
-    //}
-    
     return false;
-#else
-    return false;
-#endif
 }
 
 void HmdRendererOculusSdk::DismissHealthSafetyWarning()
@@ -576,7 +564,7 @@ void HmdRendererOculusSdk::ConvertMatrix(const ovrMatrix4f& from, float* rTo)
     rTo[12] = from.M[0][3];
 
     rTo[1] = from.M[1][0];
-    rTo[5] = -from.M[1][1];
+    rTo[5] = from.M[1][1];
     rTo[9] = from.M[1][2];
     rTo[13] = from.M[1][3];
 
