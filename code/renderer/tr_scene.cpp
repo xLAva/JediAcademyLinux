@@ -12,6 +12,7 @@
 
 #include "../hmd/ClientHmd.h"
 #include "../hmd/HmdRenderer/IHmdRenderer.h"
+#include "../hmd/Quake3/GameMenuHmdManager.h"
 
 int			r_firstSceneDrawSurf;
 
@@ -276,6 +277,8 @@ void RE_RenderScene( const refdef_t *fd ) {
 		Com_Error (ERR_DROP, "R_RenderScene: NULL worldmodel");
 	}
 
+    ClientHmd::Get()->GetGameMenuHmdManager()->SetCameraControlled(fd->cameraControlled == 1);
+
 //	memcpy( tr.refdef.text, fd->text, sizeof( tr.refdef.text ) );
 
 	tr.refdef.x = fd->x;
@@ -399,7 +402,7 @@ void RE_RenderScene( const refdef_t *fd ) {
     IHmdRenderer* pHmdRenderer = ClientHmd::Get()->GetRenderer();
     if (pHmdRenderer)
     {
-        bool leftEye = tr.refdef.stereoFrame == STEREO_LEFT;
+        bool leftEye = tr.refdef.stereoFrame == STEREO_LEFT ||  tr.refdef.stereoFrame == STEREO_CENTER;
         pHmdRenderer->BeginRenderingForEye(leftEye);
         
         // calculate body yaw

@@ -17,6 +17,7 @@ public:
     void OnMenuClose(std::string menuName);
 
     void OnCloseAllMenus();
+    void SetCameraControlled(bool active);
 
     void Update();
 
@@ -25,6 +26,9 @@ private:
 
     IHmdRenderer* mpHmdRenderer;
     bool mIsFullscreenMenuOpen;
+    bool mIsCameraControlled;
+    bool mShowCutScenesInVr;
+
     std::unordered_set<std::string> mInGameHudNames;
     std::unordered_set<std::string> mCurrentOpenMenu;
 

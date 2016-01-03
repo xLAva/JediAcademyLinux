@@ -102,7 +102,7 @@ static void InitSig(void)
 
 static void QueKeyEvent(int time, sysEventType_t type, int value, int value2, int ptrLength, void *ptr)
 {
-#ifdef USE_OVR_0.5
+#ifdef USE_OVR_0_5
 	IHmdRenderer* pRenderer = ClientHmd::Get()->GetRenderer();
 	if (pRenderer)
 	{
@@ -1114,14 +1114,15 @@ void InitHmdDevice()
 		}
 	
 		cvar_t* pAllowDummyDevice = Cvar_Get ("hmd_allowdummydevice", "0", CVAR_ARCHIVE);
-		bool allowDummyDevice = pAllowDummyDevice->integer;
+		bool allowDummyDevice = pAllowDummyDevice->integer == 1;
 	
 		IHmdDevice* pHmdDevice = FactoryHmdDevice::CreateHmdDevice(lib, allowDummyDevice);
 		if (pHmdDevice)
 		{
 			VID_Printf(PRINT_ALL, "HMD Device found: %s\n", pHmdDevice->GetInfo().c_str());
 			ClientHmd::Get()->SetDevice(pHmdDevice);
-	
+
+			Cvar_Set("cg_activeHmd", "1");
 			Cvar_Set("cg_useHmd", "1");
 			Cvar_Set("cg_thirdPerson", "0");
 	
@@ -1148,9 +1149,7 @@ void InitHmdDevice()
 */
 void GLimp_Init( void )
 {
-	char	buf[1024];
 	cvar_t *lastValidRenderer = Cvar_Get( "r_lastValidRenderer", "(uninitialized)", CVAR_ARCHIVE );
-	cvar_t	*cv;
 
 	VID_Printf( PRINT_ALL, "Initializing OpenGL subsystem\n" );
 
@@ -1266,7 +1265,6 @@ void GLimp_Shutdown( void )
 {
 //	const char *strings[] = { "soft", "hard" };
 	const char *success[] = { "failed", "success" };
-	int retVal;
 
 
 	VID_Printf( PRINT_ALL, "Shutting down OpenGL subsystem\n" );
@@ -1514,8 +1512,6 @@ int joyDirectionKeys[16] = {
 
 void IN_GameControllerMove(int axis, int value) {
 	float	fAxisValue;
-	long	buttonstate, povstate;
-	int		x, y;
 	
 	int i = axis;
 	float threshold = 0.15f; //joy_threshold->value;

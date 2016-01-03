@@ -398,7 +398,11 @@ void R_RotateForViewer (void)
 	VectorCopy( tr.viewParms.or.origin, origin );
 
     bool rMatrixCreated = false;
-    ViewParamsHmdUtility::UpdateRenderParams(&tr, isskyboxportal, rMatrixCreated);
+    int useHmd = Cvar_VariableIntegerValue("cg_useHmd");
+    if (useHmd == 1)
+    {
+        ViewParamsHmdUtility::UpdateRenderParams(&tr, isskyboxportal, rMatrixCreated);
+    }
 
     // check if the renderer handled the view matrix creation
     if (rMatrixCreated)

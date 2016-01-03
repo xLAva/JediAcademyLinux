@@ -3,9 +3,13 @@
 #include "../../game/q_shared.h"
 #include "../../qcommon/qcommon.h"
 
+#include "../../client/client.h"
+
 GameMenuHmdManager::GameMenuHmdManager()
     :mpHmdRenderer(nullptr)
     ,mIsFullscreenMenuOpen(false)
+    ,mIsCameraControlled(false)
+    ,mShowCutScenesInVr(true)
 {
     mInGameHudNames.insert("mainhud");
     mInGameHudNames.insert("loadscreen");
@@ -54,6 +58,25 @@ void GameMenuHmdManager::OnCloseAllMenus()
     mCurrentOpenMenu.clear();
 }
 
+
+
+void GameMenuHmdManager::SetCameraControlled(bool active)
+{
+    if (mIsCameraControlled == active)
+    {
+        return;
+    }
+
+    mIsCameraControlled = active;
+
+    if (mShowCutScenesInVr)
+    {
+        return;
+    }
+
+    Update();
+}
+
 void GameMenuHmdManager::Update()
 {
     bool isFullscreenMenuOpen = true;
@@ -62,6 +85,16 @@ void GameMenuHmdManager::Update()
     //if (Cvar_VariableIntegerValue("sv_running"))
     {
         isFullscreenMenuOpen = mCurrentOpenMenu.size() > 0;
+    }
+
+    if (cls.state == CA_CINEMATIC || CL_IsRunningInGameCinematic())
+    {
+        isFullscreenMenuOpen = true;
+    }
+
+    if (!mShowCutScenesInVr)
+    {
+        isFullscreenMenuOpen |= mIsCameraControlled;
     }
 
     if (mIsFullscreenMenuOpen == isFullscreenMenuOpen)
@@ -84,4 +117,15 @@ void GameMenuHmdManager::SetHmdUiMode()
 
     IHmdRenderer::UiMode currentMode = mIsFullscreenMenuOpen ? IHmdRenderer::FULLSCREEN_MENU : IHmdRenderer::INGAME_HUD;
     mpHmdRenderer->SetCurrentUiMode(currentMode);
+
+
+    bool useHmd = !mIsFullscreenMenuOpen;
+    if (useHmd)
+    {
+        Cvar_SetValue("cg_useHmd", 1);
+    }
+    else
+    {
+        Cvar_SetValue("cg_useHmd", 0);
+    }
 }

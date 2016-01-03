@@ -177,7 +177,7 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     // fixed relative to their torso.
     mLayerMenu.QuadPoseCenter.Position.x = 0.00f;
     mLayerMenu.QuadPoseCenter.Position.y = 0.00f;
-    mLayerMenu.QuadPoseCenter.Position.z = -1.90f;
+    mLayerMenu.QuadPoseCenter.Position.z = -3.00f;
     mLayerMenu.QuadPoseCenter.Orientation.x = 0;
     mLayerMenu.QuadPoseCenter.Orientation.y = 0;
     mLayerMenu.QuadPoseCenter.Orientation.z = 0;

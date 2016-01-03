@@ -339,6 +339,7 @@ vmCvar_t	cg_g2Marks;
 vmCvar_t	fx_expensivePhysics;
 vmCvar_t	cg_debugHealthBars;
 
+vmCvar_t    cg_activeHmd;
 vmCvar_t    cg_useHmd;
 
 typedef struct {
@@ -407,6 +408,7 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_roffval3, "cg_roffval3", "0" },
 	{ &cg_roffval4, "cg_roffval4", "0" },
 #endif
+    { &cg_activeHmd, "cg_activeHmd", "0", 0 },
     { &cg_useHmd, "cg_useHmd", "0", 0 },
     
 	{ &cg_thirdPerson, "cg_thirdPerson", "1", CVAR_SAVEGAME },

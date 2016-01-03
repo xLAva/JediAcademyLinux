@@ -426,7 +426,7 @@ CGCam_Fade
 
 void CGCam_Fade( vec4_t source, vec4_t dest, float duration )
 {
-    if (cg_useHmd.integer)
+    if (cg_activeHmd.integer)
     {
         return;
     }
@@ -1047,7 +1047,7 @@ CGCam_UpdateBarFade
 
 void CGCam_UpdateBarFade( void )
 {
-    if (cg_useHmd.integer)
+    if (cg_activeHmd.integer)
     {
         return;
     }
