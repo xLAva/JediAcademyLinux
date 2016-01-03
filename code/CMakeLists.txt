@@ -736,30 +736,26 @@ if(USE_OCULUS_SDK_CURRENT)
         hmd/OculusSdk_current/HmdRendererOculusSdk.cpp
     )
 
-    source_group(hmd\\OculusSdk_current FILES ${SSF_HMD_OCULUS_CURRENT})
-
     set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DUSE_OVR -DUSE_OVR_CURRENT")
 
     include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Include")
     include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVRKernel/Src")
 
 
-
-
     if(NOT FORCE_STATIC_OCULUS_SDK)
         set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DOVR_DLL_IMPORT")
 
-        set(SSF_HMD_LIBOVRDYNAMIC ${SSF_HMD_LIBOVRDYNAMIC}
-            hmd/LibOvrDynamic/oculus_dynamic.h
-            hmd/LibOvrDynamic/oculus_dynamic.cpp
-            hmd/LibOvrDynamic/ovr_dynamic_funcs.h
+        set(SSF_HMD_OCULUS_CURRENT ${SSF_HMD_OCULUS_CURRENT}
+            hmd/OculusSdk_current/oculus_dynamic.h
+            hmd/OculusSdk_current/oculus_dynamic.cpp
+            hmd/OculusSdk_current/ovr_dynamic_funcs.h
         )
     else()
         set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DFORCE_STATIC_OCULUS_SDK")
 
         if(PLATFORM_WIN32)
-            set(SSF_HMD_LIBOVRDYNAMIC ${SSF_HMD_LIBOVRDYNAMIC}
-                hmd/LibOvrDynamic/oculus_static.h
+            set(SSF_HMD_OCULUS_CURRENT ${SSF_HMD_OCULUS_CURRENT}
+                hmd/OculusSdk_current/oculus_static.h
             )
             
             link_directories("C:/WinDDK/7600.16385.1/lib/ATL/i386")
@@ -777,6 +773,9 @@ if(USE_OCULUS_SDK_CURRENT)
 
         endif()
     endif()
+
+    source_group(hmd\\OculusSdk_current FILES ${SSF_HMD_OCULUS_CURRENT})
+
 elseif(USE_OCULUS_SDK_0.5)
     set(SSF_HMD_OCULUS_0.5 ${SSF_HMD_OCULUS_0.5}
         hmd/OculusSdk_0.5/HmdDeviceOculusSdk.h
@@ -787,8 +786,6 @@ elseif(USE_OCULUS_SDK_0.5)
         hmd/OculusSdk_0.5/HmdRendererOculusSdk.cpp
     )
 
-    source_group(hmd\\OculusSdk_0.5 FILES ${SSF_HMD_OCULUS_0.5})
-
     set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DUSE_OVR -DUSE_OVR_0_5")
 
     include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK_0.5/OculusSDK/LibOVR/Include")
@@ -796,16 +793,16 @@ elseif(USE_OCULUS_SDK_0.5)
     if(NOT FORCE_STATIC_OCULUS_SDK)
         set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DOVR_DLL_IMPORT")
 
-        set(SSF_HMD_LIBOVRDYNAMIC ${SSF_HMD_LIBOVRDYNAMIC}
-            hmd/LibOvrDynamic/oculus_dynamic.h
-            hmd/LibOvrDynamic/oculus_dynamic.cpp
-            hmd/LibOvrDynamic/ovr_dynamic_funcs.h
+        set(SSF_HMD_OCULUS_0.5 ${SSF_HMD_OCULUS_0.5}
+            hmd/OculusSdk_0.5/oculus_dynamic.h
+            hmd/OculusSdk_0.5/oculus_dynamic.cpp
+            hmd/OculusSdk_0.5/ovr_dynamic_funcs.h
         )
     else()
         set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DFORCE_STATIC_OCULUS_SDK")
 
-        set(SSF_HMD_LIBOVRDYNAMIC ${SSF_HMD_LIBOVRDYNAMIC}
-            hmd/LibOvrDynamic/oculus_static.h
+        set(SSF_HMD_OCULUS_0.5 ${SSF_HMD_OCULUS_0.5}
+            hmd/OculusSdk_0.5/oculus_static.h
         )
 
         if(PLATFORM_WIN32)
@@ -837,6 +834,8 @@ elseif(USE_OCULUS_SDK_0.5)
                 endif()
         endif()
     endif()
+
+    source_group(hmd\\OculusSdk_0.5 FILES ${SSF_HMD_OCULUS_0.5})
 endif()
 
 if(USE_OPENHMD)
@@ -899,7 +898,6 @@ source_group(ui FILES ${SSF_UI})
 source_group(hmd FILES ${SSF_HMD})
 source_group(hmd\\HmdDevice FILES ${SSF_HMD_DEVICE})
 source_group(hmd\\HmdRenderer FILES ${SSF_HMD_RENDERER})
-source_group(hmd\\LibOvrDynamic FILES ${SSF_HMD_LIBOVRDYNAMIC})
 source_group(hmd\\Quake3 FILES ${SSF_HMD_QUAKE3})
 
 
@@ -921,7 +919,6 @@ set(STARWARS_SOURCE_FILES ${STARWARS_SOURCE_FILES}
     ${SSF_HMD_DEVICE}
     ${SSF_HMD_RENDERER}
     ${SSF_HMD_QUAKE3}
-    ${SSF_HMD_LIBOVRDYNAMIC}
     ${SSF_HMD_OCULUS_0.5}
     ${SSF_HMD_OCULUS_CURRENT}
 )

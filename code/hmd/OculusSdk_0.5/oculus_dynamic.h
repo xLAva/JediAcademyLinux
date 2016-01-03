@@ -15,7 +15,6 @@
 // stupid OVR include bug
 #define OVR_OS_CONSOLE
 #include <OVR_CAPI.h>
-#include <OVR_CAPI_GL.h>
 
 #define OVRFUNC(need, rtype, fn, params)        \
 typedef rtype (*pfn_ ## fn) params;             \

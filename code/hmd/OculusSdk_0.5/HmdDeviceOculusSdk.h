@@ -11,9 +11,9 @@
 
 #ifdef FORCE_STATIC_OCULUS_SDK
 #include <OVR_CAPI.h>
-#include "../LibOvrDynamic/oculus_static.h"
+#include "oculus_static.h"
 #else
-#include "../LibOvrDynamic/oculus_dynamic.h"
+#include "oculus_dynamic.h"
 #endif
 
 

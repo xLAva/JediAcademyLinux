@@ -1,4 +1,3 @@
-#ifdef USE_OVR_0_5
 #define d_ovr_Initialize ovr_Initialize
 #define d_ovr_InitializeRenderingShim ovr_InitializeRenderingShim
 #define d_ovr_Shutdown ovr_Shutdown
@@ -48,22 +47,3 @@
 #define d_ovrHmd_GetString ovrHmd_GetString
 #define d_ovrHmd_SetString ovrHmd_SetString
 #define d_ovrHmd_GetLatencyTest2DrawColor ovrHmd_GetLatencyTest2DrawColor
-
-
-#elif USE_OVR_CURRENT
-#define d_ovr_Initialize ovr_Initialize
-#define d_ovr_Create ovr_Create
-#define d_ovr_Shutdown ovr_Shutdown
-#define d_ovr_GetHmdDesc ovr_GetHmdDesc
-#define d_ovr_Destroy ovr_Destroy
-#define d_ovr_ConfigureTracking ovr_ConfigureTracking
-#define d_ovr_GetTrackingState ovr_GetTrackingState
-#define d_ovr_RecenterPose ovr_RecenterPose
-#define d_ovr_GetFovTextureSize ovr_GetFovTextureSize
-#define d_ovr_CreateSwapTextureSetGL ovr_CreateSwapTextureSetGL
-#define d_ovr_CalcEyePoses ovr_CalcEyePoses
-#define d_ovr_GetPredictedDisplayTime ovr_GetPredictedDisplayTime
-#define d_ovrMatrix4f_Projection ovrMatrix4f_Projection
-#define d_ovr_CreateMirrorTextureGL ovr_CreateMirrorTextureGL
-#define d_ovr_DestroyMirrorTexture ovr_DestroyMirrorTexture
-#endif
