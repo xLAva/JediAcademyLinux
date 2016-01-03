@@ -150,8 +150,8 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
 
     // Initialize VR structures, filling out description.
     ovrEyeRenderDesc eyeRenderDesc[2];
-    eyeRenderDesc[0] = ovr_GetRenderDesc(mpHmd, ovrEye_Left, desc.DefaultEyeFov[0]);
-    eyeRenderDesc[1] = ovr_GetRenderDesc(mpHmd, ovrEye_Right, desc.DefaultEyeFov[1]);
+    eyeRenderDesc[0] = d_ovr_GetRenderDesc(mpHmd, ovrEye_Left, desc.DefaultEyeFov[0]);
+    eyeRenderDesc[1] = d_ovr_GetRenderDesc(mpHmd, ovrEye_Right, desc.DefaultEyeFov[1]);
     mHmdToEyeViewOffset[0] = eyeRenderDesc[0].HmdToEyeViewOffset;
     mHmdToEyeViewOffset[0].x *= 0.5f;
     mHmdToEyeViewOffset[0].y *= 0.5f;
@@ -359,7 +359,7 @@ void HmdRendererOculusSdk::EndFrame()
         qglDisableClientState(GL_COLOR_ARRAY);
         qglDisableClientState(GL_VERTEX_ARRAY);
 
-        ovrLayerHeader* layers[1];
+        ovrLayerHeader* layers[2];
         layers[0] = &mLayerMain.Header;
         layers[1] = &mLayerMenu.Header;
 
@@ -368,7 +368,7 @@ void HmdRendererOculusSdk::EndFrame()
         //viewScaleDesc.HmdToEyeViewOffset[0] = mHmdToEyeViewOffset[0];
         //viewScaleDesc.HmdToEyeViewOffset[1] = mHmdToEyeViewOffset[1];
 
-        ovrResult result = ovr_SubmitFrame(mpHmd, 0, nullptr, layers, 2);
+        ovrResult result = d_ovr_SubmitFrame(mpHmd, 0, nullptr, layers, 2);
 
         if (mUseMirrorTexture)
         {
@@ -485,7 +485,7 @@ bool HmdRendererOculusSdk::GetCustomProjectionMatrix(float* rProjectionMatrix, f
     }
     
 
-    ovrMatrix4f projMatrix = ovrMatrix4f_Projection(fovPort, zNear, zFar, ovrProjection_RightHanded);
+    ovrMatrix4f projMatrix = d_ovrMatrix4f_Projection(fovPort, zNear, zFar, ovrProjection_RightHanded);
     ConvertMatrix(projMatrix, rProjectionMatrix);
 
     return true;
