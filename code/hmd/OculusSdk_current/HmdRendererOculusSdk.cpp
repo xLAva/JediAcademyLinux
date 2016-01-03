@@ -4,9 +4,6 @@
 #include "../HmdRenderer/PlatformInfo.h"
 
 #include <OVR_CAPI.h>
-// stupid OVR include bug
-//#define OVR_OS_CONSOLE
-//#include <Kernel/OVR_Types.h>
 #include <Extras/OVR_Math.h>
 #include <OVR_CAPI_GL.h>
 
@@ -240,8 +237,6 @@ bool HmdRendererOculusSdk::GetRenderResolution(int& rWidth, int& rHeight)
 void HmdRendererOculusSdk::StartFrame()
 {
     mStartedFrame = true;
-    
-
 }
 
 
@@ -327,8 +322,6 @@ void HmdRendererOculusSdk::EndFrame()
     {
         return;
     }
-
-    //HandleSafetyWarning();
     
     if (mStartedFrame)
     {
@@ -419,7 +412,6 @@ void HmdRendererOculusSdk::EndFrame()
 
         // keep for debugging
         //RenderTool::DrawFbos(&mFboInfos[0], FBO_COUNT, mWindowWidth, mWindowHeight);
-
     }
     
     mEyeId = -1;
