@@ -34,7 +34,6 @@ HmdRendererOculusSdk::HmdRendererOculusSdk(HmdDeviceOculusSdk* pHmdDeviceOculusS
     ,mRenderHeight(0)
     ,mGuiScale(0.5f)
     ,mGuiOffsetFactorX(0)
-    ,mDismissHealthSafetyWarning(false)
     ,mAllowZooming(false)
     ,mUseMirrorTexture(true)
     ,mpDevice(pHmdDeviceOculusSdk)
@@ -427,40 +426,6 @@ void HmdRendererOculusSdk::EndFrame()
 }
 
 
-// Determine whether this frame needs rendering based on time-warp timing and flags.
-bool HmdRendererOculusSdk::FrameNeedsRendering()
-{
-    double curtime = mFrameStartTime;
-    
-    static double   lastUpdate          = 0.0;    
-    double          renderInterval      = 0.0;
-    double          timeSinceLast       = curtime - lastUpdate;
-    bool            updateRenderedView  = true;
-
-    
-
-    if ( (timeSinceLast < 0.0) || ((float)timeSinceLast > renderInterval) )
-    {
-        // This allows us to do "fractional" speeds, e.g. 45fps rendering on a 60fps display.
-        lastUpdate += renderInterval;
-        if ( timeSinceLast > 5.0 )
-        {
-            // renderInterval is probably tiny (i.e. "as fast as possible")
-            lastUpdate = curtime;
-        }
-
-        updateRenderedView = true;
-    }
-    else
-    {
-        updateRenderedView = false;
-    }
-
-    return updateRenderedView;
-}
-
-
-
 bool HmdRendererOculusSdk::GetCustomProjectionMatrix(float* rProjectionMatrix, float zNear, float zFar, float fov)
 {
     if (!mIsInitialized)
@@ -628,15 +593,6 @@ void HmdRendererOculusSdk::SetCurrentUiMode(UiMode mode)
     }
 }
 
-bool HmdRendererOculusSdk::AttachToWindow(void* pWindowHandle)
-{
-    return false;
-}
-
-void HmdRendererOculusSdk::DismissHealthSafetyWarning()
-{
-    mDismissHealthSafetyWarning = true;
-}
 
 void HmdRendererOculusSdk::ConvertMatrix(const ovrMatrix4f& from, float* rTo)
 {

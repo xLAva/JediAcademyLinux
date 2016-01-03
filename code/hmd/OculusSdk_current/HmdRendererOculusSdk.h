@@ -52,15 +52,10 @@ public:
 
     virtual void SetCurrentUiMode(UiMode mode) override;
 
-    bool AttachToWindow(void* pWindowHandle);
-    void DismissHealthSafetyWarning();
-
 protected:
     static void ConvertMatrix(const ovrMatrix4f& from, float* rTo);
 
 private:
-    bool FrameNeedsRendering();
-    //void HandleSafetyWarning();
     void PreparePlatform();
     
     static const int FBO_COUNT = 2;
@@ -82,7 +77,6 @@ private:
     float mGuiScale;
     float mGuiOffsetFactorX;
 
-    bool mDismissHealthSafetyWarning;
     bool mAllowZooming;
 
     bool mUseMirrorTexture;

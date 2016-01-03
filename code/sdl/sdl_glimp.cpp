@@ -102,7 +102,7 @@ static void InitSig(void)
 
 static void QueKeyEvent(int time, sysEventType_t type, int value, int value2, int ptrLength, void *ptr)
 {
-#ifdef USE_OVR
+#ifdef USE_OVR_0.5
 	IHmdRenderer* pRenderer = ClientHmd::Get()->GetRenderer();
 	if (pRenderer)
 	{
