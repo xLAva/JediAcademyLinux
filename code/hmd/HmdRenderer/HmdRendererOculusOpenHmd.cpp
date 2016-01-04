@@ -242,7 +242,7 @@ bool HmdRendererOculusOpenHmd::GetCustomViewMatrix(float* rViewMatrix, float& xP
     // create view matrix
     glm::mat4 viewMatrix = hmdRotationMat * glm::mat4_cast(bodyYawRotation) * bodyPosition;
 
-    float meterToGame = 52.4928f;// (3.2808f * 8.0f * 2.0f); // meter to feet * QuakeIII engine factor 8 * JA level factor 2
+    float meterToGame = 39.3701f * 0.5f; // meter to inch * JA level factor 2
     // apply ipd
     float halfIPD = mInterpupillaryDistance * 0.5f * meterToGame * (mCurrentFbo == 0 ? 1.0f : -1.0f);
 
