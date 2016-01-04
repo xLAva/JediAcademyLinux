@@ -77,6 +77,8 @@ private:
     float mGuiScale;
     float mGuiOffsetFactorX;
 
+    float mMeterToGameUnits;
+
     bool mAllowZooming;
 
     bool mUseMirrorTexture;

@@ -31,6 +31,7 @@ HmdRendererOculusSdk::HmdRendererOculusSdk(HmdDeviceOculusSdk* pHmdDeviceOculusS
     ,mRenderHeight(0)
     ,mGuiScale(0.5f)
     ,mGuiOffsetFactorX(0)
+    ,mMeterToGameUnits(1.0f)
     ,mAllowZooming(false)
     ,mUseMirrorTexture(true)
     ,mpDevice(pHmdDeviceOculusSdk)
@@ -39,7 +40,7 @@ HmdRendererOculusSdk::HmdRendererOculusSdk(HmdDeviceOculusSdk* pHmdDeviceOculusS
     ,mReadFBO(0)
     ,mCurrentUiMode(INGAME_HUD)
 {
-
+    mMeterToGameUnits =  39.3701f * 0.5f; // meter to inch * JA level factor 2
 }
 
 HmdRendererOculusSdk::~HmdRendererOculusSdk()
@@ -149,13 +150,13 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     eyeRenderDesc[0] = d_ovr_GetRenderDesc(mpHmd, ovrEye_Left, desc.DefaultEyeFov[0]);
     eyeRenderDesc[1] = d_ovr_GetRenderDesc(mpHmd, ovrEye_Right, desc.DefaultEyeFov[1]);
     mHmdToEyeViewOffset[0] = eyeRenderDesc[0].HmdToEyeViewOffset;
-    mHmdToEyeViewOffset[0].x *= 0.5f;
-    mHmdToEyeViewOffset[0].y *= 0.5f;
-    mHmdToEyeViewOffset[0].z *= 0.5f;
+    //mHmdToEyeViewOffset[0].x *= mMeterToGameUnits;
+    //mHmdToEyeViewOffset[0].y *= mMeterToGameUnits;
+    //mHmdToEyeViewOffset[0].z *= mMeterToGameUnits;
     mHmdToEyeViewOffset[1] = eyeRenderDesc[1].HmdToEyeViewOffset;
-    mHmdToEyeViewOffset[1].x *= 0.5f;
-    mHmdToEyeViewOffset[1].y *= 0.5f;
-    mHmdToEyeViewOffset[1].z *= 0.5f;
+    //mHmdToEyeViewOffset[1].x *= mMeterToGameUnits;
+    //mHmdToEyeViewOffset[1].y *= mMeterToGameUnits;
+    //mHmdToEyeViewOffset[1].z *= mMeterToGameUnits;
    
     // Initialize our single full screen Fov layer.
     mLayerMain.Header.Type      = ovrLayerType_EyeFov;
@@ -355,12 +356,12 @@ void HmdRendererOculusSdk::EndFrame()
         layers[0] = &mLayerMain.Header;
         layers[1] = &mLayerMenu.Header;
 
-        //ovrViewScaleDesc viewScaleDesc;
-        //viewScaleDesc.HmdSpaceToWorldScaleInMeters = mRenderWidth;
-        //viewScaleDesc.HmdToEyeViewOffset[0] = mHmdToEyeViewOffset[0];
-        //viewScaleDesc.HmdToEyeViewOffset[1] = mHmdToEyeViewOffset[1];
+        ovrViewScaleDesc viewScaleDesc;
+        viewScaleDesc.HmdSpaceToWorldScaleInMeters = 1.0f / mMeterToGameUnits;
+        viewScaleDesc.HmdToEyeViewOffset[0] = mHmdToEyeViewOffset[0];
+        viewScaleDesc.HmdToEyeViewOffset[1] = mHmdToEyeViewOffset[1];
 
-        ovrResult result = d_ovr_SubmitFrame(mpHmd, 0, nullptr, layers, 2);
+        ovrResult result = d_ovr_SubmitFrame(mpHmd, 0, &viewScaleDesc, layers, 2);
 
         if (mUseMirrorTexture)
         {
@@ -481,27 +482,27 @@ bool HmdRendererOculusSdk::GetCustomViewMatrix(float* rViewMatrix, float& xPos, 
 
 
     // convert body transform to matrix
-    glm::mat4 bodyPosition = glm::translate(glm::mat4(1.0f), glm::vec3(-xPos, -yPos, -zPos));
+    glm::mat4 bodyPositionMat = glm::translate(glm::mat4(1.0f), glm::vec3(-xPos, -yPos, -zPos));
     glm::quat bodyYawRotation = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), (float)(DEG2RAD(-bodyYaw)), glm::vec3(0.0f, 0.0f, 1.0f));
 
     
-    float meterToGame =  52.4928f;// 26.2464f; //(3.2808f * 8.0f * 2.0f); // meter to feet * QuakeIII engine factor 8 * JA level factor 2
-    glm::vec3 hmdPos;
-    hmdPos.x = currentPosition.z * meterToGame;
-    hmdPos.y = currentPosition.x * meterToGame;
-    hmdPos.z = currentPosition.y * -meterToGame;
+
+    glm::vec3 hmdPosition;
+    hmdPosition.x = currentPosition.z * mMeterToGameUnits;
+    hmdPosition.y = currentPosition.x * mMeterToGameUnits;
+    hmdPosition.z = currentPosition.y * -mMeterToGameUnits;
     
-    glm::mat4 hmdPosition = glm::translate(glm::mat4(1.0f), hmdPos);    
+    glm::mat4 hmdPositionMat = glm::translate(glm::mat4(1.0f), hmdPosition);
     
     // create view matrix
     glm::mat4 viewMatrix;
     if (noPosition)
     {
-        viewMatrix = hmdRotationMat * glm::mat4_cast(bodyYawRotation) * bodyPosition;
+        viewMatrix = hmdRotationMat * glm::mat4_cast(bodyYawRotation) * bodyPositionMat;
     }
     else
     {
-        viewMatrix = hmdRotationMat * hmdPosition* glm::mat4_cast(bodyYawRotation) * bodyPosition;
+        viewMatrix = hmdRotationMat * hmdPositionMat * glm::mat4_cast(bodyYawRotation) * bodyPositionMat;
     }
 
 
@@ -517,7 +518,7 @@ bool HmdRendererOculusSdk::GetCustomViewMatrix(float* rViewMatrix, float& xPos, 
     // add hmd offset to body pos
 
     glm::quat bodyYawRotationReverse = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), (float)(DEG2RAD(bodyYaw)), glm::vec3(0.0f, 0.0f, 1.0f));
-    glm::mat4 offsetMat = glm::mat4_cast(bodyYawRotationReverse) * hmdPosition;
+    glm::mat4 offsetMat = glm::mat4_cast(bodyYawRotationReverse) * hmdPositionMat;
     glm::vec3 offsetPos = glm::vec3(offsetMat[3]);
     
     //Vector3f hmdPos2 = Vector3f(hmdPos.x, hmdPos.y, hmdPos.z);
