@@ -99,42 +99,51 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     
     for (int i=0; i<FBO_COUNT; i++)
     {
-        bool success = RenderTool::CreateFrameBuffer(mFboInfos[i], mRenderWidth, mRenderHeight);
+        bool success = RenderTool::CreateFrameBufferWithoutTextures(mFboInfos[i], mRenderWidth, mRenderHeight);
         if (!success)
+        {
+            return false;
+        }
+
+        ovrResult worked = d_ovr_CreateSwapTextureSetGL(mpHmd, GL_SRGB8_ALPHA8, mRenderWidth, mRenderHeight, &(mEyeTextureSet[i]));
+        if (worked != ovrSuccess)
+        {
+            return false;
+        }
+
+        worked = d_ovr_CreateSwapTextureSetGL(mpHmd, GL_DEPTH_COMPONENT24, mRenderWidth, mRenderHeight, &(mEyeTextureDepthSet[i]));
+        if (worked != ovrSuccess)
         {
             return false;
         }
     }
     
-    bool success = RenderTool::CreateFrameBuffer(mFboMenuInfo, mRenderWidth, mRenderHeight);
+    bool success = RenderTool::CreateFrameBufferWithoutTextures(mFboMenuInfo, mRenderWidth, mRenderHeight);
     if (!success)
     {
         return false;
     }
     
 
-    for (int i=0; i<FBO_COUNT; i++)
-    {
-        mEyeTextureSetIndex[i] = 0;
-        ovrResult worked = d_ovr_CreateSwapTextureSetGL(mpHmd, GL_SRGB8_ALPHA8, mRenderWidth, mRenderHeight, &(mEyeTextureSet[i]));
-        if (worked != ovrSuccess)
-        {
-            return false;
-        }
-    }
-
-    mMenuTextureSetIndex = 0;
     ovrResult worked = d_ovr_CreateSwapTextureSetGL(mpHmd, GL_SRGB8_ALPHA8, mRenderWidth, mRenderHeight, &(mMenuTextureSet));
     if (worked != ovrSuccess)
     {
         return false;
     }
 
+    worked = d_ovr_CreateSwapTextureSetGL(mpHmd, GL_DEPTH_COMPONENT24, mRenderWidth, mRenderHeight, &(mMenuTextureDepthSet));
+    if (worked != ovrSuccess)
+    {
+        return false;
+    }
+
+
     worked = d_ovr_CreateMirrorTextureGL(mpHmd, GL_SRGB8_ALPHA8, mWindowWidth, mWindowHeight, &mpMirrorTexture);
     if (worked != ovrSuccess)
     {
         return false;
     }
+
     ovrGLTexture* pTex = (ovrGLTexture*)mpMirrorTexture;
 
     // setup read buffer
@@ -163,12 +172,12 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     mLayerMain.Header.Flags = ovrLayerFlag_TextureOriginAtBottomLeft;
     mLayerMain.ColorTexture[0]  = mEyeTextureSet[0];
     mLayerMain.ColorTexture[1]  = mEyeTextureSet[1];
+    mLayerMain.DepthTexture[0] = mEyeTextureDepthSet[0];
+    mLayerMain.DepthTexture[1] = mEyeTextureDepthSet[1];
     mLayerMain.Fov[0]           = eyeRenderDesc[0].Fov;
     mLayerMain.Fov[1]           = eyeRenderDesc[1].Fov;
     mLayerMain.Viewport[0] = Recti(0, 0, bufferSize.w, bufferSize.h);
     mLayerMain.Viewport[1] = Recti(0, 0, bufferSize.w, bufferSize.h);
-
-
 
     mLayerMenu.Header.Type = ovrLayerType_Quad;
     mLayerMenu.Header.Flags = ovrLayerFlag_TextureOriginAtBottomLeft | ovrLayerFlag_HighQuality;
@@ -269,9 +278,13 @@ void HmdRendererOculusSdk::BeginRenderingForEye(bool leftEye)
         {
             mEyeTextureSet[i]->CurrentIndex = (mEyeTextureSet[i]->CurrentIndex + 1) % mEyeTextureSet[i]->TextureCount;
             ovrGLTexture* pTex = (ovrGLTexture*)&mEyeTextureSet[i]->Textures[mEyeTextureSet[i]->CurrentIndex];
+
+            mEyeTextureDepthSet[i]->CurrentIndex = (mEyeTextureDepthSet[i]->CurrentIndex + 1) % mEyeTextureDepthSet[i]->TextureCount;
+            ovrGLTexture* pDepthTex = (ovrGLTexture*)&mEyeTextureDepthSet[i]->Textures[mEyeTextureDepthSet[i]->CurrentIndex];
             
             qglBindFramebuffer(GL_FRAMEBUFFER, mFboInfos[i].Fbo);
             qglFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,  pTex->OGL.TexId, 0);
+            qglFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, pDepthTex->OGL.TexId, 0);
 
             RenderTool::ClearFBO(mFboInfos[i]);
         }
@@ -280,8 +293,12 @@ void HmdRendererOculusSdk::BeginRenderingForEye(bool leftEye)
         mMenuTextureSet->CurrentIndex = (mMenuTextureSet->CurrentIndex + 1) % mMenuTextureSet->TextureCount;
         ovrGLTexture* pMenuTex = (ovrGLTexture*)&mMenuTextureSet->Textures[mMenuTextureSet->CurrentIndex];
 
+        mMenuTextureDepthSet->CurrentIndex = (mMenuTextureDepthSet->CurrentIndex + 1) % mMenuTextureDepthSet->TextureCount;
+        ovrGLTexture* pMenuDepthTex = (ovrGLTexture*)&mMenuTextureDepthSet->Textures[mMenuTextureDepthSet->CurrentIndex];
+
         qglBindFramebuffer(GL_FRAMEBUFFER, mFboMenuInfo.Fbo);
         qglFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, pMenuTex->OGL.TexId, 0);
+        qglFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, pMenuDepthTex->OGL.TexId, 0);
 
         RenderTool::ClearFBO(mFboMenuInfo);
 
@@ -445,6 +462,8 @@ bool HmdRendererOculusSdk::GetCustomProjectionMatrix(float* rProjectionMatrix, f
 
     ovrMatrix4f projMatrix = d_ovrMatrix4f_Projection(fovPort, zNear, zFar, ovrProjection_RightHanded);
     ConvertMatrix(projMatrix, rProjectionMatrix);
+
+    mLayerMain.ProjectionDesc = d_ovrTimewarpProjectionDesc_FromProjection(projMatrix, ovrProjection_RightHanded);
 
     return true;
 }

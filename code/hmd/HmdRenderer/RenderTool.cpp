@@ -48,6 +48,16 @@ bool RenderTool::CreateFrameBuffer(FrameBufferInfo& rInfo, int width, int height
     return true;
 }
 
+bool RenderTool::CreateFrameBufferWithoutTextures(FrameBufferInfo& rInfo, int width, int height)
+{
+    qglGenFramebuffers(1, &rInfo.Fbo);
+
+    rInfo.Width = width;
+    rInfo.Height = height;
+
+    return true;
+}
+
 void RenderTool::ClearFBO(FrameBufferInfo info)
 {
     Clear(info.Width, info.Height);
