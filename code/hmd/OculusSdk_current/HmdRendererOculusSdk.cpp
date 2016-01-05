@@ -40,7 +40,7 @@ HmdRendererOculusSdk::HmdRendererOculusSdk(HmdDeviceOculusSdk* pHmdDeviceOculusS
     ,mReadFBO(0)
     ,mCurrentUiMode(INGAME_HUD)
 {
-    mMeterToGameUnits =  39.3701f * 1.0f; // meter to inch * JA level factor 2?
+    mMeterToGameUnits =  39.3701f * 0.5f; // meter to inch * JA level factor 2?
 }
 
 HmdRendererOculusSdk::~HmdRendererOculusSdk()
@@ -191,8 +191,11 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     mLayerMenu.QuadPoseCenter.Orientation.z = 0;
     mLayerMenu.QuadPoseCenter.Orientation.w = 1;
 
-    mLayerMenu.QuadSize.x = 2.5f;
-    mLayerMenu.QuadSize.y = 2.5f;
+    float quadSize = 3.0f;
+    float uiAspect = 0.75f;
+
+    mLayerMenu.QuadSize.x = quadSize;
+    mLayerMenu.QuadSize.y = quadSize * uiAspect;
 
 
     // disable queue ahead - might cause black artefacts
@@ -403,7 +406,7 @@ bool HmdRendererOculusSdk::GetCustomProjectionMatrix(float* rProjectionMatrix, f
     ovrFovPort fovPort = mLayerMain.Fov[mEyeId];
     
     // ugly hardcoded default value
-    if (mAllowZooming && fov < 124)
+    if (mAllowZooming && fov < 124 || (mCurrentUiMode == FULLSCREEN_MENU))
     {
         // this calculation only works on DK2 at the moment
         
@@ -511,10 +514,15 @@ bool HmdRendererOculusSdk::GetCustomViewMatrix(float* rViewMatrix, float& xPos, 
 
 bool HmdRendererOculusSdk::Get2DViewport(int& rX, int& rY, int& rW, int& rH)
 {
+    if (mCurrentUiMode == FULLSCREEN_MENU)
+    {
+        return true;
+    }
+
     // shrink the gui for the HMD display
     float aspect = 1.0f;
 
-    float guiScale = (mCurrentUiMode == FULLSCREEN_MENU) ? 1.0f : mGuiScale;
+    float guiScale = mGuiScale;
 
     rW = mRenderWidth *guiScale;
     rH = mRenderWidth *guiScale * aspect;
