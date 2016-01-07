@@ -22,7 +22,7 @@ public:
     void Update();
 
 private:
-    void SetHmdUiMode();
+    void SetHmdMode();
 
     IHmdRenderer* mpHmdRenderer;
     bool mIsFullscreenMenuOpen;

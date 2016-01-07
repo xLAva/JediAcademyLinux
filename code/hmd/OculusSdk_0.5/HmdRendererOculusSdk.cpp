@@ -36,7 +36,7 @@ HmdRendererOculusSdk::HmdRendererOculusSdk(HmdDeviceOculusSdk* pHmdDeviceOculusS
     ,mGuiOffsetFactorX(0)
     ,mDismissHealthSafetyWarning(false)
     ,mAllowZooming(false)
-    ,mCurrentUiMode(INGAME_HUD)
+    ,mCurrentHmdMode(GAMEWORLD)
     ,mpDevice(pHmdDeviceOculusSdk)
     ,mpHmd(NULL)
 {
@@ -457,7 +457,7 @@ bool HmdRendererOculusSdk::GetCustomProjectionMatrix(float* rProjectionMatrix, f
     ovrFovPort fovPort = mEyeRenderDesc[mEyeId].Fov;
     
     // ugly hardcoded default value
-    if (mAllowZooming && fov < 124 || (mCurrentUiMode == FULLSCREEN_MENU))
+    if (mAllowZooming && fov < 124 || (mCurrentUiMode == MENU_QUAD_WORLDPOS))
     {
         // this calculation only works on DK2 at the moment
         
@@ -581,9 +581,9 @@ bool HmdRendererOculusSdk::Get2DOrtho(double &rLeft, double &rRight, double &rBo
     return true;
 }
 
-void HmdRendererOculusSdk::SetCurrentUiMode(UiMode mode)
+void HmdRendererOculusSdk::SetCurrentHmdMode(HmdMode mode)
 {
-    mCurrentUiMode = mode;
+    mCurrentHmdMode = mode;
 }
 
 bool HmdRendererOculusSdk::AttachToWindow(void* pWindowHandle)

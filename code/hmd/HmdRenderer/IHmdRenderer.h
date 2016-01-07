@@ -14,10 +14,12 @@ struct PlatformInfo;
 class IHmdRenderer
 {
 public:
-    enum UiMode
+    enum HmdMode
     {
-        FULLSCREEN_MENU,
-        INGAME_HUD
+        MENU_QUAD,
+        MENU_QUAD_WORLDPOS,
+        GAMEWORLD,
+        GAMEWORLD_QUAD_WORLDPOS
     };
 
     virtual ~IHmdRenderer() {}
@@ -42,7 +44,7 @@ public:
     virtual bool Get2DViewport(int& rX, int& rY, int& rW, int& rH) = 0;
     virtual bool Get2DOrtho(double &rLeft, double &rRight, double &rBottom, double &rTop, double &rZNear, double &rZFar) = 0;
 
-    virtual void SetCurrentUiMode(UiMode mode) = 0;
+    virtual void SetCurrentHmdMode(HmdMode mode) = 0;
 
 };
 

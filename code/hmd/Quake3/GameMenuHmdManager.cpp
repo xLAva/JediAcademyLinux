@@ -25,7 +25,7 @@ void GameMenuHmdManager::SetHmdRenderer(IHmdRenderer* pHmdRenderer)
     mpHmdRenderer = pHmdRenderer;
     if (mpHmdRenderer != nullptr)
     {
-        SetHmdUiMode();
+        SetHmdMode();
     }
 }
 
@@ -104,19 +104,19 @@ void GameMenuHmdManager::Update()
 
     mIsFullscreenMenuOpen = isFullscreenMenuOpen;
 
-    SetHmdUiMode();
+    SetHmdMode();
 }
 
 
-void GameMenuHmdManager::SetHmdUiMode()
+void GameMenuHmdManager::SetHmdMode()
 {
     if (mpHmdRenderer == nullptr)
     {
         return;
     }
 
-    IHmdRenderer::UiMode currentMode = mIsFullscreenMenuOpen ? IHmdRenderer::FULLSCREEN_MENU : IHmdRenderer::INGAME_HUD;
-    mpHmdRenderer->SetCurrentUiMode(currentMode);
+    IHmdRenderer::HmdMode currentMode = mIsFullscreenMenuOpen ? IHmdRenderer::MENU_QUAD_WORLDPOS : IHmdRenderer::GAMEWORLD;
+    mpHmdRenderer->SetCurrentHmdMode(currentMode);
 
 
     bool useHmd = !mIsFullscreenMenuOpen;

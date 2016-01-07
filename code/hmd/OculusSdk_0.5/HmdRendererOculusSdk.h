@@ -50,7 +50,7 @@ public:
     virtual bool Get2DViewport(int& rX, int& rY, int& rW, int& rH) override;
     virtual bool Get2DOrtho(double &rLeft, double &rRight, double &rBottom, double &rTop, double &rZNear, double &rZFar) override;
 
-    virtual void SetCurrentUiMode(UiMode mode) override;
+    virtual void SetCurrentHmdMode(HmdMode mode) override;
 
     bool AttachToWindow(void* pWindowHandle);
     void DismissHealthSafetyWarning();
@@ -84,7 +84,7 @@ private:
     bool mDismissHealthSafetyWarning;
     bool mAllowZooming;
     
-    UiMode mCurrentUiMode;
+    HmdMode mCurrentHmdMode;
     
     HmdDeviceOculusSdk* mpDevice;
     ovrHmd mpHmd;

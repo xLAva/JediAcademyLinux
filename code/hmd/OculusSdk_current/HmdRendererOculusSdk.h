@@ -50,7 +50,7 @@ public:
     virtual bool Get2DViewport(int& rX, int& rY, int& rW, int& rH) override;
     virtual bool Get2DOrtho(double &rLeft, double &rRight, double &rBottom, double &rTop, double &rZNear, double &rZFar) override;
 
-    virtual void SetCurrentUiMode(UiMode mode) override;
+    virtual void SetCurrentHmdMode(HmdMode mode) override;
 
 protected:
     static void ConvertMatrix(const ovrMatrix4f& from, float* rTo);
@@ -102,7 +102,7 @@ private:
     ovrEyeType mEyes[2];
     ovrPosef mEyePoses[2];
 
-    UiMode mCurrentUiMode;
+    HmdMode mCurrentHmdMode;
 };
 
 #endif

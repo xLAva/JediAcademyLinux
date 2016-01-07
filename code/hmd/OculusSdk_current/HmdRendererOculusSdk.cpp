@@ -38,7 +38,7 @@ HmdRendererOculusSdk::HmdRendererOculusSdk(HmdDeviceOculusSdk* pHmdDeviceOculusS
     ,mpHmd(NULL)
     ,mpMirrorTexture(nullptr)
     ,mReadFBO(0)
-    ,mCurrentUiMode(INGAME_HUD)
+    ,mCurrentHmdMode(GAMEWORLD)
 {
     mMeterToGameUnits =  39.3701f * 0.5f; // meter to inch * JA level factor 2?
 }
@@ -314,7 +314,7 @@ void HmdRendererOculusSdk::BeginRenderingForEye(bool leftEye)
     // bind framebuffer
     // this part can be called multiple times before the end of the frame
 
-    if (mCurrentUiMode == INGAME_HUD)
+    if (mCurrentHmdMode != MENU_QUAD_WORLDPOS)
     {
         qglBindFramebuffer(GL_FRAMEBUFFER, mFboInfos[mEyeId].Fbo);
     }
@@ -405,8 +405,10 @@ bool HmdRendererOculusSdk::GetCustomProjectionMatrix(float* rProjectionMatrix, f
 
     ovrFovPort fovPort = mLayerMain.Fov[mEyeId];
     
+    bool allowCustomFov = mCurrentHmdMode == MENU_QUAD_WORLDPOS;
+    
     // ugly hardcoded default value
-    if (mAllowZooming && fov < 124 || (mCurrentUiMode == FULLSCREEN_MENU))
+    if (mAllowZooming && fov < 124 || allowCustomFov)
     {
         // this calculation only works on DK2 at the moment
         
@@ -441,7 +443,7 @@ bool HmdRendererOculusSdk::GetCustomViewMatrix(float* rViewMatrix, float& xPos, 
     ovrVector3f position = mLayerMain.RenderPose[mEyeId].Position;
     glm::vec3 currentPosition = glm::vec3(position.x, position.y, position.z);
     
-    if (mCurrentUiMode == FULLSCREEN_MENU)
+    if (mCurrentHmdMode == MENU_QUAD_WORLDPOS)
     {
         currentOrientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
         currentPosition = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -514,7 +516,7 @@ bool HmdRendererOculusSdk::GetCustomViewMatrix(float* rViewMatrix, float& xPos, 
 
 bool HmdRendererOculusSdk::Get2DViewport(int& rX, int& rY, int& rW, int& rH)
 {
-    if (mCurrentUiMode == FULLSCREEN_MENU)
+    if (mCurrentHmdMode == MENU_QUAD_WORLDPOS)
     {
         return true;
     }
@@ -551,11 +553,11 @@ bool HmdRendererOculusSdk::Get2DOrtho(double &rLeft, double &rRight, double &rBo
 }
 
 
-void HmdRendererOculusSdk::SetCurrentUiMode(UiMode mode)
+void HmdRendererOculusSdk::SetCurrentHmdMode(HmdMode mode)
 {
-    mCurrentUiMode = mode;
+    mCurrentHmdMode = mode;
 
-    if (mCurrentUiMode == INGAME_HUD)
+    if (mCurrentHmdMode == MENU_QUAD_WORLDPOS)
     {
         mLayerMain.Header.Type = ovrLayerType_EyeFov;
         mLayerMenu.Header.Type = ovrLayerType_Disabled;
