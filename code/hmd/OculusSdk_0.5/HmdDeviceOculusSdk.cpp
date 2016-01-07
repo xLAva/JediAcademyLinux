@@ -71,7 +71,7 @@ bool HmdDeviceOculusSdk::Init(bool allowDummyDevice)
     }
 #endif
     
-    d_ovr_Initialize();
+    d_ovr_Initialize(0);
 
     if (debugPrint)
     {

@@ -1157,8 +1157,13 @@ void GLimp_Init( void )
 
 	InitSig();
 
-	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER);
-
+	int sdlRet = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER);
+	if (sdlRet < 0)
+	{
+		Com_Error(PRINT_ALL, "GLimp_Init: Can't initialize SDL. Error=%s\n", SDL_GetError());
+		return;
+	}
+	
 	InitHmdDevice();
 
 
