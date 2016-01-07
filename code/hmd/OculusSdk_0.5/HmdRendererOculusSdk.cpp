@@ -457,7 +457,7 @@ bool HmdRendererOculusSdk::GetCustomProjectionMatrix(float* rProjectionMatrix, f
     ovrFovPort fovPort = mEyeRenderDesc[mEyeId].Fov;
     
     // ugly hardcoded default value
-    if (mAllowZooming && fov < 124 || (mCurrentUiMode == MENU_QUAD_WORLDPOS))
+    if (mAllowZooming && fov < 124 || (mCurrentHmdMode == MENU_QUAD_WORLDPOS))
     {
         // this calculation only works on DK2 at the moment
         
