@@ -22,10 +22,20 @@ public:
     void Update();
 
 private:
+    enum GameMode{
+        UNINITIALIZED,
+        GAME,
+        MENU,
+        LOADING_SCREEN,
+        CINEMATIC,
+        GAME_CUTSCENE,
+        GAME_SECURITY_CAM
+    };
+    
     void SetHmdMode();
 
     IHmdRenderer* mpHmdRenderer;
-    bool mIsFullscreenMenuOpen;
+    GameMode mCurrentGameMode;
     bool mIsCameraControlled;
     bool mShowCutScenesInVr;
 

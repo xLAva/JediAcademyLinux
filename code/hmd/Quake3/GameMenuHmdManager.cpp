@@ -7,7 +7,7 @@
 
 GameMenuHmdManager::GameMenuHmdManager()
     :mpHmdRenderer(nullptr)
-    ,mIsFullscreenMenuOpen(false)
+    ,mCurrentGameMode(UNINITIALIZED)
     ,mIsCameraControlled(false)
     ,mShowCutScenesInVr(true)
 {
@@ -79,30 +79,34 @@ void GameMenuHmdManager::SetCameraControlled(bool active)
 
 void GameMenuHmdManager::Update()
 {
-    bool isFullscreenMenuOpen = true;
+    GameMode currentGameMode = GAME;
     
     // if no map is loaded we are always in fullscreen menu mode
     //if (Cvar_VariableIntegerValue("sv_running"))
     {
-        isFullscreenMenuOpen = mCurrentOpenMenu.size() > 0;
+        if (mCurrentOpenMenu.size() > 0)
+        {
+            currentGameMode = MENU;
+        }
     }
 
     if (cls.state == CA_CINEMATIC || CL_IsRunningInGameCinematic())
     {
-        isFullscreenMenuOpen = true;
+        currentGameMode = CINEMATIC;
     }
 
-    if (!mShowCutScenesInVr)
+    if (mIsCameraControlled)
     {
-        isFullscreenMenuOpen |= mIsCameraControlled;
+        currentGameMode = GAME_CUTSCENE;
     }
+    
 
-    if (mIsFullscreenMenuOpen == isFullscreenMenuOpen)
+    if (mCurrentGameMode == currentGameMode)
     {
         return;
     }
 
-    mIsFullscreenMenuOpen = isFullscreenMenuOpen;
+    mCurrentGameMode = currentGameMode;
 
     SetHmdMode();
 }
@@ -115,11 +119,63 @@ void GameMenuHmdManager::SetHmdMode()
         return;
     }
 
-    IHmdRenderer::HmdMode currentMode = mIsFullscreenMenuOpen ? IHmdRenderer::MENU_QUAD_WORLDPOS : IHmdRenderer::GAMEWORLD;
+    IHmdRenderer::HmdMode currentMode;
+    
+    switch (mCurrentGameMode)
+    {
+        case LOADING_SCREEN:
+        {
+            currentMode = IHmdRenderer::MENU_QUAD;
+            break;
+        }
+        case MENU:
+        case CINEMATIC:
+        {
+            currentMode = IHmdRenderer::MENU_QUAD_WORLDPOS;
+            break;
+        }
+        case GAME_CUTSCENE:
+        {
+            if (mShowCutScenesInVr)
+            {
+                currentMode = IHmdRenderer::GAMEWORLD;
+            }
+            else
+            {
+                currentMode = IHmdRenderer::GAMEWORLD_QUAD_WORLDPOS;
+            }
+            break;
+        }        
+        case GAME_SECURITY_CAM:
+        {
+            currentMode = IHmdRenderer::GAMEWORLD_QUAD_WORLDPOS;
+            break;
+        }
+        case GAME:
+        default:
+        {
+            currentMode = IHmdRenderer::GAMEWORLD;
+            break;
+        }
+    }
+    
+    
+    if (!mpHmdRenderer->HasQuadWorldPosSupport())
+    {
+        if (currentMode == IHmdRenderer::MENU_QUAD_WORLDPOS)
+        {
+            currentMode = IHmdRenderer::MENU_QUAD;
+        }
+        else if (currentMode == IHmdRenderer::GAMEWORLD_QUAD_WORLDPOS)
+        {
+            currentMode = IHmdRenderer::GAMEWORLD;
+        }
+    }
+    
     mpHmdRenderer->SetCurrentHmdMode(currentMode);
 
 
-    bool useHmd = !mIsFullscreenMenuOpen;
+    bool useHmd = currentMode == IHmdRenderer::GAMEWORLD;
     if (useHmd)
     {
         Cvar_SetValue("cg_useHmd", 1);

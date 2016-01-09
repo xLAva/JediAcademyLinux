@@ -51,6 +51,7 @@ public:
     virtual bool Get2DOrtho(double &rLeft, double &rRight, double &rBottom, double &rTop, double &rZNear, double &rZFar) override;
 
     virtual void SetCurrentHmdMode(HmdMode mode) override;
+    virtual bool HasQuadWorldPosSupport() override { true; }
 
 protected:
     static void ConvertMatrix(const ovrMatrix4f& from, float* rTo);
