@@ -40,7 +40,7 @@ HmdRendererOculusSdk::HmdRendererOculusSdk(HmdDeviceOculusSdk* pHmdDeviceOculusS
     ,mReadFBO(0)
     ,mCurrentHmdMode(GAMEWORLD)
 {
-    mMeterToGameUnits =  39.3701f * 0.5f; // meter to inch * JA level factor 2?
+    mMeterToGameUnits =  39.3701f * 1.0f; // meter to inch * JA level factor 2?
 }
 
 HmdRendererOculusSdk::~HmdRendererOculusSdk()
@@ -279,7 +279,7 @@ void HmdRendererOculusSdk::BeginRenderingForEye(bool leftEye)
         qglUseProgramObjectARB(0);
         qglFrontFace(GL_CCW);
         
-        qglEnable(GL_FRAMEBUFFER_SRGB);
+        qglDisable(GL_FRAMEBUFFER_SRGB);
 
         mStartedRendering = true;
         
@@ -340,6 +340,12 @@ void HmdRendererOculusSdk::EndFrame()
     
     if (mStartedFrame)
     {
+        GLboolean depth_test = qglIsEnabled(GL_DEPTH_TEST);
+        GLboolean blend = qglIsEnabled(GL_BLEND);
+        GLboolean texture_2d = qglIsEnabled(GL_TEXTURE_2D);
+        GLboolean texture_coord_array = qglIsEnabled(GL_TEXTURE_COORD_ARRAY);
+        GLboolean color_array = qglIsEnabled(GL_COLOR_ARRAY);
+
         qglDisable(GL_SCISSOR_TEST);
         qglBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -387,6 +393,26 @@ void HmdRendererOculusSdk::EndFrame()
         mStartedFrame = false;
         mStartedRendering = false;
 
+        if (depth_test)
+        {
+            qglEnable(GL_DEPTH_TEST);
+        }
+        if (blend)
+        {
+            qglEnable(GL_BLEND);
+        }
+        if (!texture_2d)
+        {
+            qglDisable(GL_TEXTURE_2D);
+        }
+        if (!texture_coord_array)
+        {
+            qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        }
+        if (color_array)
+        {
+            qglEnableClientState(GL_COLOR_ARRAY);
+        }
 
         // keep for debugging
         //RenderTool::DrawFbos(&mFboInfos[0], FBO_COUNT, mWindowWidth, mWindowHeight);
