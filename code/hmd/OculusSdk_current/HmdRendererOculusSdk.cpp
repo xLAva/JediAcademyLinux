@@ -164,7 +164,7 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     //mHmdToEyeViewOffset[1].z *= mMeterToGameUnits;
    
     // Initialize our single full screen Fov layer.
-    mLayerMain.Header.Type      = ovrLayerType_EyeFov;
+    mLayerMain.Header.Type      = ovrLayerType_EyeFovDepth;
     mLayerMain.Header.Flags = ovrLayerFlag_TextureOriginAtBottomLeft;
     mLayerMain.ColorTexture[0]  = mEyeTextureSet[0];
     mLayerMain.ColorTexture[1]  = mEyeTextureSet[1];
@@ -314,7 +314,7 @@ void HmdRendererOculusSdk::BeginRenderingForEye(bool leftEye)
     // bind framebuffer
     // this part can be called multiple times before the end of the frame
 
-    if (mCurrentHmdMode != MENU_QUAD_WORLDPOS)
+    if (mCurrentHmdMode == GAMEWORLD)
     {
         qglBindFramebuffer(GL_FRAMEBUFFER, mFboInfos[mEyeId].Fbo);
     }
@@ -405,7 +405,7 @@ bool HmdRendererOculusSdk::GetCustomProjectionMatrix(float* rProjectionMatrix, f
 
     ovrFovPort fovPort = mLayerMain.Fov[mEyeId];
     
-    bool allowCustomFov = mCurrentHmdMode == MENU_QUAD_WORLDPOS;
+    bool allowCustomFov = mCurrentHmdMode == MENU_QUAD_WORLDPOS || mCurrentHmdMode == MENU_QUAD || mCurrentHmdMode == GAMEWORLD_QUAD_WORLDPOS;
     
     // ugly hardcoded default value
     if (mAllowZooming && fov < 124 || allowCustomFov)
@@ -443,7 +443,7 @@ bool HmdRendererOculusSdk::GetCustomViewMatrix(float* rViewMatrix, float& xPos, 
     ovrVector3f position = mLayerMain.RenderPose[mEyeId].Position;
     glm::vec3 currentPosition = glm::vec3(position.x, position.y, position.z);
     
-    if (mCurrentHmdMode == MENU_QUAD_WORLDPOS)
+    if (mCurrentHmdMode == MENU_QUAD_WORLDPOS || mCurrentHmdMode == GAMEWORLD_QUAD_WORLDPOS || mCurrentHmdMode == MENU_QUAD)
     {
         currentOrientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
         currentPosition = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -516,7 +516,7 @@ bool HmdRendererOculusSdk::GetCustomViewMatrix(float* rViewMatrix, float& xPos, 
 
 bool HmdRendererOculusSdk::Get2DViewport(int& rX, int& rY, int& rW, int& rH)
 {
-    if (mCurrentHmdMode == MENU_QUAD_WORLDPOS)
+    if (mCurrentHmdMode == MENU_QUAD_WORLDPOS || mCurrentHmdMode == GAMEWORLD_QUAD_WORLDPOS || mCurrentHmdMode == MENU_QUAD)
     {
         return true;
     }
@@ -557,15 +557,26 @@ void HmdRendererOculusSdk::SetCurrentHmdMode(HmdMode mode)
 {
     mCurrentHmdMode = mode;
 
-    if (mCurrentHmdMode == MENU_QUAD_WORLDPOS)
+    if (mCurrentHmdMode == GAMEWORLD)
     {
-        mLayerMain.Header.Type = ovrLayerType_EyeFov;
+        mLayerMain.Header.Type = ovrLayerType_EyeFovDepth;
         mLayerMenu.Header.Type = ovrLayerType_Disabled;
     }
     else
     {
         mLayerMain.Header.Type = ovrLayerType_Disabled;
         mLayerMenu.Header.Type = ovrLayerType_Quad;
+        mLayerMenu.Header.Flags = ovrLayerFlag_TextureOriginAtBottomLeft;
+
+        if (mCurrentHmdMode == MENU_QUAD)
+        {
+            mLayerMenu.Header.Flags |= ovrLayerFlag_HeadLocked;
+        }
+
+        if (mCurrentHmdMode == MENU_QUAD || mCurrentHmdMode == MENU_QUAD_WORLDPOS)
+        {
+            mLayerMenu.Header.Flags |= ovrLayerFlag_HighQuality;
+        }
     }
 }
 

@@ -45,7 +45,7 @@ public:
     virtual bool Get2DOrtho(double &rLeft, double &rRight, double &rBottom, double &rTop, double &rZNear, double &rZFar) = 0;
 
     virtual void SetCurrentHmdMode(HmdMode mode) = 0;
-    virtual bool HasQuadWorldPosSupport() { false; }
+    virtual bool HasQuadWorldPosSupport() { return false; }
 };
 
 #endif
