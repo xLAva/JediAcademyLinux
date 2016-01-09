@@ -37,10 +37,13 @@ private:
     IHmdRenderer* mpHmdRenderer;
     GameMode mCurrentGameMode;
     bool mIsCameraControlled;
+    bool mIsLoadingActive;
     bool mShowCutScenesInVr;
 
     std::unordered_set<std::string> mInGameHudNames;
     std::unordered_set<std::string> mCurrentOpenMenu;
+    
+    const std::string LOAD_SCREEN_NAME = "loadscreen";
 
 };
 

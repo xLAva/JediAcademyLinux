@@ -9,10 +9,10 @@ GameMenuHmdManager::GameMenuHmdManager()
     :mpHmdRenderer(nullptr)
     ,mCurrentGameMode(UNINITIALIZED)
     ,mIsCameraControlled(false)
+    ,mIsLoadingActive(false)
     ,mShowCutScenesInVr(true)
 {
     mInGameHudNames.insert("mainhud");
-    mInGameHudNames.insert("loadscreen");
 }
 
 GameMenuHmdManager::~GameMenuHmdManager()
@@ -36,11 +36,23 @@ void GameMenuHmdManager::OnMenuOpen(std::string menuName)
         return;
     }
 
+    if (menuName.compare(LOAD_SCREEN_NAME) == 0)
+    {
+        mIsLoadingActive = true;
+        return;
+    }
+    
     mCurrentOpenMenu.insert(menuName);
 }
 
 void GameMenuHmdManager::OnMenuClose(std::string menuName)
 {
+    if (menuName.compare(LOAD_SCREEN_NAME) == 0)
+    {
+        mIsLoadingActive = false;
+        return;
+    }    
+    
     if (mInGameHudNames.find(menuName) != mInGameHudNames.end())
     {
         return;
@@ -56,6 +68,7 @@ void GameMenuHmdManager::OnMenuClose(std::string menuName)
 void GameMenuHmdManager::OnCloseAllMenus()
 {
     mCurrentOpenMenu.clear();
+    mIsLoadingActive = false;
 }
 
 
@@ -90,6 +103,11 @@ void GameMenuHmdManager::Update()
         }
     }
 
+    if (mIsLoadingActive)
+    {
+        currentGameMode = LOADING_SCREEN;
+    }
+    
     if (cls.state == CA_CINEMATIC || CL_IsRunningInGameCinematic())
     {
         currentGameMode = CINEMATIC;
