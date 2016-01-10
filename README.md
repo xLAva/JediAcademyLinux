@@ -110,12 +110,12 @@ The version was tested on Ubuntu 14.04 and Windows 7.
 
 #### Windows:
 
-##### Oculus Rift:
-
-The Oculus Runtime 0.8 is needed to run the game in VR mode.
+The **Oculus Runtime 0.8** is needed to run the game in VR mode.
 
 
 #### Ubuntu: 
+
+The **Oculus Runtime 0.5** is needed to run the game in VR mode.
 
 The universe repository has to be activated (Software & Updates)
 
@@ -126,11 +126,6 @@ Needed libraries on Ubuntu 14.04 64bit:
 sudo apt-get install libsdl2-2.0-0:i386 libopenal1:i386 libgl1-mesa-glx:i386
 
 Be sure to mark "jasphmd" as executable and start the game with it.
-
-##### Oculus Rift:
-
-The Oculus Runtime 0.5 is needed to run the game in VR mode.
-
 
 
 ## Build the game
