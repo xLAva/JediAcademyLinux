@@ -14,7 +14,6 @@
 
 #include <OVR_CAPI_0_8_0.h>
 #include <Extras/OVR_Math.h>
-//#include <Util/Util_GL_Blitter.h>
 #include "../HmdRenderer/RenderTool.h"
 
 #define GLM_FORCE_RADIANS
@@ -93,7 +92,8 @@ private:
     ovrEyeRenderDesc mEyeRenderDesc[2];
     ovrTexture EyeTexture[2];
     ovrSwapTextureSet* mEyeTextureSet[2];
-    ovrSwapTextureSet* mEyeTextureDepthSet[2];
+    //ovrSwapTextureSet* mEyeTextureDepthSet[2];
+    GLuint mEyeStencilBuffer[2]; 
     ovrSwapTextureSet* mMenuTextureSet;
     ovrSwapTextureSet* mMenuTextureDepthSet;
     

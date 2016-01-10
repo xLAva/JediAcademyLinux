@@ -107,11 +107,16 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
             return false;
         }
 
-        worked = d_ovr_CreateSwapTextureSetGL(mpHmd, GL_DEPTH_COMPONENT24, mRenderWidth, mRenderHeight, &(mEyeTextureDepthSet[i]));
-        if (worked != ovrSuccess)
-        {
-            return false;
-        }
+        //worked = d_ovr_CreateSwapTextureSetGL(mpHmd, GL_DEPTH_COMPONENT24, mRenderWidth, mRenderHeight, &(mEyeTextureDepthSet[i]));
+        //if (worked != ovrSuccess)
+        //{
+        //    return false;
+        //}
+
+        qglGenTextures(1, &(mEyeStencilBuffer[i]));
+        qglBindTexture(GL_TEXTURE_2D, mEyeStencilBuffer[i]);
+        //qglTexImage2D(GL_TEXTURE_2D, 0, GL_STENCIL_INDEX8, mRenderWidth, mRenderHeight, 0, GL_STENCIL, GL_UNSIGNED_BYTE, 0);
+        qglTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, mRenderWidth, mRenderHeight, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
     }
     
     bool success = RenderTool::CreateFrameBufferWithoutTextures(mFboMenuInfo, mRenderWidth, mRenderHeight);
@@ -155,21 +160,16 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     eyeRenderDesc[0] = d_ovr_GetRenderDesc(mpHmd, ovrEye_Left, desc.DefaultEyeFov[0]);
     eyeRenderDesc[1] = d_ovr_GetRenderDesc(mpHmd, ovrEye_Right, desc.DefaultEyeFov[1]);
     mHmdToEyeViewOffset[0] = eyeRenderDesc[0].HmdToEyeViewOffset;
-    //mHmdToEyeViewOffset[0].x *= mMeterToGameUnits;
-    //mHmdToEyeViewOffset[0].y *= mMeterToGameUnits;
-    //mHmdToEyeViewOffset[0].z *= mMeterToGameUnits;
     mHmdToEyeViewOffset[1] = eyeRenderDesc[1].HmdToEyeViewOffset;
-    //mHmdToEyeViewOffset[1].x *= mMeterToGameUnits;
-    //mHmdToEyeViewOffset[1].y *= mMeterToGameUnits;
-    //mHmdToEyeViewOffset[1].z *= mMeterToGameUnits;
-   
+
+
     // Initialize our single full screen Fov layer.
-    mLayerMain.Header.Type      = ovrLayerType_EyeFovDepth;
+    mLayerMain.Header.Type      = ovrLayerType_EyeFov;
     mLayerMain.Header.Flags = ovrLayerFlag_TextureOriginAtBottomLeft;
     mLayerMain.ColorTexture[0]  = mEyeTextureSet[0];
     mLayerMain.ColorTexture[1]  = mEyeTextureSet[1];
-    mLayerMain.DepthTexture[0] = mEyeTextureDepthSet[0];
-    mLayerMain.DepthTexture[1] = mEyeTextureDepthSet[1];
+    //mLayerMain.DepthTexture[0] = mEyeTextureDepthSet[0];
+    //mLayerMain.DepthTexture[1] = mEyeTextureDepthSet[1];
     mLayerMain.Fov[0]           = eyeRenderDesc[0].Fov;
     mLayerMain.Fov[1]           = eyeRenderDesc[1].Fov;
     mLayerMain.Viewport[0] = Recti(0, 0, mRenderWidth, mRenderHeight);
@@ -274,7 +274,7 @@ void HmdRendererOculusSdk::BeginRenderingForEye(bool leftEye)
     if (!mStartedRendering)
     {
         // render begin
-        qglDisable(GL_SCISSOR_TEST);
+        //qglDisable(GL_SCISSOR_TEST);
         qglBindVertexArray(0);
         qglUseProgramObjectARB(0);
         qglFrontFace(GL_CCW);
@@ -290,11 +290,12 @@ void HmdRendererOculusSdk::BeginRenderingForEye(bool leftEye)
         for (int i=0; i<FBO_COUNT; i++)
         {
             ovrGLTexture* pTex = (ovrGLTexture*)&mEyeTextureSet[i]->Textures[mEyeTextureSet[i]->CurrentIndex];
-            ovrGLTexture* pDepthTex = (ovrGLTexture*)&mEyeTextureDepthSet[i]->Textures[mEyeTextureDepthSet[i]->CurrentIndex];
+            //ovrGLTexture* pDepthTex = (ovrGLTexture*)&mEyeTextureDepthSet[i]->Textures[mEyeTextureDepthSet[i]->CurrentIndex];
             
             qglBindFramebuffer(GL_FRAMEBUFFER, mFboInfos[i].Fbo);
             qglFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,  pTex->OGL.TexId, 0);
-            qglFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, pDepthTex->OGL.TexId, 0);
+            //qglFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, pDepthTex->OGL.TexId, 0);
+            qglFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, mEyeStencilBuffer[i], 0);
 
             RenderTool::ClearFBO(mFboInfos[i]);
         }
@@ -347,6 +348,7 @@ void HmdRendererOculusSdk::EndFrame()
         GLboolean color_array = qglIsEnabled(GL_COLOR_ARRAY);
 
         qglDisable(GL_SCISSOR_TEST);
+        qglDisable(GL_STENCIL_TEST);
         qglBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         ovrLayerHeader* layers[2];
@@ -364,7 +366,7 @@ void HmdRendererOculusSdk::EndFrame()
         for (int i=0; i<FBO_COUNT; i++)
         {
             mEyeTextureSet[i]->CurrentIndex = (mEyeTextureSet[i]->CurrentIndex + 1) % mEyeTextureSet[i]->TextureCount;
-            mEyeTextureDepthSet[i]->CurrentIndex = (mEyeTextureDepthSet[i]->CurrentIndex + 1) % mEyeTextureDepthSet[i]->TextureCount;
+            //mEyeTextureDepthSet[i]->CurrentIndex = (mEyeTextureDepthSet[i]->CurrentIndex + 1) % mEyeTextureDepthSet[i]->TextureCount;
         }
 
         mMenuTextureSet->CurrentIndex = (mMenuTextureSet->CurrentIndex + 1) % mMenuTextureSet->TextureCount;
@@ -585,7 +587,7 @@ void HmdRendererOculusSdk::SetCurrentHmdMode(HmdMode mode)
 
     if (mCurrentHmdMode == GAMEWORLD)
     {
-        mLayerMain.Header.Type = ovrLayerType_EyeFovDepth;
+        mLayerMain.Header.Type = ovrLayerType_EyeFov;
         mLayerMenu.Header.Type = ovrLayerType_Disabled;
     }
     else
