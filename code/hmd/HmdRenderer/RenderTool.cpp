@@ -17,7 +17,8 @@ bool RenderTool::CreateFrameBuffer(FrameBufferInfo& rInfo, int width, int height
     qglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     qglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     qglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    qglTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+    qglTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
+    //qglTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 
     qglGenTextures(1, &rInfo.ColorBuffer);
     qglBindTexture(GL_TEXTURE_2D, rInfo.ColorBuffer);
@@ -31,7 +32,7 @@ bool RenderTool::CreateFrameBuffer(FrameBufferInfo& rInfo, int width, int height
     //glw_state.fbo = 1;
     qglBindFramebuffer(GL_FRAMEBUFFER, rInfo.Fbo);
     qglFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, rInfo.ColorBuffer, 0);
-    qglFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, rInfo.DepthBuffer, 0);
+    qglFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, rInfo.DepthBuffer, 0);
 
     GLenum status = qglCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE)
