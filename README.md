@@ -1,13 +1,74 @@
-Oculus Rift support for Jedi Academy (DK1 & DK2)
+Oculus Rift support for Jedi Academy
 ====================================
 
-I want to share my new project: Oculus Rift DK1 & DK2 support for Jedi Academy (for Windows and Linux)
+This project provides new binaries for Jedi Academy with added Oculus Rift support (for Windows and Linux).
+
+The original game and resources are needed to start the game.
+
 
 https://github.com/xLAva/JediAcademyLinux/tree/HmdSupportDK2
 
-This project was on my mind since the source code was released last year. Finally I had some time this summer to get started.
+https://github.com/xLAva/JediAcademyLinux/releases
 
 This Oculus Rift support implementation is designed for first person game play. It is possible to switch to 3rd-person view, but the best (and motion sickness free) experience is in first person mode.
+
+
+## Changelog
+
+### Changelog 3.0.0
+
+Changes for the VR mode
+
+* fixed Star Wars text scroll
+* fixed stencil shadow
+* changed world scaling
+* Windows:
+** use latest Oculus SDK version for Windows: Oculus SDK 0.8
+** should work now on Windows 10
+** Menus:
+*** use a quad placed in the world for all fullscreen menus
+*** correct aspect ratio
+*** correct placement of 3D elements embedded in the menus
+* Linux:
+** use latest Oculus SDK version for Linux: Oculus SDK 0.5
+
+### Changelog 2.0.1
+
+* smaller crosshair
+* use DK2 recommended texture size
+* Windows:
+** improved performance by using fullscreen in Extended Mode
+*** Extended Mode is the best option on Windows right now
+*** Direct Mode still has some performance issues with OpenGL
+** disable window compositor
+** set to higher cpu priority
+* Linux:
+** improved performance by setting noVSync
+
+### Changelog 2.0.0
+
+* DK2 support
+* Position tracking support
+* Head-Mounted-Device recenter using the start button
+
+### Changelog pre 2.0.0
+
+* Free look during in-game cut scenes
+* Removed all forced camera rotations and a lot of camera movements
+* Improved game controller support (SDL2 Xbox Controller layout)
+* Auto detection of the Rift display position
+* Enabled first person light-saber mode as default
+* Resized UI rendering
+
+
+## Performance Tips
+
+Some options can be tweaked to boost the rendering performance to make sure the game runs stable framerates in VR mode.
+
+Main Menu -> Setup -> More Video
+* set Shadows to Simple
+* disable Dynamic Glow
+* disable Light Fares
 
 
 ## Play the game
@@ -36,7 +97,7 @@ The additional asset file just contains a new default config with the gamepad al
 Also a small translation string was added for the resolution selection.
 The game runs fine without this asset file.
 
-If you want to use it, download the additional asset file and place it into the folowing folder of your "Jedi Knight III: Jedi Academy" installation:
+If you want to use it, download the additional asset file and place it into the following folder of your "Jedi Knight III: Jedi Academy" installation:
 
 https://github.com/xLAva/JediAcademyLinux/tree/HmdSupportDK2/binary/base/assets4.pk3 ->
 
@@ -49,18 +110,9 @@ The version was tested on Ubuntu 14.04 and Windows 7.
 
 #### Windows:
 
-##### Oculus Rift DK2:
+##### Oculus Rift:
 
-Extended Mode and Direct Mode are supported.
-
-Use Extended Mode for best performance. There are still some issues with OpenGL and Direct Mode.
-
-
-##### Oculus Rift DK1:
-
-Make sure you set the DK1 to Extended Desktop Mode.
-
-The current OculusSDK doesn't work with Direct Mode, OpenGL and DK1.
+The Oculus Runtime 0.8 is needed to run the game in VR mode.
 
 
 #### Ubuntu: 
@@ -75,20 +127,15 @@ sudo apt-get install libsdl2-2.0-0:i386 libopenal1:i386 libgl1-mesa-glx:i386
 
 Be sure to mark "jasphmd" as executable and start the game with it.
 
+##### Oculus Rift:
 
-## Changes and new Features for the Oculus Rift:
+The Oculus Runtime 0.5 is needed to run the game in VR mode.
 
-* Free look during in-game cut scenes
-* Removed all forced camera rotations and a lot of camera movements
-* Improved game controller support (SDL2 Xbox Controller layout)
-* Auto detection of the Rift display position
-* Enabled first person lightsaber mode as default
-* Resized UI rendering
 
 
 ## Build the game
 
-This time around I used cmake instead of Code::Blocks. It is configured to work on Linux and Windows. If you want to build the code yourself, just follow the instructions in Build.md.
+If you want to build the code yourself, just follow the instructions in Build.md.
 
 
 ## More information

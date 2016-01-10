@@ -8,12 +8,13 @@ It is possible to build the game without any VR support.
 For VR support at least one of the following libraries is needed.
 
 ### OculusSDK (optional)
-Checkout OculusSDK from my git repository into the 3rdparty/OculusSDK folder (inside the JediAcademy folder structure)
-This folder contains 
+The needed OculusSDKs are added as submodules in the 3rdparty folder (inside the JediAcademy folder structure)
+This folders contain 
 * all OculusSDK platform files merged together
 * prebuild binaries 
 * dynamic lib versions (based on https://www.jspenguin.org/software/ovrsdk/ - thx Jared Stafford)
 
+Submodule git repository:
 https://github.com/xLAva/OculusSDK
 
 
