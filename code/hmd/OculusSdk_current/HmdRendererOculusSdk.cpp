@@ -31,7 +31,7 @@ HmdRendererOculusSdk::HmdRendererOculusSdk(HmdDeviceOculusSdk* pHmdDeviceOculusS
     ,mRenderHeight(0)
     ,mGuiScale(0.5f)
     ,mGuiOffsetFactorX(0)
-    ,mMeterToGameUnits(1.0f)
+    ,mMeterToGameUnits(METER_TO_GAME)
     ,mAllowZooming(false)
     ,mUseMirrorTexture(true)
     ,mpDevice(pHmdDeviceOculusSdk)
@@ -40,7 +40,7 @@ HmdRendererOculusSdk::HmdRendererOculusSdk(HmdDeviceOculusSdk* pHmdDeviceOculusS
     ,mReadFBO(0)
     ,mCurrentHmdMode(GAMEWORLD)
 {
-    mMeterToGameUnits =  39.3701f * 1.0f; // meter to inch * JA level factor 2?
+
 }
 
 HmdRendererOculusSdk::~HmdRendererOculusSdk()

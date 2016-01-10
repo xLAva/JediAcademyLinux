@@ -502,7 +502,7 @@ bool HmdRendererOculusSdk::GetCustomViewMatrix(float* rViewMatrix, float& xPos, 
     glm::quat bodyYawRotation = glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), (float)(DEG2RAD(-bodyYaw)), glm::vec3(0.0f, 0.0f, 1.0f));
 
     
-    float meterToGame = 39.3701f * 0.5f; // meter to inch * JA level factor 2
+    float meterToGame = METER_TO_GAME;
     glm::vec3 hmdPos;
     hmdPos.x = mCurrentPosition[mEyeId].z * meterToGame;
     hmdPos.y = mCurrentPosition[mEyeId].x * meterToGame;
