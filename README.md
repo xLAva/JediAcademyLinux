@@ -23,27 +23,27 @@ Changes for the VR mode
 * fixed stencil shadow
 * changed world scaling
 * Windows:
-** use latest Oculus SDK version for Windows: Oculus SDK 0.8
-** should work now on Windows 10
-** Menus:
-*** use a quad placed in the world for all fullscreen menus
-*** correct aspect ratio
-*** correct placement of 3D elements embedded in the menus
+ * use latest Oculus SDK version for Windows: Oculus SDK 0.8
+ * should work now on Windows 10
+ * Menus:
+   * use a quad placed in the world for all fullscreen menus
+    * correct aspect ratio
+    * correct placement of 3D elements embedded in the menus
 * Linux:
-** use latest Oculus SDK version for Linux: Oculus SDK 0.5
+ * use latest Oculus SDK version for Linux: Oculus SDK 0.5
 
 ### Changelog 2.0.1
 
 * smaller crosshair
 * use DK2 recommended texture size
 * Windows:
-** improved performance by using fullscreen in Extended Mode
-*** Extended Mode is the best option on Windows right now
-*** Direct Mode still has some performance issues with OpenGL
-** disable window compositor
-** set to higher cpu priority
+ * improved performance by using fullscreen in Extended Mode
+   * Extended Mode is the best option on Windows right now
+    * Direct Mode still has some performance issues with OpenGL
+ * disable window compositor
+ * set to higher cpu priority
 * Linux:
-** improved performance by setting noVSync
+ * improved performance by setting noVSync
 
 ### Changelog 2.0.0
 
