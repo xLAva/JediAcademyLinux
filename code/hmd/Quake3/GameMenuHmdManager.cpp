@@ -103,6 +103,11 @@ void GameMenuHmdManager::Update()
         }
     }
 
+    if (mIsCameraControlled)
+    {
+        currentGameMode = GAME_CUTSCENE;
+    }
+
     if (mIsLoadingActive)
     {
         currentGameMode = LOADING_SCREEN;
@@ -112,12 +117,6 @@ void GameMenuHmdManager::Update()
     {
         currentGameMode = CINEMATIC;
     }
-
-    if (mIsCameraControlled)
-    {
-        currentGameMode = GAME_CUTSCENE;
-    }
-    
 
     if (mCurrentGameMode == currentGameMode)
     {
