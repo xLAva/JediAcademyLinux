@@ -95,7 +95,7 @@ private:
     //ovrSwapTextureSet* mEyeTextureDepthSet[2];
     GLuint mEyeStencilBuffer[2]; 
     ovrSwapTextureSet* mMenuTextureSet;
-    ovrSwapTextureSet* mMenuTextureDepthSet;
+    GLuint mMenuStencilDepthBuffer;
     
     ovrTexture* mpMirrorTexture;
     GLuint mReadFBO;

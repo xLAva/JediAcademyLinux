@@ -36,6 +36,7 @@ HmdRendererOculusSdk::HmdRendererOculusSdk(HmdDeviceOculusSdk* pHmdDeviceOculusS
     ,mUseMirrorTexture(true)
     ,mpDevice(pHmdDeviceOculusSdk)
     ,mpHmd(NULL)
+    ,mMenuStencilDepthBuffer(0)
     ,mpMirrorTexture(nullptr)
     ,mReadFBO(0)
     ,mCurrentHmdMode(GAMEWORLD)
@@ -132,12 +133,12 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
         return false;
     }
 
-    worked = d_ovr_CreateSwapTextureSetGL(mpHmd, GL_DEPTH_COMPONENT24, mRenderWidth, mRenderHeight, &(mMenuTextureDepthSet));
-    if (worked != ovrSuccess)
-    {
-        return false;
-    }
+    qglGenTextures(1, &mMenuStencilDepthBuffer);
+    qglBindTexture(GL_TEXTURE_2D, mMenuStencilDepthBuffer);
+    qglTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, mRenderWidth, mRenderHeight, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
 
+
+    
 
     worked = d_ovr_CreateMirrorTextureGL(mpHmd, GL_SRGB8_ALPHA8, mWindowWidth, mWindowHeight, &mpMirrorTexture);
     if (worked != ovrSuccess)
@@ -302,11 +303,11 @@ void HmdRendererOculusSdk::BeginRenderingForEye(bool leftEye)
 
 
         ovrGLTexture* pMenuTex = (ovrGLTexture*)&mMenuTextureSet->Textures[mMenuTextureSet->CurrentIndex];
-        ovrGLTexture* pMenuDepthTex = (ovrGLTexture*)&mMenuTextureDepthSet->Textures[mMenuTextureDepthSet->CurrentIndex];
 
         qglBindFramebuffer(GL_FRAMEBUFFER, mFboMenuInfo.Fbo);
         qglFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, pMenuTex->OGL.TexId, 0);
-        qglFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, pMenuDepthTex->OGL.TexId, 0);
+        qglFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, mMenuStencilDepthBuffer, 0);
+        
 
         RenderTool::ClearFBO(mFboMenuInfo);
     }
@@ -370,8 +371,6 @@ void HmdRendererOculusSdk::EndFrame()
         }
 
         mMenuTextureSet->CurrentIndex = (mMenuTextureSet->CurrentIndex + 1) % mMenuTextureSet->TextureCount;
-        mMenuTextureDepthSet->CurrentIndex = (mMenuTextureDepthSet->CurrentIndex + 1) % mMenuTextureDepthSet->TextureCount;
-
 
         qglBindBuffer(GL_ARRAY_BUFFER, 0);
         qglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
