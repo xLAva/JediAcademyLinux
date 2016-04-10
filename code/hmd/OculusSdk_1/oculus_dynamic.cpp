@@ -11,14 +11,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void *oculus_library_handle;
+
+using namespace OvrSdk_1;
+
+void *OvrSdk_1::oculus_library_handle;
 
 #define OVRFUNC(need, rtype, fn, params)        \
-rtype(*d_ ## fn) params;
+rtype(*OvrSdk_1::d_ ## fn) params;
 #include "ovr_dynamic_funcs.h"
 #undef OVRFUNC
 
-extern ovr_dynamic_load_result oculus_dynamic_load(const char** failed_function) {
+extern ovr_dynamic_load_result OvrSdk_1::oculus_dynamic_load(const char** failed_function) {
     const char* liboculus = getenv("LIBOVR");
     if (!liboculus) {
 #ifdef OVR_OS_WIN32
@@ -35,8 +38,8 @@ extern ovr_dynamic_load_result oculus_dynamic_load(const char** failed_function)
     }
 
 #define OVRFUNC(need, r, f, p)                                          \
-    d_##f = (pfn_##f)SDL_LoadFunction(oculus_library_handle, #f);       \
-    if (need && !d_##f) {                                               \
+    OvrSdk_1::d_##f = (pfn_##f)SDL_LoadFunction(oculus_library_handle, #f);       \
+    if (need && !OvrSdk_1::d_##f) {                                               \
         if (failed_function)                                            \
             *failed_function = #f;                                      \
         return OVR_DYNAMIC_RESULT_LIBOVR_COULD_NOT_LOAD_FUNCTION;       \

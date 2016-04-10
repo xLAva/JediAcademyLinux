@@ -4,15 +4,14 @@
  *  Copyright 2015 by Jochen Leopold <jochen.leopold@model-view.com>
  */
 
-#ifndef HMDRENDEREROCULUSSDK_H
-#define HMDRENDEREROCULUSSDK_H
+#ifndef HMDRENDEREROCULUSSDK_1_H
+#define HMDRENDEREROCULUSSDK_1_H
 
 #include "../HmdRenderer/IHmdRenderer.h"
 #include "../../renderer/qgl.h"
 
 
-
-#include <OVR_CAPI_0_8_0.h>
+#include <OVR_CAPI.h>
 #include <Extras/OVR_Math.h>
 #include "../HmdRenderer/RenderTool.h"
 
@@ -23,6 +22,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
 
+namespace OvrSdk_1
+{
 class HmdDeviceOculusSdk;
 
 class HmdRendererOculusSdk : public IHmdRenderer
@@ -85,19 +86,17 @@ private:
 
     HmdDeviceOculusSdk* mpDevice;
     ovrSession mpHmd;
-    ovrLayerEyeFovDepth mLayerMain;
+    ovrLayerEyeFov mLayerMain;
     ovrLayerQuad mLayerMenu;
     ovrVector3f mHmdToEyeViewOffset[2];
     
     ovrEyeRenderDesc mEyeRenderDesc[2];
-    ovrTexture EyeTexture[2];
-    ovrSwapTextureSet* mEyeTextureSet[2];
-    //ovrSwapTextureSet* mEyeTextureDepthSet[2];
+    ovrTextureSwapChain mEyeTextureSet[2];
     GLuint mEyeStencilBuffer[2]; 
-    ovrSwapTextureSet* mMenuTextureSet;
+    ovrTextureSwapChain mMenuTextureSet;
     GLuint mMenuStencilDepthBuffer;
     
-    ovrTexture* mpMirrorTexture;
+    ovrMirrorTexture mMirrorTexture;
     GLuint mReadFBO;
     
     ovrEyeType mEyes[2];
@@ -105,5 +104,5 @@ private:
 
     HmdMode mCurrentHmdMode;
 };
-
+}
 #endif

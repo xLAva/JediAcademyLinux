@@ -2,6 +2,9 @@
  * include all of the other C++ crap just to get something this
  * simple. */
 
+#ifndef OCULUS_DYNAMIC_1_H
+#define OCULUS_DYNAMIC_1_H
+
 #ifdef __linux__
 #define OVR_OS_LINUX
 #elif defined(WIN32)
@@ -14,6 +17,9 @@
 
 #include <OVR_CAPI.h>
 #include <OVR_CAPI_GL.h>
+
+namespace OvrSdk_1
+{
 
 #define OVRFUNC(need, rtype, fn, params)        \
 typedef rtype (*pfn_ ## fn) params;             \
@@ -29,3 +35,5 @@ typedef enum {
 
 extern void *oculus_library_handle;
 extern ovr_dynamic_load_result oculus_dynamic_load(const char** failed_function);
+}
+#endif

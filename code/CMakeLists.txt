@@ -13,15 +13,15 @@ cmake_minimum_required(VERSION 2.6)
 project(jk3)
 
 if(NOT DEFINED USE_OCULUS_SDK_0.5)
-    set(USE_OCULUS_SDK_0.5 1)
+    set(USE_OCULUS_SDK_0.5 0)
 endif()
 
 if(NOT DEFINED USE_OCULUS_SDK_0.8)
-    set(USE_OCULUS_SDK_0.8 0)
+    set(USE_OCULUS_SDK_0.8 1)
 endif()
 
-if(NOT DEFINED USE_OCULUS_SDK_CURRENT)
-    set(USE_OCULUS_SDK_CURRENT 0)
+if(NOT DEFINED USE_OCULUS_SDK_1)
+    set(USE_OCULUS_SDK_1 0)
 endif()
 
 if(NOT DEFINED FORCE_STATIC_OCULUS_SDK)
@@ -39,7 +39,7 @@ endif()
 # doesn't work without SDL2 at the moment
 set(USE_SDL2 1)
 
-message("Used Settings: Ovr0.5=${USE_OCULUS_SDK_0.5} Ovr0.8=${USE_OCULUS_SDK_0.8} OvrCurrent=${USE_OCULUS_SDK_CURRENT} OvrStatic=${FORCE_STATIC_OCULUS_SDK} OpenHMD=${USE_OPENHMD}")
+message("Used Settings: Ovr0.5=${USE_OCULUS_SDK_0.5} Ovr0.8=${USE_OCULUS_SDK_0.8} Ovr1=${USE_OCULUS_SDK_1} OvrStatic=${FORCE_STATIC_OCULUS_SDK} OpenHMD=${USE_OPENHMD}")
 
 set(PLATFORM_WIN32 0)
 set(PLATFORM_MACOS 0)
@@ -730,42 +730,43 @@ set(SSF_HMD_QUAKE3
 )
 
 
-if(USE_OCULUS_SDK_CURRENT)
-    set(SSF_HMD_OCULUS_CURRENT ${SSF_HMD_OCULUS_CURRENT}
-        hmd/OculusSdk_current/HmdDeviceOculusSdk.h
-        hmd/OculusSdk_current/HmdDeviceOculusSdk.cpp
+if(USE_OCULUS_SDK_1)
+    set(SSF_HMD_OCULUS_1 ${SSF_HMD_OCULUS_1}
+        hmd/OculusSdk_1/HmdDeviceOculusSdk.h
+        hmd/OculusSdk_1/HmdDeviceOculusSdk.cpp
     )
-    set(SSF_HMD_OCULUS_CURRENT ${SSF_HMD_OCULUS_CURRENT}
-        hmd/OculusSdk_current/HmdRendererOculusSdk.h
-        hmd/OculusSdk_current/HmdRendererOculusSdk.cpp
+    set(SSF_HMD_OCULUS_1 ${SSF_HMD_OCULUS_1}
+        hmd/OculusSdk_1/HmdRendererOculusSdk.h
+        hmd/OculusSdk_1/HmdRendererOculusSdk.cpp
     )
 
-    set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DUSE_OVR -DUSE_OVR_CURRENT")
+    set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DUSE_OVR -DUSE_OVR_1")
 
-    include_directories("${EXTERNAL_LIB_PATH}/OculusSDK/OculusSDK/LibOVR/Include")
-    include_directories("${EXTERNAL_LIB_PATH}/OculusSDK/OculusSDK/LibOVRKernel/Src")
+    include_directories("${EXTERNAL_LIB_PATH}/OculusSDK_1/OculusSDK/LibOVR/Include")
+    include_directories("${EXTERNAL_LIB_PATH}/OculusSDK_1/OculusSDK/LibOVRKernel/Src")
 
     if(NOT FORCE_STATIC_OCULUS_SDK)
         set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DOVR_DLL_IMPORT")
 
-        set(SSF_HMD_OCULUS_CURRENT ${SSF_HMD_OCULUS_CURRENT}
-            hmd/OculusSdk_current/oculus_dynamic.h
-            hmd/OculusSdk_current/oculus_dynamic.cpp
-            hmd/OculusSdk_current/ovr_dynamic_funcs.h
+        set(SSF_HMD_OCULUS_1 ${SSF_HMD_OCULUS_1}
+            hmd/OculusSdk_1/oculus_dynamic.h
+            hmd/OculusSdk_1/oculus_dynamic.cpp
+            hmd/OculusSdk_1/ovr_dynamic_funcs.h
         )
     else()
         set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DFORCE_STATIC_OCULUS_SDK")
 
+        set(SSF_HMD_OCULUS_1 ${SSF_HMD_OCULUS_1}
+            hmd/OculusSdk_1/oculus_static.h
+        )
+
         if(PLATFORM_WIN32)
-            set(SSF_HMD_OCULUS_CURRENT ${SSF_HMD_OCULUS_CURRENT}
-                hmd/OculusSdk_current/oculus_static.h
-            )
             
             link_directories("C:/WinDDK/7600.16385.1/lib/ATL/i386")
             set(EXTRA_LIBS ${EXTRA_LIBS} wsock32 ws2_32)
             
-            set(EXTRA_LIBS ${EXTRA_LIBS} debug ${EXTERNAL_LIB_PATH}/OculusSDK/OculusSDK/LibOVR/Lib/Windows/Win32/Debug/VS2013/libovr.lib)
-            set(EXTRA_LIBS ${EXTRA_LIBS} optimized ${EXTERNAL_LIB_PATH}/OculusSDK/OculusSDK/LibOVR/Lib/Windows/Win32/Release/VS2013/libovr.lib)
+            set(EXTRA_LIBS ${EXTRA_LIBS} debug ${EXTERNAL_LIB_PATH}/OculusSDK_1/OculusSDK/LibOVR/Lib/Windows/Win32/Debug/VS2013/libovr.lib)
+            set(EXTRA_LIBS ${EXTRA_LIBS} optimized ${EXTERNAL_LIB_PATH}/OculusSDK_1/OculusSDK/LibOVR/Lib/Windows/Win32/Release/VS2013/libovr.lib)
 
         elseif(PLATFORM_LINUX)
 
@@ -777,7 +778,7 @@ if(USE_OCULUS_SDK_CURRENT)
         endif()
     endif()
 
-    source_group(hmd\\OculusSdk_current FILES ${SSF_HMD_OCULUS_CURRENT})
+    source_group(hmd\\OculusSdk_1 FILES ${SSF_HMD_OCULUS_1})
 
 elseif(USE_OCULUS_SDK_0.8)
     set(SSF_HMD_OCULUS_0.8 ${SSF_HMD_OCULUS_0.8}
@@ -973,7 +974,7 @@ set(STARWARS_SOURCE_FILES ${STARWARS_SOURCE_FILES}
     ${SSF_HMD_QUAKE3}
     ${SSF_HMD_OCULUS_0.5}
     ${SSF_HMD_OCULUS_0.8}
-    ${SSF_HMD_OCULUS_CURRENT}
+    ${SSF_HMD_OCULUS_1}
 )
 
 

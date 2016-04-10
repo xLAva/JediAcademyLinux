@@ -4,19 +4,15 @@
  *  Copyright 2015 by Jochen Leopold <jochen.leopold@model-view.com>
  */
 
-#ifndef HMDDEVICEOCULUSSDK_H
-#define HMDDEVICEOCULUSSDK_H
+#ifndef HMDDEVICEOCULUSSDK_1_H
+#define HMDDEVICEOCULUSSDK_1_H
 
 #include "../HmdDevice/IHmdDevice.h"
 
-#ifdef FORCE_STATIC_OCULUS_SDK
 #include <OVR_CAPI.h>
-#include "oculus_static.h"
-#else
-#include "oculus_dynamic.h"
-#endif
 
-
+namespace OvrSdk_1
+{
 class HmdDeviceOculusSdk : public IHmdDevice
 {
 public:
@@ -64,5 +60,5 @@ private:
 
     std::string mInfo;
 };
-
+}
 #endif

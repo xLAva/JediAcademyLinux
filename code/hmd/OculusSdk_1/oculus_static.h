@@ -7,11 +7,9 @@
 #define d_ovr_Create ovr_Create
 #define d_ovr_Destroy ovr_Destroy
 #define d_ovr_GetSessionStatus ovr_GetSessionStatus
-#define d_ovr_GetEnabledCaps ovr_GetEnabledCaps
 #define d_ovr_SetEnabledCaps ovr_SetEnabledCaps
-#define d_ovr_GetTrackingCaps ovr_GetTrackingCaps
 #define d_ovr_ConfigureTracking ovr_ConfigureTracking
-#define d_ovr_RecenterPose ovr_RecenterPose
+#define d_ovr_RecenterTrackingOrigin ovr_RecenterTrackingOrigin
 #define d_ovr_GetTrackingState ovr_GetTrackingState
 #define d_ovr_GetInputState ovr_GetInputState
 #define d_ovr_SetControllerVibration ovr_SetControllerVibration
@@ -40,7 +38,17 @@
 #define d_ovrMatrix4f_OrthoSubProjection ovrMatrix4f_OrthoSubProjection
 #define d_ovr_CalcEyePoses ovr_CalcEyePoses
 #define d_ovr_GetEyePoses ovr_GetEyePoses
-#define d_ovr_CreateSwapTextureSetGL ovr_CreateSwapTextureSetGL
+
+#define d_ovr_GetTextureSwapChainCurrentIndex ovr_GetTextureSwapChainCurrentIndex
+
+#define d_ovr_CreateTextureSwapChainGL ovr_CreateTextureSwapChainGL
+#define d_ovr_GetTextureSwapChainBufferGL ovr_GetTextureSwapChainBufferGL
 #define d_ovr_CreateMirrorTextureGL ovr_CreateMirrorTextureGL
-#define d_ovr_CreateSwapTextureSetD3D11 ovr_CreateSwapTextureSetD3D11
-#define d_ovr_CreateMirrorTextureD3D11 ovr_CreateMirrorTextureD3D11
+#define d_ovr_GetMirrorTextureBufferGL ovr_GetMirrorTextureBufferGL
+
+#define d_ovr_CreateTextureSwapChainDX ovr_CreateTextureSwapChainDX
+#define d_ovr_GetTextureSwapChainBufferDX ovr_GetTextureSwapChainBufferDX
+#define d_ovr_CreateMirrorTextureDX ovr_CreateMirrorTextureDX
+#define d_ovr_GetMirrorTextureBufferDX ovr_GetMirrorTextureBufferDX
+
+#define d_ovr_CommitTextureSwapChain ovr_CommitTextureSwapChain

@@ -2,6 +2,12 @@
 #include "../SearchForDisplay.h"
 
 #ifdef FORCE_STATIC_OCULUS_SDK
+#include "oculus_static.h"
+#else
+#include "oculus_dynamic.h"
+#endif
+
+#ifdef FORCE_STATIC_OCULUS_SDK
 //#define OVR_OS_CONSOLE
 //#include "Kernel/OVR_Threads.h"
 #endif
@@ -20,7 +26,7 @@
 #endif
 
 using namespace std;
-
+using namespace OvrSdk_1;
 
 HmdDeviceOculusSdk::HmdDeviceOculusSdk()
     :mIsInitialized(false)
@@ -102,9 +108,6 @@ bool HmdDeviceOculusSdk::Init(bool allowDummyDevice)
     mDesc = d_ovr_GetHmdDesc(mpHmd);
 
     mPositionTrackingEnabled = (mDesc.AvailableTrackingCaps & ovrTrackingCap_Position) ? true : false;
-
-    // Start the sensor which provides the Rift’s pose and motion.
-    d_ovr_ConfigureTracking(mpHmd, mDesc.DefaultTrackingCaps, 0);
 
     mInfo = "HmdDeviceOculusSdk:";
 
@@ -246,7 +249,7 @@ bool HmdDeviceOculusSdk::GetPosition(float &rX, float &rY, float &rZ)
 
 void HmdDeviceOculusSdk::Recenter()
 {
-    d_ovr_RecenterPose(mpHmd);
+    d_ovr_RecenterTrackingOrigin(mpHmd);
 }
 
 void HmdDeviceOculusSdk::ConvertQuatToEuler(const float* quat, float& rYaw, float& rPitch, float& rRoll)
