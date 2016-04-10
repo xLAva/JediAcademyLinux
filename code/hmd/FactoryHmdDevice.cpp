@@ -5,15 +5,22 @@
 #include "HmdRenderer/HmdRendererOculusOpenHmd.h"
 #endif
 
-#ifdef USE_OVR_0_5
-#include "OculusSdk_0.5/HmdDeviceOculusSdk.h"
-#include "OculusSdk_0.5/HmdRendererOculusSdk.h"
+#ifdef USE_OVR_1
+#include "OculusSdk_1/HmdDeviceOculusSdk.h"
+#include "OculusSdk_1/HmdRendererOculusSdk.h"
 #endif
 
 #ifdef USE_OVR_0_8
 #include "OculusSdk_0.8/HmdDeviceOculusSdk.h"
 #include "OculusSdk_0.8/HmdRendererOculusSdk.h"
 #endif
+
+#ifdef USE_OVR_0_5
+#include "OculusSdk_0.5/HmdDeviceOculusSdk.h"
+#include "OculusSdk_0.5/HmdRendererOculusSdk.h"
+#endif
+
+
 
 #include "HmdRenderer/HmdRendererOculus.h"
 
@@ -25,6 +32,13 @@ using namespace std;
 IHmdDevice* FactoryHmdDevice::CreateHmdDevice(HmdLibrary library, bool allowDummyDevice)
 {
     vector<IHmdDevice*> devices;
+
+#ifdef USE_OVR_1
+    if (library == LIB_OVR || library == LIB_UNDEFINED)
+    {
+        devices.push_back(new OvrSdk_1::HmdDeviceOculusSdk());
+    }
+#endif
 
 #ifdef USE_OVR_0_8
     if (library == LIB_OVR || library == LIB_UNDEFINED)
@@ -100,6 +114,15 @@ IHmdRenderer* FactoryHmdDevice::CreateRendererForDevice(IHmdDevice* pDevice)
         return NULL;
     }
 
+#ifdef USE_OVR_1
+    OvrSdk_1::HmdDeviceOculusSdk* pOculusSdk_1 = dynamic_cast<OvrSdk_1::HmdDeviceOculusSdk*>(pDevice);
+    if (pOculusSdk_1 != NULL)
+    {
+        //HmdRendererOculus* pRenderer = new HmdRendererOculus();
+        OvrSdk_1::HmdRendererOculusSdk* pRenderer = new OvrSdk_1::HmdRendererOculusSdk(pOculusSdk_1);
+        return pRenderer;
+    }
+#endif
 
 #ifdef USE_OVR_0_8
     OvrSdk_0_8::HmdDeviceOculusSdk* pOculusSdk_0_8 = dynamic_cast<OvrSdk_0_8::HmdDeviceOculusSdk*>(pDevice);

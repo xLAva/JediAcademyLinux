@@ -95,7 +95,7 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     mRenderWidth = max(recommenedTex0Size.w, recommenedTex1Size.w);
     mRenderHeight = max(recommenedTex0Size.h, recommenedTex1Size.h);
    
-    ovrTextureSwapChainDesc swapChainDesc;
+    ovrTextureSwapChainDesc swapChainDesc = {};
     swapChainDesc.Type = ovrTexture_2D;
     swapChainDesc.ArraySize = 1;
     swapChainDesc.Format = OVR_FORMAT_R8G8B8A8_UNORM_SRGB;
@@ -155,10 +155,10 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     qglBindTexture(GL_TEXTURE_2D, mMenuStencilDepthBuffer);
     qglTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, mRenderWidth, mRenderHeight, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
 
-    ovrMirrorTextureDesc mirrorDesc;
+    ovrMirrorTextureDesc mirrorDesc = {};
     mirrorDesc.Format = OVR_FORMAT_R8G8B8A8_UNORM_SRGB;
-    mirrorDesc.Width = mRenderWidth;
-    mirrorDesc.Height = mRenderHeight;
+    mirrorDesc.Width = mWindowWidth;
+    mirrorDesc.Height = mWindowHeight;
     
 
     worked = d_ovr_CreateMirrorTextureGL(mpHmd, &mirrorDesc, &mMirrorTexture);
@@ -242,6 +242,13 @@ void HmdRendererOculusSdk::Shutdown()
     {
         return;
     }
+
+    for (int i=0; i<FBO_COUNT; i++)
+    {
+        qglDeleteFramebuffers(1, &mFboInfos[i].Fbo);
+        d_ovr_DestroyTextureSwapChain(mpHmd,  mEyeTextureSet[i]);
+    }
+
 
     qglDeleteFramebuffers(1, &mReadFBO);
     mReadFBO = 0;
@@ -624,11 +631,6 @@ void HmdRendererOculusSdk::SetCurrentHmdMode(HmdMode mode)
         mLayerMain.Header.Type = ovrLayerType_Disabled;
         mLayerMenu.Header.Type = ovrLayerType_Quad;
         mLayerMenu.Header.Flags = ovrLayerFlag_TextureOriginAtBottomLeft;
-
-        if (mCurrentHmdMode == MENU_QUAD)
-        {
-            mLayerMenu.Header.Flags |= ovrLayerFlag_HeadLocked;
-        }
 
         if (mCurrentHmdMode == MENU_QUAD || mCurrentHmdMode == MENU_QUAD_WORLDPOS)
         {

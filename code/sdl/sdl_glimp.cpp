@@ -1282,19 +1282,6 @@ void GLimp_Shutdown( void )
 
 	SDL_SetRelativeMouseMode(SDL_FALSE);
 	
-	//SDL_DestroyRenderer(s_pSdlRenderer);
-	SDL_GL_DeleteContext(sGlContext);
-	SDL_DestroyWindow(s_pSdlWindow);
-
-	// close the r_logFile
-	if ( glw_state.log_fp )
-	{
-		fclose( glw_state.log_fp );
-		glw_state.log_fp = 0;
-	}
-
-	IN_ShutdownGameController();
-	
 	IHmdRenderer* pHmdRenderer = ClientHmd::Get()->GetRenderer();
 	if (pHmdRenderer != NULL)
 	{
@@ -1315,6 +1302,21 @@ void GLimp_Shutdown( void )
 		pHmdDevice = NULL;
 	}
 	
+
+	//SDL_DestroyRenderer(s_pSdlRenderer);
+	SDL_GL_DeleteContext(sGlContext);
+	SDL_DestroyWindow(s_pSdlWindow);
+
+	// close the r_logFile
+	if ( glw_state.log_fp )
+	{
+		fclose( glw_state.log_fp );
+		glw_state.log_fp = 0;
+	}
+
+	IN_ShutdownGameController();
+	
+
 	
 	SDL_Quit();
 
