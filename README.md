@@ -120,7 +120,7 @@ The version was tested on Ubuntu 14.04 and Windows 7.
 
 #### Windows:
 
-The **Oculus Runtime 0.8** is needed to run the game in VR mode.
+The **Oculus Runtime 1.3** is needed to run the game in VR mode.
 
 
 #### Ubuntu: 
