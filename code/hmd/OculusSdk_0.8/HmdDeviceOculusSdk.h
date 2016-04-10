@@ -1,22 +1,17 @@
 /**
  * HMD extension for JediAcademy
  *
- *  Copyright 2014 by Jochen Leopold <jochen.leopold@model-view.com>
+ *  Copyright 2015 by Jochen Leopold <jochen.leopold@model-view.com>
  */
 
-#ifndef HMDDEVICEOCULUSSDK_0_5_H
-#define HMDDEVICEOCULUSSDK_0_5_H
+#ifndef HMDDEVICEOCULUSSDK_0_8_H
+#define HMDDEVICEOCULUSSDK_0_8_H
 
 #include "../HmdDevice/IHmdDevice.h"
 
-#ifdef FORCE_STATIC_OCULUS_SDK
-#include <OVR_CAPI_0_5_0.h>
-#include "oculus_static.h"
-#else
-#include "oculus_dynamic.h"
-#endif
+#include <OVR_CAPI_0_8_0.h>
 
-namespace OvrSdk_0_5
+namespace OvrSdk_0_8
 {
 class HmdDeviceOculusSdk : public IHmdDevice
 {
@@ -40,7 +35,10 @@ public:
     virtual void Recenter();
 
 
-    ovrHmd GetHmd() { return mpHmd; }
+    ovrSession GetHmd() { return mpHmd; }
+    ovrHmdDesc GetHmdDesc() { return mDesc; }
+    ovrGraphicsLuid GetGraphicsLuid() { return mLuid; }
+    
     bool IsDebugHmd() { return mUsingDebugHmd; }
 
 
@@ -56,7 +54,9 @@ private:
     bool mUsingDebugHmd;
     bool mPositionTrackingEnabled;
     bool mIsRotated;
-    ovrHmd mpHmd;
+    ovrSession mpHmd;
+    ovrHmdDesc mDesc;
+    ovrGraphicsLuid mLuid;
 
     std::string mInfo;
 };

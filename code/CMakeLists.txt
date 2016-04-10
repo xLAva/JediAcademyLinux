@@ -13,11 +13,15 @@ cmake_minimum_required(VERSION 2.6)
 project(jk3)
 
 if(NOT DEFINED USE_OCULUS_SDK_0.5)
-    set(USE_OCULUS_SDK_0.5 0)
+    set(USE_OCULUS_SDK_0.5 1)
+endif()
+
+if(NOT DEFINED USE_OCULUS_SDK_0.8)
+    set(USE_OCULUS_SDK_0.8 0)
 endif()
 
 if(NOT DEFINED USE_OCULUS_SDK_CURRENT)
-    set(USE_OCULUS_SDK_CURRENT 1)
+    set(USE_OCULUS_SDK_CURRENT 0)
 endif()
 
 if(NOT DEFINED FORCE_STATIC_OCULUS_SDK)
@@ -35,7 +39,7 @@ endif()
 # doesn't work without SDL2 at the moment
 set(USE_SDL2 1)
 
-message("Used Settings: Ovr0.5=${USE_OCULUS_SDK_0.5} OvrCurrent=${USE_OCULUS_SDK_CURRENT} OvrStatic=${FORCE_STATIC_OCULUS_SDK} OpenHMD=${USE_OPENHMD}")
+message("Used Settings: Ovr0.5=${USE_OCULUS_SDK_0.5} Ovr0.8=${USE_OCULUS_SDK_0.8} OvrCurrent=${USE_OCULUS_SDK_CURRENT} OvrStatic=${FORCE_STATIC_OCULUS_SDK} OpenHMD=${USE_OPENHMD}")
 
 set(PLATFORM_WIN32 0)
 set(PLATFORM_MACOS 0)
@@ -738,9 +742,8 @@ if(USE_OCULUS_SDK_CURRENT)
 
     set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DUSE_OVR -DUSE_OVR_CURRENT")
 
-    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Include")
-    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVRKernel/Src")
-
+    include_directories("${EXTERNAL_LIB_PATH}/OculusSDK/OculusSDK/LibOVR/Include")
+    include_directories("${EXTERNAL_LIB_PATH}/OculusSDK/OculusSDK/LibOVRKernel/Src")
 
     if(NOT FORCE_STATIC_OCULUS_SDK)
         set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DOVR_DLL_IMPORT")
@@ -761,8 +764,8 @@ if(USE_OCULUS_SDK_CURRENT)
             link_directories("C:/WinDDK/7600.16385.1/lib/ATL/i386")
             set(EXTRA_LIBS ${EXTRA_LIBS} wsock32 ws2_32)
             
-            set(EXTRA_LIBS ${EXTRA_LIBS} debug ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Windows/Win32/Debug/VS2013/libovr.lib)
-            set(EXTRA_LIBS ${EXTRA_LIBS} optimized ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK/OculusSDK/LibOVR/Lib/Windows/Win32/Release/VS2013/libovr.lib)
+            set(EXTRA_LIBS ${EXTRA_LIBS} debug ${EXTERNAL_LIB_PATH}/OculusSDK/OculusSDK/LibOVR/Lib/Windows/Win32/Debug/VS2013/libovr.lib)
+            set(EXTRA_LIBS ${EXTRA_LIBS} optimized ${EXTERNAL_LIB_PATH}/OculusSDK/OculusSDK/LibOVR/Lib/Windows/Win32/Release/VS2013/libovr.lib)
 
         elseif(PLATFORM_LINUX)
 
@@ -776,6 +779,55 @@ if(USE_OCULUS_SDK_CURRENT)
 
     source_group(hmd\\OculusSdk_current FILES ${SSF_HMD_OCULUS_CURRENT})
 
+elseif(USE_OCULUS_SDK_0.8)
+    set(SSF_HMD_OCULUS_0.8 ${SSF_HMD_OCULUS_0.8}
+        hmd/OculusSdk_0.8/HmdDeviceOculusSdk.h
+        hmd/OculusSdk_0.8/HmdDeviceOculusSdk.cpp
+    )
+    set(SSF_HMD_OCULUS_0.8 ${SSF_HMD_OCULUS_0.8}
+        hmd/OculusSdk_0.8/HmdRendererOculusSdk.h
+        hmd/OculusSdk_0.8/HmdRendererOculusSdk.cpp
+    )
+
+    set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DUSE_OVR -DUSE_OVR_0_8")
+
+    include_directories("${EXTERNAL_LIB_PATH}/OculusSDK_0.8/OculusSDK/LibOVR/Include")
+    include_directories("${EXTERNAL_LIB_PATH}/OculusSDK_0.8/OculusSDK/LibOVRKernel/Src")
+
+    if(NOT FORCE_STATIC_OCULUS_SDK)
+        set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DOVR_DLL_IMPORT")
+
+        set(SSF_HMD_OCULUS_0.8 ${SSF_HMD_OCULUS_0.8}
+            hmd/OculusSdk_0.8/oculus_dynamic.h
+            hmd/OculusSdk_0.8/oculus_dynamic.cpp
+            hmd/OculusSdk_0.8/ovr_dynamic_funcs.h
+        )
+    else()
+        set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DFORCE_STATIC_OCULUS_SDK")
+
+        if(PLATFORM_WIN32)
+            set(SSF_HMD_OCULUS_0.8 ${SSF_HMD_OCULUS_0.8}
+                hmd/OculusSdk_0.8/oculus_static.h
+            )
+            
+            link_directories("C:/WinDDK/7600.16385.1/lib/ATL/i386")
+            set(EXTRA_LIBS ${EXTRA_LIBS} wsock32 ws2_32)
+            
+            set(EXTRA_LIBS ${EXTRA_LIBS} debug ${EXTERNAL_LIB_PATH}/OculusSDK_0.8/OculusSDK/LibOVR/Lib/Windows/Win32/Debug/VS2013/libovr.lib)
+            set(EXTRA_LIBS ${EXTRA_LIBS} optimized ${EXTERNAL_LIB_PATH}/OculusSDK_0.8/OculusSDK/LibOVR/Lib/Windows/Win32/Release/VS2013/libovr.lib)
+
+        elseif(PLATFORM_LINUX)
+
+
+
+        elseif(PLATFORM_MACOS)
+
+
+        endif()
+    endif()
+
+    source_group(hmd\\OculusSdk_0.8 FILES ${SSF_HMD_OCULUS_0.8})
+
 elseif(USE_OCULUS_SDK_0.5)
     set(SSF_HMD_OCULUS_0.5 ${SSF_HMD_OCULUS_0.5}
         hmd/OculusSdk_0.5/HmdDeviceOculusSdk.h
@@ -788,7 +840,7 @@ elseif(USE_OCULUS_SDK_0.5)
 
     set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DUSE_OVR -DUSE_OVR_0_5")
 
-    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK_0.5/OculusSDK/LibOVR/Include")
+    include_directories("${EXTERNAL_LIB_PATH}/OculusSDK_0.5/OculusSDK/LibOVR/Include")
 
     if(NOT FORCE_STATIC_OCULUS_SDK)
         set(CUSTOM_COMPILE_FLAGS_ALL "${CUSTOM_COMPILE_FLAGS_ALL} -DOVR_DLL_IMPORT")
@@ -810,27 +862,27 @@ elseif(USE_OCULUS_SDK_0.5)
             link_directories("C:/WinDDK/7600.16385.1/lib/ATL/i386")
             set(EXTRA_LIBS ${EXTRA_LIBS} wsock32 ws2_32)
             
-            set(EXTRA_LIBS ${EXTRA_LIBS} debug ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK_0.5/OculusSDK/LibOVR/Lib/Windows/Win32/Debug/VS2013/libovr.lib)
-            set(EXTRA_LIBS ${EXTRA_LIBS} optimized ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK_0.5/OculusSDK/LibOVR/Lib/Windows/Win32/Release/VS2013/libovr.lib)
+            set(EXTRA_LIBS ${EXTRA_LIBS} debug ${EXTERNAL_LIB_PATH}/OculusSDK_0.5/OculusSDK/LibOVR/Lib/Windows/Win32/Debug/VS2013/libovr.lib)
+            set(EXTRA_LIBS ${EXTRA_LIBS} optimized ${EXTERNAL_LIB_PATH}/OculusSDK_0.5/OculusSDK/LibOVR/Lib/Windows/Win32/Release/VS2013/libovr.lib)
 
         elseif(PLATFORM_LINUX)
 
             if(CMAKE_BUILD_TYPE STREQUAL "DEBUG")
-                set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK_0.5/OculusSDK/LibOVRKernel/Lib/Linux/i386/Debug/libOVRKernel.a)
-                set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK_0.5/OculusSDK/LibOVR/Lib/Linux/i386/Debug/libOVR.a)
-                set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK_0.5/OculusSDK/LibOVR/Lib/Linux/i386/Debug/libOVRRT32_0.so.5)
+                set(EXTRA_LIBS ${EXTRA_LIBS} ${EXTERNAL_LIB_PATH}/OculusSDK_0.5/OculusSDK/LibOVRKernel/Lib/Linux/i386/Debug/libOVRKernel.a)
+                set(EXTRA_LIBS ${EXTRA_LIBS} ${EXTERNAL_LIB_PATH}/OculusSDK_0.5/OculusSDK/LibOVR/Lib/Linux/i386/Debug/libOVR.a)
+                set(EXTRA_LIBS ${EXTRA_LIBS} ${EXTERNAL_LIB_PATH}/OculusSDK_0.5/OculusSDK/LibOVR/Lib/Linux/i386/Debug/libOVRRT32_0.so.5)
             else()
-                set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK_0.5/OculusSDK/LibOVRKernel/Lib/Linux/i386/Release/libOVRKernel.a)
-                set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK_0.5/OculusSDK/LibOVR/Lib/Linux/i386/Release/libOVR.a)
-                set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK_0.5/OculusSDK/LibOVR/Lib/Linux/i386/Release/libOVRRT32_0.so.5)
+                set(EXTRA_LIBS ${EXTRA_LIBS} ${EXTERNAL_LIB_PATH}/OculusSDK_0.5/OculusSDK/LibOVRKernel/Lib/Linux/i386/Release/libOVRKernel.a)
+                set(EXTRA_LIBS ${EXTRA_LIBS} ${EXTERNAL_LIB_PATH}/OculusSDK_0.5/OculusSDK/LibOVR/Lib/Linux/i386/Release/libOVR.a)
+                set(EXTRA_LIBS ${EXTRA_LIBS} ${EXTERNAL_LIB_PATH}/OculusSDK_0.5/OculusSDK/LibOVR/Lib/Linux/i386/Release/libOVRRT32_0.so.5)
             endif()
 
         elseif(PLATFORM_MACOS)
 
                 if(CMAKE_BUILD_TYPE STREQUAL "DEBUG")
-                        set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK_0.5/OculusSDK/LibOVR/Lib/MacOS/Debug/i386/libovr.a)
+                        set(EXTRA_LIBS ${EXTRA_LIBS} ${EXTERNAL_LIB_PATH}/OculusSDK_0.5/OculusSDK/LibOVR/Lib/MacOS/Debug/i386/libovr.a)
                 else()
-                        set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/OculusSDK_0.5/OculusSDK/LibOVR/Lib/MacOS/Release/i386/libovr.a)
+                        set(EXTRA_LIBS ${EXTRA_LIBS} ${EXTERNAL_LIB_PATH}/OculusSDK_0.5/OculusSDK/LibOVR/Lib/MacOS/Release/i386/libovr.a)
                 endif()
         endif()
     endif()
@@ -920,6 +972,7 @@ set(STARWARS_SOURCE_FILES ${STARWARS_SOURCE_FILES}
     ${SSF_HMD_RENDERER}
     ${SSF_HMD_QUAKE3}
     ${SSF_HMD_OCULUS_0.5}
+    ${SSF_HMD_OCULUS_0.8}
     ${SSF_HMD_OCULUS_CURRENT}
 )
 

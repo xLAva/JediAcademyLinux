@@ -57,5 +57,3 @@ OVRFUNC(true,  ovrBool,          ovrHmd_StopPerfLog,             (ovrHmd hmd))
 OVRFUNC(true,  ovrMatrix4f,      ovrMatrix4f_Projection,         (ovrFovPort fov, float znear, float zfar, unsigned int projectionModFlags))
 OVRFUNC(true,  ovrMatrix4f,      ovrMatrix4f_OrthoSubProjection, (ovrMatrix4f projection, ovrVector2f orthoScale, float orthoDistance, float hmdToEyeViewOffsetX))
 OVRFUNC(true,  double,           ovr_WaitTillTime,               (double absTime))
-
-

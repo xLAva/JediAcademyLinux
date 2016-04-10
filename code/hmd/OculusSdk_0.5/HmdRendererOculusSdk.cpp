@@ -21,6 +21,7 @@
 
 using namespace OVR;
 using namespace std;
+using namespace OvrSdk_0_5;
 
 HmdRendererOculusSdk::HmdRendererOculusSdk(HmdDeviceOculusSdk* pHmdDeviceOculusSdk)
     :mIsInitialized(false)

@@ -2,8 +2,8 @@
  * include all of the other C++ crap just to get something this
  * simple. */
 
-#ifndef OCULUS_DYNAMIC_0_5_H
-#define OCULUS_DYNAMIC_0_5_H
+#ifndef OCULUS_DYNAMIC_0_8_H
+#define OCULUS_DYNAMIC_0_8_H
 
 #ifdef __linux__
 #define OVR_OS_LINUX
@@ -15,11 +15,10 @@
 #error "Unknown O/S"
 #endif
 
-// stupid OVR include bug
-#define OVR_OS_CONSOLE
-#include <OVR_CAPI_0_5_0.h>
+#include <OVR_CAPI_0_8_0.h>
+#include <OVR_CAPI_GL.h>
 
-namespace OvrSdk_0_5
+namespace OvrSdk_0_8
 {
 
 #define OVRFUNC(need, rtype, fn, params)        \
@@ -36,6 +35,5 @@ typedef enum {
 
 extern void *oculus_library_handle;
 extern ovr_dynamic_load_result oculus_dynamic_load(const char** failed_function);
-
 }
 #endif

@@ -3,6 +3,6 @@
        url = https://github.com/xLAva/OculusSDK.git
        branch = master
 [submodule "3rdparty/OculusSDK_0.8"]
-       path = 3rdparty/OculusSDK
-       url = https://github.com/xLAva/OculusSDK.git
-       branch = 0.8
+	path = 3rdparty/OculusSDK_0.8
+	url = https://github.com/xLAva/OculusSDK
+	branch = 0.8

@@ -10,9 +10,9 @@
 #include "OculusSdk_0.5/HmdRendererOculusSdk.h"
 #endif
 
-#ifdef USE_OVR_CURRENT
-#include "OculusSdk_current/HmdDeviceOculusSdk.h"
-#include "OculusSdk_current/HmdRendererOculusSdk.h"
+#ifdef USE_OVR_0_8
+#include "OculusSdk_0.8/HmdDeviceOculusSdk.h"
+#include "OculusSdk_0.8/HmdRendererOculusSdk.h"
 #endif
 
 #include "HmdRenderer/HmdRendererOculus.h"
@@ -26,14 +26,19 @@ IHmdDevice* FactoryHmdDevice::CreateHmdDevice(HmdLibrary library, bool allowDumm
 {
     vector<IHmdDevice*> devices;
 
-
-#ifdef USE_OVR
+#ifdef USE_OVR_0_8
     if (library == LIB_OVR || library == LIB_UNDEFINED)
     {
-        devices.push_back(new HmdDeviceOculusSdk());
+        devices.push_back(new OvrSdk_0_8::HmdDeviceOculusSdk());
     }
 #endif
-
+    
+#ifdef USE_OVR_0_5
+    if (library == LIB_OVR || library == LIB_UNDEFINED)
+    {
+        devices.push_back(new OvrSdk_0_5::HmdDeviceOculusSdk());
+    }
+#endif
     
 #ifdef USE_OPENHMD
     if (library == LIB_OPENHMD || library == LIB_UNDEFINED)
@@ -96,14 +101,22 @@ IHmdRenderer* FactoryHmdDevice::CreateRendererForDevice(IHmdDevice* pDevice)
     }
 
 
-
-
-#ifdef USE_OVR
-    HmdDeviceOculusSdk* pOculusSdk = dynamic_cast<HmdDeviceOculusSdk*>(pDevice);
-    if (pOculusSdk != NULL)
+#ifdef USE_OVR_0_8
+    OvrSdk_0_8::HmdDeviceOculusSdk* pOculusSdk_0_8 = dynamic_cast<OvrSdk_0_8::HmdDeviceOculusSdk*>(pDevice);
+    if (pOculusSdk_0_8 != NULL)
     {
         //HmdRendererOculus* pRenderer = new HmdRendererOculus();
-        HmdRendererOculusSdk* pRenderer = new HmdRendererOculusSdk(pOculusSdk);
+        OvrSdk_0_8::HmdRendererOculusSdk* pRenderer = new OvrSdk_0_8::HmdRendererOculusSdk(pOculusSdk_0_8);
+        return pRenderer;
+    }
+#endif
+
+#ifdef USE_OVR_0_5
+    OvrSdk_0_5::HmdDeviceOculusSdk* pOculusSdk_0_5 = dynamic_cast<OvrSdk_0_5::HmdDeviceOculusSdk*>(pDevice);
+    if (pOculusSdk_0_5 != NULL)
+    {
+        //HmdRendererOculus* pRenderer = new HmdRendererOculus();
+        OvrSdk_0_5::HmdRendererOculusSdk* pRenderer = new OvrSdk_0_5::HmdRendererOculusSdk(pOculusSdk_0_5);
         return pRenderer;
     }
 #endif

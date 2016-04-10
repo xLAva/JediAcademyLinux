@@ -106,7 +106,7 @@ static void QueKeyEvent(int time, sysEventType_t type, int value, int value2, in
 	IHmdRenderer* pRenderer = ClientHmd::Get()->GetRenderer();
 	if (pRenderer)
 	{
-		static HmdRendererOculusSdk* pHmdRenderer = dynamic_cast<HmdRendererOculusSdk*>(pRenderer);
+		static OvrSdk_0_5::HmdRendererOculusSdk* pHmdRenderer = dynamic_cast<OvrSdk_0_5::HmdRendererOculusSdk*>(pRenderer);
 		if (pHmdRenderer)
 		{
 			pHmdRenderer->DismissHealthSafetyWarning();
@@ -301,7 +301,7 @@ int GLW_SetMode(int mode, qboolean fullscreen )
 	}
 	
 #ifdef USE_OVR_0_5
-	HmdRendererOculusSdk* pHmdRenderer = dynamic_cast<HmdRendererOculusSdk*>(ClientHmd::Get()->GetRenderer());
+	OvrSdk_0_5::HmdRendererOculusSdk* pHmdRenderer = dynamic_cast<OvrSdk_0_5::HmdRendererOculusSdk*>(ClientHmd::Get()->GetRenderer());
 	if (pHmdRenderer)
 	{
 		SDL_SysWMinfo sysInfo;

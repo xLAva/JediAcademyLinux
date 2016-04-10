@@ -1,20 +1,18 @@
 /**
  * HMD extension for JediAcademy
  *
- *  Copyright 2014 by Jochen Leopold <jochen.leopold@model-view.com>
+ *  Copyright 2015 by Jochen Leopold <jochen.leopold@model-view.com>
  */
 
-#ifndef HMDRENDEREROCULUSSDK_0_5_H
-#define HMDRENDEREROCULUSSDK_0_5_H
+#ifndef HMDRENDEREROCULUSSDK_0_8_H
+#define HMDRENDEREROCULUSSDK_0_8_H
 
 #include "../HmdRenderer/IHmdRenderer.h"
 #include "../../renderer/qgl.h"
 
 
-
-#include <OVR_CAPI_0_5_0.h>
+#include <OVR_CAPI_0_8_0.h>
 #include <Extras/OVR_Math.h>
-
 #include "../HmdRenderer/RenderTool.h"
 
 #define GLM_FORCE_RADIANS
@@ -24,7 +22,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
 
-namespace OvrSdk_0_5
+namespace OvrSdk_0_8
 {
 class HmdDeviceOculusSdk;
 
@@ -32,14 +30,14 @@ class HmdRendererOculusSdk : public IHmdRenderer
 {
 public:
     HmdRendererOculusSdk(HmdDeviceOculusSdk* pHmdDeviceOculusSdk);
-    virtual ~HmdRendererOculusSdk() override;
+    virtual ~HmdRendererOculusSdk();
 
     virtual bool Init(int windowWidth, int windowHeight, PlatformInfo platformInfo) override;
     virtual void Shutdown() override;
 
     virtual std::string GetInfo() override;
 
-    virtual bool HandlesSwap() override;
+    virtual bool HandlesSwap()override;
     virtual bool GetRenderResolution(int& rWidth, int& rHeight) override;
 
     virtual void StartFrame() override;
@@ -53,20 +51,17 @@ public:
     virtual bool Get2DOrtho(double &rLeft, double &rRight, double &rBottom, double &rTop, double &rZNear, double &rZFar) override;
 
     virtual void SetCurrentHmdMode(HmdMode mode) override;
-
-    bool AttachToWindow(void* pWindowHandle);
-    void DismissHealthSafetyWarning();
+    virtual bool HasQuadWorldPosSupport() override { return true; }
 
 protected:
     static void ConvertMatrix(const ovrMatrix4f& from, float* rTo);
 
 private:
-    bool FrameNeedsRendering();
-    void HandleSafetyWarning();
     void PreparePlatform();
     
     static const int FBO_COUNT = 2;
     RenderTool::FrameBufferInfo mFboInfos[FBO_COUNT];
+    RenderTool::FrameBufferInfo mFboMenuInfo;
 
     bool mIsInitialized;
     bool mStartedFrame;
@@ -83,24 +78,33 @@ private:
     float mGuiScale;
     float mGuiOffsetFactorX;
 
-    bool mDismissHealthSafetyWarning;
+    float mMeterToGameUnits;
+
     bool mAllowZooming;
-    
-    HmdMode mCurrentHmdMode;
-    
+
+    bool mUseMirrorTexture;
+
     HmdDeviceOculusSdk* mpDevice;
-    ovrHmd mpHmd;
+    ovrSession mpHmd;
+    ovrLayerEyeFovDepth mLayerMain;
+    ovrLayerQuad mLayerMenu;
+    ovrVector3f mHmdToEyeViewOffset[2];
+    
     ovrEyeRenderDesc mEyeRenderDesc[2];
     ovrTexture EyeTexture[2];
-
+    ovrSwapTextureSet* mEyeTextureSet[2];
+    //ovrSwapTextureSet* mEyeTextureDepthSet[2];
+    GLuint mEyeStencilBuffer[2]; 
+    ovrSwapTextureSet* mMenuTextureSet;
+    GLuint mMenuStencilDepthBuffer;
+    
+    ovrTexture* mpMirrorTexture;
+    GLuint mReadFBO;
+    
     ovrEyeType mEyes[2];
     ovrPosef mEyePoses[2];
-    ovrFrameTiming mFrameTiming;
 
-    glm::quat mCurrentOrientations[2];
-    glm::vec3 mCurrentPosition[2];
-
-
+    HmdMode mCurrentHmdMode;
 };
 }
 #endif
