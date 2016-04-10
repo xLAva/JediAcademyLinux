@@ -15,6 +15,16 @@ This Oculus Rift support implementation is designed for first person game play. 
 
 ## Changelog
 
+### Changelog 3.1.0
+
+Changes for the VR mode
+
+* changed world scaling again
+* fixed missing Headtracking in cutscene
+* fixed too dark 3d models in menu with activated volumetric shadow
+* Windows:
+ * use latest Oculus SDK version for Windows: Oculus SDK 1.3
+
 ### Changelog 3.0.0
 
 Changes for the VR mode
