@@ -85,7 +85,16 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
         mGuiOffsetFactorX = 0;
         mAllowZooming = true;
     }
-    
+    else if (desc.Type == ovrHmd_CV1)
+    {
+        mGuiScale = 0.475f;
+        mGuiOffsetFactorX = 11.0f;
+    }
+    else
+    {
+        mGuiScale = 0.50f;
+        mGuiOffsetFactorX = 0;
+    }
 
     // Configure Stereo settings.
 
@@ -594,7 +603,7 @@ bool HmdRendererOculusSdk::Get2DViewport(int& rX, int& rY, int& rW, int& rH)
     rH = mRenderWidth *guiScale * aspect;
 
     rX = (mRenderWidth - rW)/2.0f;
-    int xOff = mGuiOffsetFactorX > 0 ? (mRenderWidth / mGuiOffsetFactorX) : 0;
+    int xOff = mGuiOffsetFactorX != 0 ? (mRenderWidth / mGuiOffsetFactorX) : 0;
     xOff *= mEyeId == 0 ? 1 : -1;
     rX += xOff;
 
