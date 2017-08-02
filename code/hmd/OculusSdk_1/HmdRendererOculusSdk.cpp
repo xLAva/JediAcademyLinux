@@ -92,8 +92,8 @@ bool HmdRendererOculusSdk::Init(int windowWidth, int windowHeight, PlatformInfo 
     }
     else
     {
-        mGuiScale = 0.50f;
-        mGuiOffsetFactorX = 0;
+        mGuiScale = 0.475f;
+        mGuiOffsetFactorX = 11.0f;
     }
 
     // Configure Stereo settings.
