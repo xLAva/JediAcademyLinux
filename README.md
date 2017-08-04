@@ -15,6 +15,11 @@ This Oculus Rift support implementation is designed for first person game play. 
 
 ## Changelog
 
+
+### Changelog 3.1.1
+
+* added correct Hud render settings for CV1 (Consumer Version 1)
+
 ### Changelog 3.1.0
 
 Changes for the VR mode
