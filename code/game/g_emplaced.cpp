@@ -1036,15 +1036,18 @@ extern void CG_ChangeWeapon( int num );
 				G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].weaponMdl, ent->handRBolt, 0 );
 			}
 
-			if ( ent->s.number < MAX_CLIENTS )
+			if (!cg_useHmd.integer)
 			{
-				if ( ent->client->ps.weapon == WP_SABER )
+				if ( ent->s.number < MAX_CLIENTS )
 				{
-					//gi.cvar_set( "cg_thirdperson", "1" );
-				}
-				else if ( ent->client->ps.weapon != WP_SABER && cg_gunAutoFirst.integer )
-				{
-					//gi.cvar_set( "cg_thirdperson", "0" );
+					if ( ent->client->ps.weapon == WP_SABER )
+					{
+						gi.cvar_set( "cg_thirdperson", "1" );
+					}
+					else if ( ent->client->ps.weapon != WP_SABER && cg_gunAutoFirst.integer )
+					{
+						gi.cvar_set( "cg_thirdperson", "0" );
+					}
 				}
 			}
 		}
