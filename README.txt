@@ -2,7 +2,7 @@ JediAcademyLinux
 ================
 
 Jedi Knight III: Jedi Academy (Single Player Linux Port).
-https://github.com/xLAva/JediAcademyLinux
+https://codeberg.org/xLAva/JediAcademyLinux
 
 The current state is playable without any major problems.
 I didn't play the whole game yet, but I tested at least more than half of the levels. 
