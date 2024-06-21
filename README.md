@@ -89,7 +89,7 @@ Main Menu -> Setup -> More Video
 
 ### Binary:
 
-There are binaries for Linux and Windows checked into the Github repository, so if you want to just play the Oculus Rift version, download the binary files and start playing right away.
+There are binaries for Linux and Windows checked into the git repository, so if you want to just play the Oculus Rift version, download the binary files and start playing right away.
 
 https://codeberg.org/xLAva/JediAcademyLinux/src/branch/HmdSupportDK2/binary/win32
 
