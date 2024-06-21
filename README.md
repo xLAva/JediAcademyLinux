@@ -6,9 +6,8 @@ This project provides new binaries for Jedi Academy with added Oculus Rift suppo
 The original game and resources are needed to start the game.
 
 
-https://github.com/xLAva/JediAcademyLinux/tree/HmdSupportDK2
+https://codeberg.org/xLAva/JediAcademyLinux/src/branch/HmdSupportDK2
 
-https://github.com/xLAva/JediAcademyLinux/releases
 
 This Oculus Rift support implementation is designed for first person game play. It is possible to switch to 3rd-person view, but the best (and motion sickness free) experience is in first person mode.
 
@@ -92,9 +91,9 @@ Main Menu -> Setup -> More Video
 
 There are binaries for Linux and Windows checked into the Github repository, so if you want to just play the Oculus Rift version, download the binary files and start playing right away.
 
-https://github.com/xLAva/JediAcademyLinux/tree/HmdSupportDK2/binary/win32
+https://codeberg.org/xLAva/JediAcademyLinux/src/branch/HmdSupportDK2/binary/win32
 
-https://github.com/xLAva/JediAcademyLinux/tree/HmdSupportDK2/binary/linux_i386
+https://codeberg.org/xLAva/JediAcademyLinux/src/branch/HmdSupportDK2/binary/linux_i386
 
 Copy all the files from the Windows or Linux platform folder into the following directory of your "Jedi Knight III: Jedi Academy" installation:
 
@@ -114,7 +113,7 @@ The game runs fine without this asset file.
 
 If you want to use it, download the additional asset file and place it into the following folder of your "Jedi Knight III: Jedi Academy" installation:
 
-https://github.com/xLAva/JediAcademyLinux/tree/HmdSupportDK2/binary/base/assets4.pk3 ->
+https://codeberg.org/xLAva/JediAcademyLinux/src/branch/HmdSupportDK2/binary/base/assets4.pk3 ->
 
 [Jedi Academy Install Folder]/GameData/base/
 
